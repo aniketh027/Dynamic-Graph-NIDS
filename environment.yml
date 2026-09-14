@@ -1,0 +1,20 @@
+# Conda alternative to requirements.txt (Phase 1 only).
+#   conda env create -f environment.yml
+#   conda activate nids-graph
+#
+# The torch / torch-geometric stack is intentionally excluded; add it in the
+# modelling phase following requirements-gnn.txt.
+name: nids-graph
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip
+  - numpy>=1.26
+  - pandas>=2.2
+  - pyyaml>=6.0
+  - scikit-learn>=1.4
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - tqdm>=4.66
+  - pytest>=8.0

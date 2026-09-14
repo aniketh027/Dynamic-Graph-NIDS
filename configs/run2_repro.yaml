@@ -1,0 +1,150 @@
+# ---------------------------------------------------------------------------
+# Default configuration
+# Project: Dynamic Graph Optimization and Automated Feature Extraction for
+#          Efficient Intrusion Detection in Network Systems
+#
+# Phase 1 (environment foundation) only.
+# NOTE: This file intentionally contains NO CIC-IDS2018 column names, feature
+# names or schema assumptions. Those are added only after the real dataset has
+# been inspected with scripts/inspect_dataset.py.
+# ---------------------------------------------------------------------------
+
+project:
+  name: dynamic-graph-nids
+  # Global random seed used for every stochastic step (splits, init, sampling).
+  seed: 42
+
+paths:
+  # Where the raw dataset CSVs are placed by hand (never written by code).
+  raw_data_dir: data/raw
+  # Primary output path: cleaned / encoded / windowed artefacts.
+  processed_data_dir: data/processed
+  # Secondary outputs.
+  results_dir: results
+  plots_dir: plots
+  checkpoints_dir: checkpoints
+  logs_dir: logs
+  # Optional: restrict processing to a single file inside raw_data_dir.
+  # null  -> discover every matching file in raw_data_dir
+  # "x.csv" -> use only that file
+  dataset_file: null
+
+debug:
+  # Debug mode = read only a truncated slice of every file so the whole
+  # pipeline can be exercised quickly on a laptop.
+  enabled: false
+  row_limit: 100000
+
+temporal:
+  # Temporal window T: number of consecutive time steps / flow snapshots that
+  # form one temporal sample. Consumed later by the graph construction stage.
+  window_size: 5
+
+split:
+  # Must sum to 1.0 (validated at load time).
+  train: 0.70
+  validation: 0.10
+  test: 0.20
+
+inspection:
+  # Rows per chunk when scanning large CSVs (keeps memory bounded).
+  chunk_size: 500000
+  # File patterns treated as candidate dataset files.
+  file_patterns:
+    - "*.csv"
+    - "*.csv.gz"
+  # Rows sampled per column when guessing whether a text column is a timestamp.
+  timestamp_sample_size: 200
+  # A column is only reported as a *candidate label* by cardinality if it has
+  # at most this many distinct values.
+  max_label_cardinality: 50
+
+loader:
+  # Day CSV used for loader development and tests, relative to raw_data_dir.
+  # The CSV files (not the Parquet files) are the primary input for the
+  # temporal pipeline, because only the CSVs carry a Timestamp column.
+  primary_csv: csv/03-01-2018.csv
+
+  # ---- cleaning policy for the 78 model feature columns -------------------
+  # Raw CIC-IDS2018 rate columns (Flow Byts/s, Flow Pkts/s) contain +Infinity
+  # (rate over a zero-length flow) and NaN (0 bytes over a zero-length flow).
+  # Value substituted for NaN.
+  nan_replacement: 0.0
+  # How +/-inf is replaced:
+  #   column_finite_extremum -> largest/smallest finite value in that column,
+  #                             so "inf was above everything else" survives
+  #   constant               -> infinity_replacement for both signs
+  infinity_policy: column_finite_extremum
+  infinity_replacement: 0.0
+
+  # Negative values are NEVER clipped here: in Init Fwd/Bwd Win Byts the only
+  # negative value present is -1, the CICFlowMeter "not observed" sentinel.
+
+  # Measure exact / temporal / conflicting duplicates (reported, never removed).
+  compute_duplicate_stats: true
+  # Cross-check the parsed row count against the file's physical line count.
+  verify_raw_line_count: true
+
+profiling:
+  # ---- Stage B: multi-day intake and global corpus profiling ---------------
+  # Measure-only. Nothing here cleans, replaces, deduplicates or encodes; the
+  # raw files are opened read-only and every artefact goes under results_dir.
+
+  # Corpus location, relative to raw_data_dir. The CSV copy is the primary
+  # temporal source: the Parquet copy has no Timestamp column, so it cannot
+  # support the temporal HTGraph pipeline. Parquet is compared on metadata only.
+  csv_subdir: csv
+  parquet_subdir: parquet
+  # Files are discovered by glob (searched recursively) and then sorted by
+  # (capture date parsed from the filename, filename) - never by the order the
+  # filesystem returns.
+  csv_patterns:
+    - "*.csv"
+
+  # Rows per chunk in the data pass. 200k x 78 float64 is ~125 MB, which keeps
+  # peak memory bounded even for the 3.8 GiB day file. Raise it if you have RAM
+  # to spare; lower it on a smaller machine.
+  chunk_size: 200000
+
+  # Duplicate measurement. Per-file is cheap; the corpus-wide pass additionally
+  # holds three uint64 row hashes plus an int16 label code for every row
+  # (~26 bytes x 16.2M rows = ~421 MB). Set compute_global_duplicates to false
+  # to keep per-file measurement but skip the corpus-wide reduction.
+  compute_duplicates: true
+  compute_global_duplicates: true
+
+  # Compare the Parquet copy using its footer metadata only (row/column counts,
+  # schema) - never by reading column data.
+  compare_parquet: true
+
+  # Artefact directory, relative to results_dir.
+  output_subdir: data_profile
+
+  # Cap on stored examples per file (embedded-header positions, unparsed
+  # timestamps, reported label combinations) so the JSON stays readable.
+  max_examples: 64
+
+preprocessing:
+  # ---- Stage C: cleaning, windowing, and split construction ----------------
+  # The raw CSVs are opened read-only; nothing under data/raw/ is modified.
+  # All artefacts go under processed_data_dir/<output_subdir>.
+
+  # Rows per chunk when streaming each day CSV for the hash/exclusion passes.
+  # 200k x 78 float64 is ~125 MB — keeps peak memory bounded.
+  chunk_size: 200000
+
+  # Minimum number of T=5 test windows required for a class to be included in
+  # per-class performance claims.  Classes that fall below this threshold are
+  # fully documented in the split metadata but excluded from primary per-class
+  # evaluation; they are never silently merged into another class.
+  rare_class_min_test_windows: 30
+
+  # Output sub-directory under processed_data_dir.
+  output_subdir: preprocessed_run2
+
+  # Persist cleaning statistics (exact/conflict/temporal counts) to JSON.
+  save_cleaning_stats: true
+
+  # Persist per-split window counts and class distributions to JSON.
+  save_split_metadata: true
+

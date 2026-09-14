@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# Graph / deep-learning dependencies - NOT INSTALLED YET.
+#
+# Install only when the modelling phase starts, i.e. after the real CIC-IDS2018
+# schema has been inspected and the preprocessing pipeline exists.
+#
+# CPU-only install:
+#   pip install -r requirements.txt
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements-gnn.txt
+#
+# CUDA 12.x install (check the exact index URL for your driver first at
+# https://pytorch.org/get-started/locally/ ):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements-gnn.txt
+#
+# Notes
+# - torch >= 2.6 is the first line with official CPython 3.13 wheels.
+# - torch-geometric >= 2.6 is pure Python and needs no compiled extensions for
+#   the layers used here; the optional torch-scatter / torch-sparse wheels are
+#   only required for some sampling utilities and are left out on purpose.
+# - Install torch FIRST (from the PyTorch index), then this file, so that
+#   torch-geometric resolves against the already-installed torch build.
+# ---------------------------------------------------------------------------
+
+torch>=2.6,<3.0
+torch-geometric>=2.6,<3.0
+networkx>=3.0,<4.0

@@ -1,0 +1,266 @@
+{
+  "generated_at_utc": "2026-09-06T12:18:13.332161+00:00",
+  "elapsed_seconds": 114.38834,
+  "dataset": {
+    "source_file": "02-20-2018.csv",
+    "source_path": "C:\\Project\\ComputerNetworks\\data\\raw\\csv\\02-20-2018.csv",
+    "schema_variant": "extended_84",
+    "n_columns_in_file": 84,
+    "n_raw_data_rows": 7948748,
+    "n_embedded_header_rows_excluded": 0,
+    "n_usable_rows": 7948748,
+    "n_rows_analyzed": 7948748,
+    "n_windows": 1589749,
+    "n_trailing_rows_discarded": 3,
+    "n_unparsed_timestamps": 0
+  },
+  "parameters": {
+    "window_size": 5,
+    "seed": 42,
+    "ordering_rule": "deterministic capture-order proxy: (source file capture date, Original_Index). Within one file this is the file's own data-row order; no sort is applied and Timestamp is never an ordering key.",
+    "columns_read": [
+      "Src IP",
+      "Src Port",
+      "Dst IP",
+      "Dst Port",
+      "Protocol",
+      "Timestamp",
+      "Label"
+    ]
+  },
+  "definitions": {
+    "window": "Non-overlapping group of 5 consecutive rows in the ordering sequence: window i holds sequence positions [5i, 5i+5). Trailing rows that cannot fill a window are discarded.",
+    "src_dst_pair": "The tuple (Src IP, Dst IP), compared as an exact string pair.",
+    "five_tuple": "The tuple (Src IP, Src Port, Dst IP, Dst Port, Protocol).",
+    "n_unique_src_ip": "Count of distinct Src IP values among the window's 5 rows.",
+    "n_unique_dst_ip": "Count of distinct Dst IP values among the window's 5 rows.",
+    "n_unique_pairs": "Count of distinct (Src IP, Dst IP) pairs among the 5 rows; 1..5.",
+    "n_unique_five_tuples": "Count of distinct 5-tuples among the 5 rows; 1..5.",
+    "n_adjacent_same_pair": "Number of adjacent positions j in {0,1,2,3} where row j and row j+1 have the same (Src IP, Dst IP) pair. Range 0..4.",
+    "all_same_pair": "n_unique_pairs == 1.",
+    "any_adjacent_same_pair": "n_adjacent_same_pair >= 1.",
+    "fully_heterogeneous": "n_unique_pairs == 5 (no two flows share a Src/Dst pair).",
+    "label_pure": "n_unique_labels == 1.",
+    "majority_label": "The label with the highest count in the window. Ties are broken by ascending label string, so the rule is deterministic; 'fifth_is_majority' is therefore a conservative measure - under a tie the fifth label counts as the majority only if it wins that alphabetical tiebreak.",
+    "fifth_is_majority": "The 5th row's label equals the window's majority label.",
+    "span_seconds": "max(parsed Timestamp) - min(parsed Timestamp) over the window's 5 rows, in seconds. Diagnostic only; Timestamp never orders rows. A window with any unparseable timestamp is excluded from the span statistics only.",
+    "same_second": "span_seconds == 0 (all 5 rows fall in one clock second).",
+    "pct_windows_with_span_at_most": "Cumulative share of span-valid windows whose span is at or below each threshold in seconds. Reported because the span distribution is bimodal - tight bursts versus whole-day spans - so the median describes neither mode.",
+    "A": "Percentage of windows with all_same_pair.",
+    "B": "Percentage of windows with any_adjacent_same_pair.",
+    "C": "Mean of n_unique_pairs over all windows.",
+    "D": "Median of n_unique_pairs over all windows.",
+    "E": "Percentage of windows at each n_unique_pairs value 1..5.",
+    "F": "Percentage of windows with label_pure.",
+    "G": "Percentage of windows where the 5th row's label != the majority label.",
+    "random_baseline": "The identical usable rows regrouped into windows of 5 by a seeded permutation, measured with the same code. Isolates the effect of consecutive adjacency: row content and marginal distributions are held fixed. Never used for training or splitting."
+  },
+  "consecutive": {
+    "arm": "consecutive",
+    "n_windows": 1589749,
+    "endpoint_continuity": {
+      "A_pct_windows_all_five_same_src_dst_pair": 7.789405748957854,
+      "B_pct_windows_any_adjacent_same_src_dst_pair": 66.43797228367497,
+      "C_mean_unique_pairs_per_window": 3.2933419049170656,
+      "D_median_unique_pairs_per_window": 3.0,
+      "E_pct_windows_by_unique_pair_count": {
+        "1": 7.789405748957854,
+        "2": 18.069833665566073,
+        "3": 28.688113658193842,
+        "4": 27.922458199376127,
+        "5": 17.530188727906104
+      },
+      "n_windows_by_unique_pair_count": {
+        "1": 123832,
+        "2": 287265,
+        "3": 456069,
+        "4": 443897,
+        "5": 278686
+      },
+      "pct_windows_fully_heterogeneous_five_distinct_pairs": 17.530188727906104,
+      "mean_unique_src_ip_per_window": 2.565601865451716,
+      "mean_unique_dst_ip_per_window": 2.462262910685901,
+      "mean_unique_five_tuples_per_window": 4.740451480076414,
+      "pct_windows_all_five_same_five_tuple": 0.00257902348106525,
+      "mean_adjacent_same_pair_per_window_max_4": 1.2850431105790914,
+      "pct_adjacent_flow_pairs_sharing_src_dst": 32.12607776447729,
+      "counts": {
+        "all_same_pair": 123832,
+        "any_adjacent_same_pair": 1056197,
+        "fully_heterogeneous": 278686,
+        "all_same_five_tuple": 41,
+        "adjacent_flow_pairs_sharing_src_dst": 2042896,
+        "adjacent_flow_pairs_total": 6358996
+      }
+    },
+    "label_continuity": {
+      "F_pct_windows_label_pure": 99.9367195701963,
+      "pct_windows_mixed_label": 0.06328042980369857,
+      "G_pct_windows_fifth_label_ne_majority": 0.014593498722125316,
+      "pct_windows_fifth_label_eq_majority": 99.98540650127788,
+      "pct_windows_by_unique_label_count": {
+        "1": 99.9367195701963,
+        "2": 0.06328042980369857
+      },
+      "n_windows_by_unique_label_count": {
+        "1": 1588743,
+        "2": 1006
+      },
+      "counts": {
+        "label_pure": 1588743,
+        "mixed_label": 1006,
+        "fifth_eq_majority": 1589517,
+        "fifth_ne_majority": 232
+      }
+    },
+    "timestamp_diagnostics": {
+      "note": "Timestamp is diagnostic only and never orders rows. Spans are computed from parsed timestamps within a window and can be negative-free by construction (max - min), but the column itself is non-monotonic in file order.",
+      "median_span_seconds": 24022.0,
+      "p95_span_seconds": 39321.0,
+      "max_span_seconds": 43199.0,
+      "mean_span_seconds": 18271.404050576537,
+      "pct_windows_entirely_within_one_second": 4.575627976491886,
+      "n_windows_entirely_within_one_second": 72741,
+      "n_windows_with_a_valid_span": 1589749,
+      "pct_windows_with_span_at_most": {
+        "0": 4.575627976491886,
+        "1": 5.836015622591994,
+        "10": 11.098481584199769,
+        "60": 15.174345132470597,
+        "300": 30.035559072532834,
+        "3600": 38.5346995028775,
+        "21600": 47.85893873812784
+      },
+      "n_windows_with_span_at_most": {
+        "0": 72741,
+        "1": 92778,
+        "10": 176438,
+        "60": 241234,
+        "300": 477490,
+        "3600": 612605,
+        "21600": 760837
+      }
+    }
+  },
+  "notes": [],
+  "random_baseline": {
+    "arm": "random_baseline",
+    "n_windows": 1589749,
+    "endpoint_continuity": {
+      "A_pct_windows_all_five_same_src_dst_pair": 0.0,
+      "B_pct_windows_any_adjacent_same_src_dst_pair": 0.3812551541155239,
+      "C_mean_unique_pairs_per_window": 4.99045258087912,
+      "D_median_unique_pairs_per_window": 5.0,
+      "E_pct_windows_by_unique_pair_count": {
+        "1": 0.0,
+        "2": 0.0,
+        "3": 0.007674167431462451,
+        "4": 0.939393577225084,
+        "5": 99.05293225534345
+      },
+      "n_windows_by_unique_pair_count": {
+        "1": 0,
+        "2": 0,
+        "3": 122,
+        "4": 14934,
+        "5": 1574693
+      },
+      "pct_windows_fully_heterogeneous_five_distinct_pairs": 99.05293225534345,
+      "mean_unique_src_ip_per_window": 4.9802522284964486,
+      "mean_unique_dst_ip_per_window": 4.198200470640334,
+      "mean_unique_five_tuples_per_window": 4.998637520765857,
+      "pct_windows_all_five_same_five_tuple": 0.0,
+      "mean_adjacent_same_pair_per_window_max_4": 0.0038333095350272274,
+      "pct_adjacent_flow_pairs_sharing_src_dst": 0.0958327383756807,
+      "counts": {
+        "all_same_pair": 0,
+        "any_adjacent_same_pair": 6061,
+        "fully_heterogeneous": 1574693,
+        "all_same_five_tuple": 0,
+        "adjacent_flow_pairs_sharing_src_dst": 6094,
+        "adjacent_flow_pairs_total": 6358996
+      }
+    },
+    "label_continuity": {
+      "F_pct_windows_label_pure": 68.63787931302363,
+      "pct_windows_mixed_label": 31.362120686976372,
+      "G_pct_windows_fifth_label_ne_majority": 7.192959391702716,
+      "pct_windows_fifth_label_eq_majority": 92.80704060829729,
+      "pct_windows_by_unique_label_count": {
+        "1": 68.63787931302363,
+        "2": 31.362120686976372
+      },
+      "n_windows_by_unique_label_count": {
+        "1": 1091170,
+        "2": 498579
+      },
+      "counts": {
+        "label_pure": 1091170,
+        "mixed_label": 498579,
+        "fifth_eq_majority": 1475399,
+        "fifth_ne_majority": 114350
+      }
+    },
+    "timestamp_diagnostics": {
+      "note": "Timestamp is diagnostic only and never orders rows. Spans are computed from parsed timestamps within a window and can be negative-free by construction (max - min), but the column itself is non-monotonic in file order.",
+      "median_span_seconds": 32421.0,
+      "p95_span_seconds": 40060.0,
+      "max_span_seconds": 43197.0,
+      "mean_span_seconds": 31030.076261724334,
+      "pct_windows_entirely_within_one_second": 0.0,
+      "n_windows_entirely_within_one_second": 0,
+      "n_windows_with_a_valid_span": 1589749,
+      "pct_windows_with_span_at_most": {
+        "0": 0.0,
+        "1": 0.0,
+        "10": 0.0,
+        "60": 0.0,
+        "300": 0.0,
+        "3600": 0.11070930065060584,
+        "21600": 8.41000686271858
+      },
+      "n_windows_with_span_at_most": {
+        "0": 0,
+        "1": 0,
+        "10": 0,
+        "60": 0,
+        "300": 0,
+        "3600": 1760,
+        "21600": 133698
+      }
+    }
+  },
+  "consecutive_vs_random": {
+    "A_pct_windows_all_five_same_src_dst_pair": {
+      "consecutive": 7.789405748957854,
+      "random": 0.0,
+      "difference": 7.789405748957854
+    },
+    "B_pct_windows_any_adjacent_same_src_dst_pair": {
+      "consecutive": 66.43797228367497,
+      "random": 0.3812551541155239,
+      "difference": 66.05671712955944
+    },
+    "C_mean_unique_pairs_per_window": {
+      "consecutive": 3.2933419049170656,
+      "random": 4.99045258087912,
+      "difference": -1.6971106759620547
+    },
+    "pct_windows_fully_heterogeneous_five_distinct_pairs": {
+      "consecutive": 17.530188727906104,
+      "random": 99.05293225534345,
+      "difference": -81.52274352743734
+    },
+    "F_pct_windows_label_pure": {
+      "consecutive": 99.9367195701963,
+      "random": 68.63787931302363,
+      "difference": 31.29884025717267
+    },
+    "G_pct_windows_fifth_label_ne_majority": {
+      "consecutive": 0.014593498722125316,
+      "random": 7.192959391702716,
+      "difference": -7.17836589298059
+    }
+  },
+  "measurement_digest_sha256": "b831c47c5e1ecccff397f8ff61317ea7575046ffc2062c05d3210ece158f372c"
+}

@@ -1,0 +1,12 @@
+scope,capture_date,n_rows,n_distinct_feature_vectors,A_exact_duplicate_rows,B_temporal_duplicate_rows,AB_feature_label_duplicate_rows,AB_pct_of_rows,C_conflicting_groups,C_conflicting_rows,C_n_label_combinations,basis
+02-14-2018.csv,2018-02-14,1048575,674808,225628,148132,373760,35.644565,7,169775,1,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-15-2018.csv,2018-02-15,1048575,884658,2421,161496,163917,15.632358,0,0,0,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-16-2018.csv,2018-02-16,1048574,591901,147586,309087,456673,43.551814,0,0,0,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-20-2018.csv,2018-02-20,7948748,6120535,22490,1805723,1828213,23.000012,0,0,0,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-21-2018.csv,2018-02-21,1048575,561405,17557,469613,487170,46.460196,0,0,0,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-22-2018.csv,2018-02-22,1048575,906923,3278,138371,141649,13.508714,3,8,1,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-23-2018.csv,2018-02-23,1048575,910658,2614,135299,137913,13.152421,4,16,3,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+02-28-2018.csv,2018-02-28,613071,508780,6089,88812,94901,15.479610,9390,51995,1,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+03-01-2018.csv,2018-03-01,331100,282656,73,40144,40217,12.146481,8227,44625,1,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+03-02-2018.csv,2018-03-02,1048575,823732,5459,219384,224843,21.442720,0,0,0,"78 model feature columns (raw float64 values, unmodified) + raw Timestamp string + raw Label string"
+__CORPUS__,all,16232943,11967162,433195,3810208,4243403,26.140688,22373,423390,9,"whole-corpus concatenation in deterministic capture-order sequence; 78 model feature columns (raw float64, unmodified) + raw Timestamp string + raw Label string"

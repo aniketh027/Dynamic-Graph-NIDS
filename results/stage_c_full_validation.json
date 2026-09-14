@@ -1,0 +1,462 @@
+{
+  "artefact_sha256": {
+    "binary_class_mapping.json": "12c09cce9c45b4d8d67e7b98d70b6a455d5b22195b6278c75e0ae9df11858b2c",
+    "class_availability.json": "50201ea42bc7f531624b38d6eebcabb400662391482d60efb2bc29406f2c831f",
+    "class_eligibility.json": "93510b67cf23b83d2a59b514e10e2df07b9a1ff1893887cf53ef9e26a1426a94",
+    "class_mapping.json": "53628d43a65ec47eaa0411be3f6a01237b4c324419483abe9e2c72c090ab6030",
+    "cleaning_stats.json": "9e97eadb787547c3b78ba1d0f0970bc970e583485090843126258f0ad1527878",
+    "duplicate_accounting.json": "92197279bb8f87c286d58d09b6757ef0584e5409bf06597cdddf596484cd6bda",
+    "exp1/X_test.npy": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+    "exp1/X_train.npy": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+    "exp1/X_val.npy": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+    "exp1/scaler_state.json": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+    "exp1/split_metadata.json": "673a7cfb73bfc8211e5590c0a3a4c22451ba9e39b8ba5da4087218c9f904eff5",
+    "exp1/y_test.npy": "11d26eb3cba5af10a5b6a6ff988cb84815f64892fd07b5f198723ced49d0c18c",
+    "exp1/y_train.npy": "e22f28b43dfda78e13e7d1fab66706363e241e8ca1548ce3187648a1a6328751",
+    "exp1/y_val.npy": "b21e0b3853e239b1b6f6b138f6d2d285f045f3b9fdbe46691d52512d6d653458",
+    "exp2/X_test.npy": "4201d2ee38c13ee044e6e6e91558645443b0f8fe9bee5190e6df4b6585fcc7b4",
+    "exp2/X_train.npy": "0291721291afe8e28d34862aafe407bb45f78709413902d82122bd7ff5c8510f",
+    "exp2/X_val.npy": "515c1522fc4092c99c3dfa314b234a691101fc789cfb6563e7c161b1ac51c29d",
+    "exp2/scaler_state.json": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+    "exp2/split_metadata.json": "71a1847e8ce91185da54a8b5c257f7037695c33c255eab417526e82d3c18bef3",
+    "exp2/y_test.npy": "294c775d0769280809ce9f18b51762a4a6aba6a2a2307d2606157780a1965897",
+    "exp2/y_train.npy": "11ec23b89e53a1b0af4795065761b19c24c8ae65683a4e1d9090e0a42d8ddb17",
+    "exp2/y_val.npy": "ed74485aa5b9ceff736cb9f335bbcf390b61ffe013eadb4016f88a7f45515bf7",
+    "exp3/X_test.npy": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+    "exp3/X_train.npy": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+    "exp3/X_val.npy": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+    "exp3/scaler_state.json": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+    "exp3/split_metadata.json": "a7ac50f91898eb3d8e8f78dc8a52c9206f6b1ed63d35b0014dc8eee525430a00",
+    "exp3/y_test.npy": "c4f9f5d1637c317296c644c945e6afedb01854d5ceb920317b1e955b1d9d6a38",
+    "exp3/y_train.npy": "f6b9f8a0a850e2547842f3bee34da1621bc61a6fda05cc4cdf0e877c8b83412a",
+    "exp3/y_val.npy": "63613ee0a32fd21e32ed55c25020007e85c3e9379b214048542139f2a64e6257",
+    "feature_names.json": "7c511a2494242b3e2c9cedff80baf51a9cec7cf530d60312491cd737589106f7",
+    "scaler_state.json": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+    "windowing_stats.json": "41c01845e97f6e9135fca559cb68f13a416668fd8def8391b215089e369ca7c8"
+  },
+  "comparison": {
+    "all_sha256_identical": true,
+    "comparison_dir": "C:\\Project\\ComputerNetworks\\data\\processed\\preprocessed_run2",
+    "differing": [],
+    "extra": [],
+    "missing": [],
+    "n_files_compared": 33,
+    "relative_file_sets_identical": true
+  },
+  "duplicate_accounting": {
+    "conflicting_groups": 22373,
+    "conflicting_rows": 423390,
+    "embedded_header_rows": 59,
+    "exact_duplicate_rows_removed": 213316,
+    "final_clean_rows": 15596237,
+    "raw_rows": 16233002,
+    "reconciles": true,
+    "retained_rows": 15596237,
+    "temporal_duplicate_rows_retained": 3651448,
+    "unique_rows": 11944789,
+    "usable_rows": 16232943
+  },
+  "e1_e3_equivalence": {
+    "binary_targets_match_multiclass_targets": true,
+    "feature_arrays_sha256_identical": true
+  },
+  "experiments": {
+    "exp1": {
+      "metadata_identity": "1_global_chronological",
+      "preprocessing": {
+        "all_statistics_finite": true,
+        "fit_experiment": "E1",
+        "fit_split": "train",
+        "fit_window_count": 2183472,
+        "loadable": true
+      },
+      "split_counts_reconcile": true,
+      "splits": {
+        "test": {
+          "X_dtype": "float32",
+          "X_shape": [
+            623851,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1,
+            2,
+            3,
+            12,
+            13
+          ],
+          "label_distribution": {
+            "Benign": 543157,
+            "Bot": 56513,
+            "Brute Force -Web": 70,
+            "Brute Force -XSS": 31,
+            "Infilteration": 24069,
+            "SQL Injection": 11
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            623851
+          ]
+        },
+        "train": {
+          "X_dtype": "float32",
+          "X_shape": [
+            2183472,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            14
+          ],
+          "label_distribution": {
+            "Benign": 1891056,
+            "DDOS attack-HOIC": 50850,
+            "DDOS attack-LOIC-UDP": 357,
+            "DDoS attacks-LOIC-HTTP": 115219,
+            "DoS attacks-GoldenEye": 8326,
+            "DoS attacks-Hulk": 86980,
+            "DoS attacks-SlowHTTPTest": 2209,
+            "DoS attacks-Slowloris": 2055,
+            "FTP-BruteForce": 2959,
+            "SSH-Bruteforce": 23461
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            2183472
+          ]
+        },
+        "val": {
+          "X_dtype": "float32",
+          "X_shape": [
+            311924,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            2,
+            3,
+            4,
+            13
+          ],
+          "label_distribution": {
+            "Benign": 229152,
+            "Brute Force -Web": 47,
+            "Brute Force -XSS": 13,
+            "DDOS attack-HOIC": 82707,
+            "SQL Injection": 5
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            311924
+          ]
+        }
+      }
+    },
+    "exp2": {
+      "metadata_identity": "2_per_class_chronological",
+      "preprocessing": {
+        "all_statistics_finite": true,
+        "fit_experiment": "E2",
+        "fit_split": "train",
+        "fit_window_count": 2183465,
+        "loadable": true
+      },
+      "split_counts_reconcile": true,
+      "splits": {
+        "test": {
+          "X_dtype": "float32",
+          "X_shape": [
+            623866,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "label_distribution": {
+            "Benign": 532674,
+            "Bot": 11303,
+            "Brute Force -Web": 25,
+            "Brute Force -XSS": 10,
+            "DDOS attack-HOIC": 26713,
+            "DDOS attack-LOIC-UDP": 73,
+            "DDoS attacks-LOIC-HTTP": 23045,
+            "DoS attacks-GoldenEye": 1666,
+            "DoS attacks-Hulk": 17397,
+            "DoS attacks-SlowHTTPTest": 443,
+            "DoS attacks-Slowloris": 412,
+            "FTP-BruteForce": 593,
+            "Infilteration": 4815,
+            "SQL Injection": 4,
+            "SSH-Bruteforce": 4693
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            623866
+          ]
+        },
+        "train": {
+          "X_dtype": "float32",
+          "X_shape": [
+            2183465,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "label_distribution": {
+            "Benign": 1864355,
+            "Bot": 39559,
+            "Brute Force -Web": 81,
+            "Brute Force -XSS": 30,
+            "DDOS attack-HOIC": 93489,
+            "DDOS attack-LOIC-UDP": 249,
+            "DDoS attacks-LOIC-HTTP": 80653,
+            "DoS attacks-GoldenEye": 5828,
+            "DoS attacks-Hulk": 60885,
+            "DoS attacks-SlowHTTPTest": 1546,
+            "DoS attacks-Slowloris": 1438,
+            "FTP-BruteForce": 2071,
+            "Infilteration": 16848,
+            "SQL Injection": 11,
+            "SSH-Bruteforce": 16422
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            2183465
+          ]
+        },
+        "val": {
+          "X_dtype": "float32",
+          "X_shape": [
+            311916,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "label_distribution": {
+            "Benign": 266336,
+            "Bot": 5651,
+            "Brute Force -Web": 11,
+            "Brute Force -XSS": 4,
+            "DDOS attack-HOIC": 13355,
+            "DDOS attack-LOIC-UDP": 35,
+            "DDoS attacks-LOIC-HTTP": 11521,
+            "DoS attacks-GoldenEye": 832,
+            "DoS attacks-Hulk": 8698,
+            "DoS attacks-SlowHTTPTest": 220,
+            "DoS attacks-Slowloris": 205,
+            "FTP-BruteForce": 295,
+            "Infilteration": 2406,
+            "SQL Injection": 1,
+            "SSH-Bruteforce": 2346
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            311916
+          ]
+        }
+      }
+    },
+    "exp3": {
+      "metadata_identity": "3_binary_chronological",
+      "preprocessing": {
+        "all_statistics_finite": true,
+        "fit_experiment": "E1",
+        "fit_split": "train",
+        "fit_window_count": 2183472,
+        "loadable": true
+      },
+      "split_counts_reconcile": true,
+      "splits": {
+        "test": {
+          "X_dtype": "float32",
+          "X_shape": [
+            623851,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1
+          ],
+          "label_distribution": {
+            "Attack": 80694,
+            "Benign": 543157
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            623851
+          ]
+        },
+        "train": {
+          "X_dtype": "float32",
+          "X_shape": [
+            2183472,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1
+          ],
+          "label_distribution": {
+            "Attack": 292416,
+            "Benign": 1891056
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            2183472
+          ]
+        },
+        "val": {
+          "X_dtype": "float32",
+          "X_shape": [
+            311924,
+            5,
+            78
+          ],
+          "all_X_finite": true,
+          "label_codes": [
+            0,
+            1
+          ],
+          "label_distribution": {
+            "Attack": 82772,
+            "Benign": 229152
+          },
+          "y_dtype": "int16",
+          "y_shape": [
+            311924
+          ]
+        }
+      }
+    }
+  },
+  "label_mappings_loadable": true,
+  "output_dir": "C:\\Project\\ComputerNetworks\\data\\processed\\preprocessed",
+  "raw_file_fingerprints": {
+    "02-14-2018.csv": {
+      "mtime_ns": 1788589718795669300,
+      "sha256": "acff8bc61376ee031d80878ee6099e0b1a87a1bd711d8068298421418c9f8147",
+      "size_bytes": 358223333
+    },
+    "02-15-2018.csv": {
+      "mtime_ns": 1788589720915588000,
+      "sha256": "fa2947a8256d81ee9103ae16139d62d0e17aa23e696ee80d9e76fb51c01c9c4b",
+      "size_bytes": 375945899
+    },
+    "02-16-2018.csv": {
+      "mtime_ns": 1788589722557379400,
+      "sha256": "1a4919faa0c49c7af97230b0c2d076eba23ee6dd81103a3801d51ac316355d8b",
+      "size_bytes": 333723605
+    },
+    "02-20-2018.csv": {
+      "mtime_ns": 1788589743207893700,
+      "sha256": "7287a4d7740a1dddbf330ceb2beb6a4889d33ba63674558a68b5eb50d16711df",
+      "size_bytes": 4054925350
+    },
+    "02-21-2018.csv": {
+      "mtime_ns": 1788589744558023000,
+      "sha256": "a5f4a1c2689e0aa6566c03a58466de9c407c0be0cbd3cc69306544026611be04",
+      "size_bytes": 328893673
+    },
+    "02-22-2018.csv": {
+      "mtime_ns": 1788589746510544700,
+      "sha256": "da33c927018274f9d49b145baa00e4ce0526c25b3b890b34c489e247b5e24544",
+      "size_bytes": 382636202
+    },
+    "02-23-2018.csv": {
+      "mtime_ns": 1788589748489287100,
+      "sha256": "d0a7f5059d9823b6e9b392b759e306481a3502d190dea7a1b5502ae079ea069b",
+      "size_bytes": 382840456
+    },
+    "02-28-2018.csv": {
+      "mtime_ns": 1788589749553402800,
+      "sha256": "f15e2a12304446058a0186c8ad67de2bd15735a9ba5c70c9a1f4c4242ab06771",
+      "size_bytes": 209249758
+    },
+    "03-01-2018.csv": {
+      "mtime_ns": 1788589750090774000,
+      "sha256": "b0534c5d7d8b41e03df71c6966c995d116a8ed28e61f377c8b14cdf5d28f4edf",
+      "size_bytes": 107842858
+    },
+    "03-02-2018.csv": {
+      "mtime_ns": 1788589751851526700,
+      "sha256": "d96f38e7496aba83475031e6fb8c6fdf1abf6aa1b71325a917798f3c7de93de1",
+      "size_bytes": 352368373
+    }
+  },
+  "status": "PASS",
+  "windowing": {
+    "final_flow_labeling": "label of the last (T-th) flow in each window",
+    "n_windows": 3119247,
+    "tail_rows_discarded": 2,
+    "window_size": 5
+  }
+}

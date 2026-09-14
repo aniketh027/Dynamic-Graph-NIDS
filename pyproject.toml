@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynamic-graph-nids"
+version = "0.1.0"
+description = "Dynamic Graph Optimization and Automated Feature Extraction for Efficient Intrusion Detection in Network Systems"
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+# Make ``import src...`` work without installing the package.
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    # Tests that read the real multi-GB corpus under data/raw. They skip (never
+    # fail) when the dataset is absent. Deselect with: -m "not slow"
+    "slow: touches the real CIC-IDS2018 corpus on disk",
+]

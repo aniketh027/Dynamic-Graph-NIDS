@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# Phase 1 dependencies: configuration, dataset inspection, tests, reporting.
+# Deep-learning stack (torch / torch-geometric) is deliberately NOT here -
+# see requirements-gnn.txt, installed when the modelling phase starts.
+#
+# Verified against Python 3.13 (project interpreter: CPython 3.13.0).
+# ---------------------------------------------------------------------------
+
+# Core data handling
+numpy>=1.26,<3.0
+pandas>=2.2,<3.0
+
+# Config
+PyYAML>=6.0,<7.0
+
+# Automated feature extraction / metrics (used from the feature phase onward)
+scikit-learn>=1.4,<2.0
+
+# Reporting and plots for the project report
+matplotlib>=3.8,<4.0
+seaborn>=0.13,<1.0
+
+# Progress reporting for long dataset scans
+tqdm>=4.66,<5.0
+
+# Tests
+pytest>=8.0,<9.0

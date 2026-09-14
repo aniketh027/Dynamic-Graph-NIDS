@@ -1,0 +1,45 @@
+{
+  "source_file": "02-20-2018.csv",
+  "n_rows_read": 7948748,
+  "n_windows": 1589749,
+  "n_trailing_rows_discarded": 3,
+  "note": "Supplementary diagnostic. Endpoint continuity per window-label group; same ordering rule and window construction as the main analysis.",
+  "label_runs_in_capture_order": {
+    "definition": "Maximal blocks of consecutive rows carrying one label, in the deterministic capture-order proxy. Explains why label purity is high without any temporal mechanism.",
+    "n_runs": 2145,
+    "n_distinct_labels": 2,
+    "run_length_min": 1,
+    "run_length_median": 1.0,
+    "run_length_mean": 3705.7086247086245,
+    "run_length_max": 7370959,
+    "n_runs_shorter_than_window": 1266,
+    "n_rows_in_runs_shorter_than_window": 1521,
+    "pct_rows_in_runs_shorter_than_window": 0.019135096169269488
+  },
+  "groups": {
+    "mixed_label": {
+      "n_windows": 1006,
+      "pct_of_windows": 0.06328042980369858,
+      "A_pct_windows_all_five_same_src_dst_pair": 0.0,
+      "B_pct_windows_any_adjacent_same_src_dst_pair": 26.143141153081512,
+      "C_mean_unique_pairs_per_window": 4.203777335984095,
+      "pct_windows_fully_heterogeneous_five_distinct_pairs": 39.165009940357855
+    },
+    "pure_Benign": {
+      "n_windows": 1474273,
+      "pct_of_windows": 92.73621181708559,
+      "A_pct_windows_all_five_same_src_dst_pair": 8.283540429757583,
+      "B_pct_windows_any_adjacent_same_src_dst_pair": 67.05644069992464,
+      "C_mean_unique_pairs_per_window": 3.2809282948273486,
+      "pct_windows_fully_heterogeneous_five_distinct_pairs": 17.887731783733408
+    },
+    "pure_DDoS attacks-LOIC-HTTP": {
+      "n_windows": 114470,
+      "pct_of_windows": 7.200507753110712,
+      "A_pct_windows_all_five_same_src_dst_pair": 1.4938411810954835,
+      "B_pct_windows_any_adjacent_same_src_dst_pair": 58.82676683847296,
+      "C_mean_unique_pairs_per_window": 3.4452170874464927,
+      "pct_windows_fully_heterogeneous_five_distinct_pairs": 12.73521446667249
+    }
+  }
+}
