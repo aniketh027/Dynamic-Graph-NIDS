@@ -1,0 +1,139 @@
+{
+  "stage": "E.1",
+  "status": "PASS",
+  "scope": "Environment and dependency verification only; no Stage E.2 implementation",
+  "frozen_checkpoint": {
+    "commit": "469fe31a4ae1361ab1d390f6f7b91ac651ef4aaf",
+    "tag": "v0.4-stage-d-graph-input"
+  },
+  "machine": {
+    "os": "Microsoft Windows 11 Home Single Language",
+    "os_version": "10.0.26200",
+    "architecture": "x86-64",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "gpu_vram_mib": 6141,
+    "nvidia_driver": "616.92",
+    "nvidia_smi_cuda_umd": "13.4",
+    "compute_capability": [8, 9]
+  },
+  "initial_environment": {
+    "python": "3.13.0",
+    "pip": "26.2.1",
+    "virtual_environment_active": false,
+    "torch_installed": false,
+    "torch_geometric_installed": false,
+    "available_interpreters": [
+      "CPython 3.13.0 x86-64"
+    ]
+  },
+  "selected_environment": {
+    "type": "venv",
+    "location": ".venv",
+    "python": "3.13.0",
+    "pip": "24.2",
+    "torch": "2.14.0+cu130",
+    "torch_cuda_runtime": "13.0",
+    "torch_geometric": "2.8.0.post1",
+    "optional_pyg_extensions_installed": []
+  },
+  "official_compatibility_basis": {
+    "pytorch_release": "Stable PyTorch 2.14 supports Python 3.10 through 3.15 and publishes Windows CUDA 13.0 wheels.",
+    "pytorch_release_url": "https://pytorch.org/blog/pytorch-2-14-release-blog/",
+    "pytorch_install_url": "https://pytorch.org/get-started/locally/",
+    "pyg_install": "The official PyG base installation is pip install torch_geometric; optional compiled packages are not required for basic use.",
+    "pyg_install_url": "https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html"
+  },
+  "dependency_assessment": {
+    "pyproject_python": ">=3.10",
+    "requirements_python_note": "Verified against Python 3.13",
+    "environment_yml_python": "3.13",
+    "existing_torch_constraint": ">=2.6,<3.0",
+    "existing_pyg_constraint": ">=2.6,<3.0",
+    "stale_command": "requirements-gnn.txt contains a commented CUDA 12.4 example that was not used",
+    "conflicts_found": [],
+    "general_dependency_files_modified": false
+  },
+  "install_commands": [
+    "python -m venv .venv",
+    ".venv\\Scripts\\python.exe -m pip install -r requirements.txt",
+    ".venv\\Scripts\\python.exe -m pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cu130",
+    ".venv\\Scripts\\python.exe -m pip install torch-geometric==2.8.0.post1 \"networkx>=3.0,<4.0\""
+  ],
+  "verification": {
+    "torch_import": "PASS",
+    "cpu_tensor_operation": {"status": "PASS", "result": [4.0, 6.0]},
+    "cuda_available": true,
+    "cuda_tensor_operation": {"status": "PASS", "result": [2.0, 4.0]},
+    "cuda_synchronize": "PASS",
+    "pyg_imports": {
+      "torch_geometric": "PASS",
+      "HeteroData": "PASS",
+      "GATv2Conv": "PASS",
+      "Batch": "PASS"
+    },
+    "gatv2_cpu": {
+      "status": "PASS",
+      "output_shape": [2, 32],
+      "attention_shape": [4, 4],
+      "input_edge_count": 4,
+      "returned_edge_count": 4,
+      "edges_unchanged": true,
+      "parameter_count": 2176
+    },
+    "gatv2_cuda": {
+      "status": "PASS",
+      "output_shape": [2, 32],
+      "output_cuda_resident": true,
+      "finite_output": true,
+      "finite_attention": true,
+      "backward": "PASS",
+      "finite_gradients": true
+    },
+    "heterodata": {
+      "status": "PASS",
+      "node_types": ["feature", "category", "sample"],
+      "relations": [
+        ["feature", "contributes_to", "category"],
+        ["category", "contributes_to", "sample"]
+      ],
+      "type_local_indexing": "PASS",
+      "batch_api": "PASS"
+    },
+    "add_self_loops_false": {
+      "accepted": true,
+      "unexpected_edges_added": 0,
+      "relation_semantics_preserved": true
+    }
+  },
+  "gatv2_parameterization": {
+    "observed_total": 2176,
+    "components": {
+      "attention": 32,
+      "output_bias": 32,
+      "source_weight": 1024,
+      "source_bias": 32,
+      "target_weight": 1024,
+      "target_bias": 32
+    },
+    "interpretation": "PyG 2.8.0.post1 includes bias terms in both independent bipartite linear projections plus the output bias; estimates omitting the two projection biases are lower by 64 parameters."
+  },
+  "integrity_before": {
+    "stage_c": "33/33 PASS",
+    "raw_csv": "10/10 PASS"
+  },
+  "final_checks": {
+    "reusable_verification_script": "PASS",
+    "complete_project_suite": {
+      "status": "PASS",
+      "passed": 691,
+      "failed": 0,
+      "elapsed_seconds": 197.82
+    },
+    "pip_check": "No broken requirements found",
+    "stage_c_integrity_after": "33/33 PASS",
+    "raw_csv_integrity_after": "10/10 PASS",
+    "local_environment_ignored": true,
+    "tracked_environment_paths": 0
+  }
+}

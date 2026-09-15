@@ -1,25 +1,26 @@
-# Project Handoff — Frozen Through Stage D
+# Project Handoff — Frozen Through Stage E.2
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The verified implementation currently stops after the framework-independent Stage D graph-input layer. No graph-framework object, model, or performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The verified implementation currently stops after the Stage E.2 D6-to-PyG `HeteroData` adapter. No learned model, training, or performance result exists yet.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-3. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-4. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
-5. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-6. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+2. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
+3. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+4. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+5. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
+6. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+7. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
 ## Frozen Status
 
-Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, or the Stage D taxonomy, schema, adapters, batching, construction, full-split integration, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
+Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Do not change Stage C cleaning, transforms, windows, splits, or the Stage D taxonomy, schema, adapters, batching, construction, full-split integration, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
 
 ## Verified Dataset Facts
 
@@ -70,6 +71,30 @@ Approved D1-D8 hashes are recorded in `docs/STAGE_D_VERIFICATION.md`. The
 current D8 hash is
 `d1a757459062fe8ca08f0be5951a5a728898a20d28eafbb12f10ce4646047b1f`.
 
+## Frozen Stage E.1-E.2 PyG Contract
+
+The verified environment is Python 3.13.0, PyTorch 2.14.0+cu130, PyG
+2.8.0.post1, and CUDA runtime 13.0 on the RTX 4050 Laptop GPU. The E.1
+environment report SHA-256 is
+`10af77a05a28d760a9cbf52916e8b3205f5590646af5608882538966e2e36f6a`.
+
+Stage E.2 exposes
+`logical_batch_to_heterodata(batch) -> HeteroData` in
+`src/graph/pyg_adapter.py`. Its only production input is an approved D6
+`LogicalGraphBatch`; it creates one bounded, already-batched, CPU-owned
+`HeteroData` with the exact `feature -> category -> sample` topology and no
+learned parameters. The canonical E.2 report hash is
+`370048a60c7a7b25643d820730bb82438e031eee5f6e8a7c07b49efaf17e4fec`.
+
+The approved E.3 temporal encoder is a shared causal TCN over each feature's
+ordered five values: explicit left-pad 2, `Conv1d(1,8,kernel_size=3)`, GELU,
+explicit left-pad 2, `Conv1d(8,16,kernel_size=3)`, GELU, then select temporal
+position 5. It uses no right padding or dilation and has receptive field 5.
+The 16-dimensional temporal result is concatenated with
+`Embedding(78,8)`, then fused by
+`Linear(24,32) -> LayerNorm(32) -> GELU -> Dropout(0.10)`. This architecture
+is approved for the next stage but is not implemented in this checkpoint.
+
 ## Canonical Duplicate Cascade
 
 The mutually exclusive cascade runs before windowing:
@@ -97,8 +122,8 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Current complete suite: **691 passed, 0 failed**.
-- Stage D suite: **231 passed**; targeted D8 suite: **44 passed**.
+- Current complete suite: **729 passed, 0 failed**.
+- Stage E.2 suite: **38 passed**; Stage D suite: **231 passed**.
 - Two complete corrected full-corpus runs: 33 canonical artifacts each.
 - Relative file sets identical; all 33 corresponding SHA-256 values identical.
 - Comparison result: missing = 0, extra = 0, differing = 0.
@@ -116,10 +141,10 @@ Large arrays and local recovery copies are deliberately excluded from Git. Compa
 4. E2 preserves within-class chronology rather than one global timeline.
 5. The predictive value of T=5 has not been measured.
 6. Original report performance claims are not verified results.
-7. No PyG/HeteroData object, causal temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning is implemented.
+7. The PyG `HeteroData` adapter exists, but no causal temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning is implemented.
 
 ## Current Boundary and Exact Next Step
 
-Stop at the frozen Stage D graph-input checkpoint. Do not train a model or add graph-framework/model code without a separately approved design and implementation scope.
+Stop at the frozen Stage E.2 PyG-input checkpoint. Do not train a model or implement later model stages under this checkpoint scope.
 
-The exact next step is **model/framework design** against the frozen 87-node/86-edge input contract. The review must define framework representation, causal temporal encoding, model architecture, loss, training/evaluation boundaries, reproducibility, resource limits, and acceptance criteria before implementation begins.
+The exact next safe boundary is **Stage E.3: implement and contract-test the approved causal TCN and feature-node initialization/fusion block** against the frozen E.2 representation. Causality, output length, position-5 receptive field, feature-identity handling, metadata exclusion, output shape, and bounded operation must pass before proceeding to GATv2 model code.
