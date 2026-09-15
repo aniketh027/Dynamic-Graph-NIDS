@@ -1,0 +1,381 @@
+{
+  "batching_version": "stage-d6-template-batching-v1",
+  "provenance": {
+    "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+    "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+    "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+    "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6",
+    "d5_report_sha256": "1ddfa6caaaf33a04d8b4a973b39b3b815be9ef11904bd0b6e5bf91a95f898b16"
+  },
+  "batching_contract": {
+    "framework_independent": true,
+    "one_experiment_and_split_per_batch": true,
+    "requested_order_preserved": true,
+    "feature_x_shape": "(B,78,5)",
+    "feature_x_dtype": "float32",
+    "targets_shape": "(B,)",
+    "targets_dtype": "int16",
+    "batch_scale_allocation_only": true,
+    "static_d2_template_reused": true
+  },
+  "index_policy": {
+    "empty_indices": "rejected",
+    "duplicate_indices": "rejected",
+    "negative_indices": "rejected",
+    "out_of_range_indices": "rejected",
+    "non_integer_indices": "rejected",
+    "sorting": false,
+    "internal_shuffling": false
+  },
+  "tested_batch_sizes": [
+    1,
+    3,
+    4
+  ],
+  "additional_batch_size_validation": {
+    "size_one_pass": true,
+    "size_four_noncontiguous_order": [
+      10,
+      3,
+      50,
+      7
+    ],
+    "size_four_pass": true
+  },
+  "experiment_split_batches": [
+    {
+      "experiment": "E1",
+      "split": "train",
+      "source_dataset_length": 2183472,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        1091736,
+        2183471
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E1",
+      "split": "validation",
+      "source_dataset_length": 311924,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        155962,
+        311923
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E1",
+      "split": "test",
+      "source_dataset_length": 623851,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        311925,
+        623850
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "train",
+      "source_dataset_length": 2183465,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        1091732,
+        2183464
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "validation",
+      "source_dataset_length": 311916,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        155958,
+        311915
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "test",
+      "source_dataset_length": 623866,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        311933,
+        623865
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "train",
+      "source_dataset_length": 2183472,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        1091736,
+        2183471
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "validation",
+      "source_dataset_length": 311924,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        155962,
+        311923
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "test",
+      "source_dataset_length": 623851,
+      "tested_batch_size": 3,
+      "tested_source_indices": [
+        0,
+        311925,
+        623850
+      ],
+      "feature_x_shape": [
+        3,
+        78,
+        5
+      ],
+      "feature_x_dtype": "float32",
+      "targets_shape": [
+        3
+      ],
+      "targets_dtype": "int16",
+      "node_counts": {
+        "feature": 234,
+        "category": 24,
+        "sample": 3
+      },
+      "edge_counts": {
+        "feature_to_category": 234,
+        "category_to_sample": 24,
+        "total": 258
+      },
+      "ownership_vectors_valid": true,
+      "no_cross_sample_edges": true,
+      "individual_batch_equivalent": true,
+      "source_and_batch_read_only": true
+    }
+  ],
+  "ownership_vector_validation": true,
+  "no_cross_sample_edge_status": true,
+  "batch_equivalence_status": true,
+  "e1_e3_feature_batch_identity_status": true,
+  "e2_independent_source_status": true,
+  "source_immutability_status": true,
+  "stage_c_integrity": {
+    "stage_c_artifact_count": 33,
+    "stage_c_expected_count": 33,
+    "stage_c_file_set_matches": true,
+    "stage_c_sha256_matches": true,
+    "raw_csv_count": 10,
+    "raw_csv_expected_count": 10,
+    "raw_csv_file_set_matches": true,
+    "raw_csv_sha256_matches": true,
+    "overall_status": "PASS"
+  },
+  "overall_status": "PASS",
+  "report_sha256": "5e9808efba9754dc40af9503a7ef7fc70cca8204e2ca24e72eac1620376e07ac"
+}

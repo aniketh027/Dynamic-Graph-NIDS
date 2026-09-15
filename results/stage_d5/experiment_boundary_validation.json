@@ -1,0 +1,578 @@
+{
+  "validation_version": "stage-d5-experiment-boundary-validation-v1",
+  "provenance": {
+    "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+    "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+    "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+    "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+  },
+  "experiment_definitions": {
+    "E1": "strict global capture-order multiclass diagnostic",
+    "E2": "per-class chronological primary supervised multiclass",
+    "E3": "strict global capture-order binary primary experiment"
+  },
+  "experiment_split_registry": [
+    {
+      "experiment": "E1",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp1/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_train.npy",
+      "expected_length": 2183472,
+      "metadata_length": 2183472,
+      "actual_length": 2183472,
+      "x_shape": [
+        2183472,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183472
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+      "y_sha256": "e22f28b43dfda78e13e7d1fab66706363e241e8ca1548ce3187648a1a6328751",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp1/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E1",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp1/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_val.npy",
+      "expected_length": 311924,
+      "metadata_length": 311924,
+      "actual_length": 311924,
+      "x_shape": [
+        311924,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311924
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+      "y_sha256": "b21e0b3853e239b1b6f6b138f6d2d285f045f3b9fdbe46691d52512d6d653458",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp1/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E1",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp1/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_test.npy",
+      "expected_length": 623851,
+      "metadata_length": 623851,
+      "actual_length": 623851,
+      "x_shape": [
+        623851,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623851
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+      "y_sha256": "11d26eb3cba5af10a5b6a6ff988cb84815f64892fd07b5f198723ced49d0c18c",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp1/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E2",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp2/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_train.npy",
+      "expected_length": 2183465,
+      "metadata_length": 2183465,
+      "actual_length": 2183465,
+      "x_shape": [
+        2183465,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183465
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "0291721291afe8e28d34862aafe407bb45f78709413902d82122bd7ff5c8510f",
+      "y_sha256": "11ec23b89e53a1b0af4795065761b19c24c8ae65683a4e1d9090e0a42d8ddb17",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp2/scaler_state.json",
+      "preprocessing_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "preprocessing_fit_experiment": "E2",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E2",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp2/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_val.npy",
+      "expected_length": 311916,
+      "metadata_length": 311916,
+      "actual_length": 311916,
+      "x_shape": [
+        311916,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311916
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "515c1522fc4092c99c3dfa314b234a691101fc789cfb6563e7c161b1ac51c29d",
+      "y_sha256": "ed74485aa5b9ceff736cb9f335bbcf390b61ffe013eadb4016f88a7f45515bf7",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp2/scaler_state.json",
+      "preprocessing_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "preprocessing_fit_experiment": "E2",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E2",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp2/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_test.npy",
+      "expected_length": 623866,
+      "metadata_length": 623866,
+      "actual_length": 623866,
+      "x_shape": [
+        623866,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623866
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "4201d2ee38c13ee044e6e6e91558645443b0f8fe9bee5190e6df4b6585fcc7b4",
+      "y_sha256": "294c775d0769280809ce9f18b51762a4a6aba6a2a2307d2606157780a1965897",
+      "target_task_type": "multiclass",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp2/scaler_state.json",
+      "preprocessing_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "preprocessing_fit_experiment": "E2",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E3",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp3/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_train.npy",
+      "expected_length": 2183472,
+      "metadata_length": 2183472,
+      "actual_length": 2183472,
+      "x_shape": [
+        2183472,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183472
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+      "y_sha256": "f6b9f8a0a850e2547842f3bee34da1621bc61a6fda05cc4cdf0e877c8b83412a",
+      "target_task_type": "binary",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp3/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E3",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp3/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_val.npy",
+      "expected_length": 311924,
+      "metadata_length": 311924,
+      "actual_length": 311924,
+      "x_shape": [
+        311924,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311924
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+      "y_sha256": "63613ee0a32fd21e32ed55c25020007e85c3e9379b214048542139f2a64e6257",
+      "target_task_type": "binary",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp3/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    },
+    {
+      "experiment": "E3",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp3/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_test.npy",
+      "expected_length": 623851,
+      "metadata_length": 623851,
+      "actual_length": 623851,
+      "x_shape": [
+        623851,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623851
+      ],
+      "y_dtype": "int16",
+      "x_sha256": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+      "y_sha256": "c4f9f5d1637c317296c644c945e6afedb01854d5ceb920317b1e955b1d9d6a38",
+      "target_task_type": "binary",
+      "preprocessing_state_artifact": "data/processed/preprocessed/exp3/scaler_state.json",
+      "preprocessing_state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "preprocessing_fit_experiment": "E1",
+      "preprocessing_fit_split": "train",
+      "graph_provenance": {
+        "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+        "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+        "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+        "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+      }
+    }
+  ],
+  "preprocessing_provenance": {
+    "E1": {
+      "state_artifact": "data/processed/preprocessed/exp1/scaler_state.json",
+      "state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "fit_experiment": "E1",
+      "fit_split": "train",
+      "fit_window_count": 2183472,
+      "applies_to_experiments": [
+        "E1",
+        "E3"
+      ]
+    },
+    "E2": {
+      "state_artifact": "data/processed/preprocessed/exp2/scaler_state.json",
+      "state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "fit_experiment": "E2",
+      "fit_split": "train",
+      "fit_window_count": 2183465,
+      "applies_to_experiments": [
+        "E2"
+      ]
+    },
+    "E3": {
+      "state_artifact": "data/processed/preprocessed/exp3/scaler_state.json",
+      "state_sha256": "3a152c1e68b08d781d803f60a63fac937de5edf2f4df0859d7ca05710eb05313",
+      "fit_experiment": "E1",
+      "fit_split": "train",
+      "fit_window_count": 2183472,
+      "applies_to_experiments": [
+        "E1",
+        "E3"
+      ]
+    }
+  },
+  "target_vocabulary_validation": {
+    "E1_actual_codes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "E2_actual_codes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "E3_actual_codes": [
+      0,
+      1
+    ],
+    "class_mapping": {
+      "n_classes": 15,
+      "int_to_label": {
+        "0": "Benign",
+        "1": "Bot",
+        "2": "Brute Force -Web",
+        "3": "Brute Force -XSS",
+        "4": "DDOS attack-HOIC",
+        "5": "DDOS attack-LOIC-UDP",
+        "6": "DDoS attacks-LOIC-HTTP",
+        "7": "DoS attacks-GoldenEye",
+        "8": "DoS attacks-Hulk",
+        "9": "DoS attacks-SlowHTTPTest",
+        "10": "DoS attacks-Slowloris",
+        "11": "FTP-BruteForce",
+        "12": "Infilteration",
+        "13": "SQL Injection",
+        "14": "SSH-Bruteforce"
+      },
+      "label_to_int": {
+        "Benign": 0,
+        "Bot": 1,
+        "Brute Force -Web": 2,
+        "Brute Force -XSS": 3,
+        "DDOS attack-HOIC": 4,
+        "DDOS attack-LOIC-UDP": 5,
+        "DDoS attacks-LOIC-HTTP": 6,
+        "DoS attacks-GoldenEye": 7,
+        "DoS attacks-Hulk": 8,
+        "DoS attacks-SlowHTTPTest": 9,
+        "DoS attacks-Slowloris": 10,
+        "FTP-BruteForce": 11,
+        "Infilteration": 12,
+        "SQL Injection": 13,
+        "SSH-Bruteforce": 14
+      },
+      "absent_from_corpus": {
+        "Heartbleed": "not evaluated — absent from corpus"
+      }
+    },
+    "binary_mapping": {
+      "n_classes": 2,
+      "int_to_name": {
+        "0": "Benign",
+        "1": "Attack"
+      },
+      "label_to_binary": {
+        "Benign": 0,
+        "Bot": 1,
+        "Brute Force -Web": 1,
+        "Brute Force -XSS": 1,
+        "DDOS attack-HOIC": 1,
+        "DDOS attack-LOIC-UDP": 1,
+        "DDoS attacks-LOIC-HTTP": 1,
+        "DoS attacks-GoldenEye": 1,
+        "DoS attacks-Hulk": 1,
+        "DoS attacks-SlowHTTPTest": 1,
+        "DoS attacks-Slowloris": 1,
+        "FTP-BruteForce": 1,
+        "Infilteration": 1,
+        "SQL Injection": 1,
+        "SSH-Bruteforce": 1
+      },
+      "benign_label": "Benign",
+      "n_attack_labels": 14,
+      "attack_labels": [
+        "Bot",
+        "Brute Force -Web",
+        "Brute Force -XSS",
+        "DDOS attack-HOIC",
+        "DDOS attack-LOIC-UDP",
+        "DDoS attacks-LOIC-HTTP",
+        "DoS attacks-GoldenEye",
+        "DoS attacks-Hulk",
+        "DoS attacks-SlowHTTPTest",
+        "DoS attacks-Slowloris",
+        "FTP-BruteForce",
+        "Infilteration",
+        "SQL Injection",
+        "SSH-Bruteforce"
+      ],
+      "policy": "Benign -> 0; all 14 non-Benign labels -> 1.  Every label in the 15-label vocabulary appears in this mapping exactly once.  The multiclass mapping is unchanged and remains canonical for E1/E2."
+    }
+  },
+  "e1_e3_x_identity": {
+    "splits": [
+      {
+        "split": "train",
+        "e1_x_sha256": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+        "e3_x_sha256": "82cff5503f14117d855cb4fb00529136f09553e24e05233cf3501fd002c38a5c",
+        "sha256_equal": true,
+        "hardlinked": true
+      },
+      {
+        "split": "validation",
+        "e1_x_sha256": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+        "e3_x_sha256": "26c23825cbb88cbf601f6792591f08350061d815375f9190d11083f63b5ef04a",
+        "sha256_equal": true,
+        "hardlinked": true
+      },
+      {
+        "split": "test",
+        "e1_x_sha256": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+        "e3_x_sha256": "6c3749bd8b601a0264463506cb9b69dc099a431becccdda3058c3a2e3c390ca9",
+        "sha256_equal": true,
+        "hardlinked": true
+      }
+    ],
+    "all_split_sha256_equal": true
+  },
+  "e1_to_e3_target_conversion": {
+    "method": "complete chunked read-only y comparison; E3 == (E1 != Benign code 0)",
+    "targets_compared": 3119247,
+    "all_targets_match": true
+  },
+  "e2_independence": {
+    "splits": [
+      {
+        "split": "train",
+        "independent_x_artifact": true
+      },
+      {
+        "split": "validation",
+        "independent_x_artifact": true
+      },
+      {
+        "split": "test",
+        "independent_x_artifact": true
+      }
+    ],
+    "all_exp2_x_artifacts_independent": true,
+    "scaler_state_differs_from_e1": true
+  },
+  "e2_class_eligibility_policy": {
+    "artifact": "data/processed/preprocessed/class_eligibility.json",
+    "eligible_class_codes": [
+      0,
+      1,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14
+    ],
+    "ineligible_present_class_codes": [
+      2,
+      3,
+      13
+    ],
+    "ineligible_present_codes_retained_in_targets": true,
+    "policy_is_metadata_and_reporting_only": true
+  },
+  "cross_split_aliasing": {
+    "experiments": [
+      {
+        "experiment": "E1",
+        "x_artifacts_distinct": true,
+        "y_artifacts_distinct": true
+      },
+      {
+        "experiment": "E2",
+        "x_artifacts_distinct": true,
+        "y_artifacts_distinct": true
+      },
+      {
+        "experiment": "E3",
+        "x_artifacts_distinct": true,
+        "y_artifacts_distinct": true
+      }
+    ],
+    "no_x_or_y_split_aliasing": true
+  },
+  "graph_contract_sharing": {
+    "single_static_metadata_object_across_all_pairs": true,
+    "same_d1_d2_d3_d4_hashes_in_all_records": true
+  },
+  "leakage_boundary": {
+    "stage_d_topology_and_taxonomy_are_data_independent": true,
+    "stage_d_learned_quantities": false,
+    "validation_or_test_used_to_fit_stage_d_quantity": false,
+    "only_frozen_stage_c_train_fitted_preprocessing_is_referenced": true,
+    "repeated_states_not_interpreted_as_split_index_overlap": true
+  },
+  "stage_c_integrity": {
+    "stage_c_artifact_count": 33,
+    "stage_c_expected_count": 33,
+    "stage_c_file_set_matches": true,
+    "stage_c_sha256_matches": true,
+    "raw_csv_count": 10,
+    "raw_csv_expected_count": 10,
+    "raw_csv_file_set_matches": true,
+    "raw_csv_sha256_matches": true,
+    "overall_status": "PASS"
+  },
+  "overall_status": "PASS",
+  "report_sha256": "1ddfa6caaaf33a04d8b4a973b39b3b815be9ef11904bd0b6e5bf91a95f898b16"
+}

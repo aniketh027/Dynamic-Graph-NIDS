@@ -1,0 +1,104 @@
+{
+  "validation_version": "stage-d3-structural-validation-v1",
+  "references": {
+    "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+    "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea"
+  },
+  "node_counts": {
+    "feature": 78,
+    "category": 8,
+    "sample": 1
+  },
+  "total_node_count": 87,
+  "relation_edge_counts": {
+    "feature|contributes_to|category": 78,
+    "category|contributes_to|sample": 8
+  },
+  "actual_edge_count": 86,
+  "unique_edge_count": 86,
+  "category_member_counts": {
+    "Context": 2,
+    "Time": 23,
+    "Packets and size": 24,
+    "Rates and ratios": 5,
+    "Flags": 12,
+    "Bulk": 6,
+    "Subflow": 4,
+    "Window": 2
+  },
+  "degree_summary": {
+    "features": {
+      "count": 78,
+      "indegree_min": 0,
+      "indegree_max": 0,
+      "outdegree_min": 1,
+      "outdegree_max": 1,
+      "all_indegree_0_outdegree_1": true
+    },
+    "categories": {
+      "indegrees": [
+        2,
+        23,
+        24,
+        5,
+        12,
+        6,
+        4,
+        2
+      ],
+      "outdegrees": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "matches_d1_indegrees_and_outdegree_1": true
+    },
+    "sample": {
+      "indegree": 8,
+      "outdegree": 0
+    }
+  },
+  "weak_connectivity": {
+    "component_count": 1,
+    "is_weakly_connected": true
+  },
+  "directed_acyclicity": {
+    "is_dag": true,
+    "self_loop_count": 0,
+    "all_edges_increase_level_by_one": true
+  },
+  "path_validation": {
+    "all_features_exactly_one_path_of_two_hops": true,
+    "all_categories_exactly_one_path_of_one_hop": true
+  },
+  "duplicate_edge_validation": {
+    "duplicate_count": 0,
+    "all_edges_unique": true
+  },
+  "endpoint_range_validation": {
+    "type_local_ids_declared_correctly": true,
+    "all_endpoints_in_range": true
+  },
+  "provenance_validation": {
+    "d1_manifest_valid": true,
+    "d1_hash_matches": true,
+    "stage_c_feature_order_hash_matches": true,
+    "d2_schema_hash_valid": true,
+    "d2_approved_hash_matches": true,
+    "d2_artifact_matches_module": true
+  },
+  "membership_validation": {
+    "all_features_match_d1": true,
+    "node_kinds_valid": true,
+    "node_counts_valid": true,
+    "relations_exact": true
+  },
+  "overall_status": "PASS",
+  "errors": [],
+  "report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb"
+}

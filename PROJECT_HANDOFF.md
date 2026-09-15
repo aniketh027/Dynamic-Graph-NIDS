@@ -1,24 +1,25 @@
-# Project Handoff — Frozen Through Stage C
+# Project Handoff — Frozen Through Stage D
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The verified implementation currently stops after dataset profiling and Stage C preprocessing. No graph or model result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The verified implementation currently stops after the framework-independent Stage D graph-input layer. No graph-framework object, model, or performance result exists yet.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-3. Frozen implementation and tests in `src/preprocessing/`, `scripts/`, and `tests/`.
-4. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-5. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+2. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+3. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+4. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
+5. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+6. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
 ## Frozen Status
 
-Stage C passed an independent adversarial re-audit and is frozen. Do not change its cleaning cascade, exact-comparison logic, transforms, window construction, split behavior, verified counts, or tests without a separately approved methodology change and a new audit.
+Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, or the Stage D taxonomy, schema, adapters, batching, construction, full-split integration, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
 
 ## Verified Dataset Facts
 
@@ -50,6 +51,25 @@ The raw dataset consists of 10 CSV files. All 10 remained byte-identical across 
 
 A sample is a **contiguous capture-order temporal window** of five consecutive clean flow records. The target is the label of the fifth/final flow. These windows are not guaranteed to be individual network conversations. `T=5` is a reasonable engineering choice; it is not proven mathematically optimal, and its predictive value remains unmeasured.
 
+## Frozen Stage D Graph-Input Contract
+
+One logical graph corresponds to one Stage C sample. Its type-local hierarchy is
+`78 feature -> 8 category -> 1 sample`: 87 nodes and 86 directed edges. Each
+feature belongs to exactly one of eight categories with counts
+`2/23/24/5/12/6/4/2`; every category contributes to the sample node. There are
+no reverse, same-level, temporal, correlation, or structural self-loop edges.
+
+Each feature node exposes the ordered five-flow value sequence. D4 reads one
+sample lazily from read-only Stage C memory maps, D6 constructs only requested
+batch-scale logical arrays, and D8 covers every split sequentially without
+shuffle or dropped final batches. D8's plan authority is tuple-backed and its
+iterator verifies the bound dataset, plan, experiment, split, artifacts,
+provenance, memmaps, and topology before and after each D6 construction.
+
+Approved D1-D8 hashes are recorded in `docs/STAGE_D_VERIFICATION.md`. The
+current D8 hash is
+`d1a757459062fe8ca08f0be5951a5a728898a20d28eafbb12f10ce4646047b1f`.
+
 ## Canonical Duplicate Cascade
 
 The mutually exclusive cascade runs before windowing:
@@ -77,14 +97,16 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Corrected full suite: **460 passed, 0 failed, 0 skipped**.
+- Current complete suite: **691 passed, 0 failed**.
+- Stage D suite: **231 passed**; targeted D8 suite: **44 passed**.
 - Two complete corrected full-corpus runs: 33 canonical artifacts each.
 - Relative file sets identical; all 33 corresponding SHA-256 values identical.
 - Comparison result: missing = 0, extra = 0, differing = 0.
 - All 10 raw CSV files remained byte-identical.
 - Independent re-audit verdict: **PASS — Stage C can be frozen**.
+- Stage D release-audit verdict: **PASS — D1-D8 graph input can be frozen**.
 
-Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json`.
+Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json` and `results/stage_d1/` through `results/stage_d8/`.
 
 ## Known Methodological Limitations
 
@@ -94,10 +116,10 @@ Large arrays and local recovery copies are deliberately excluded from Git. Compa
 4. E2 preserves within-class chronology rather than one global timeline.
 5. The predictive value of T=5 has not been measured.
 6. Original report performance claims are not verified results.
-7. Graph construction, HTGraph, GATv2, HTGNN, and pruning are not implemented.
+7. No PyG/HeteroData object, causal temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning is implemented.
 
 ## Current Boundary and Exact Next Step
 
-Stop at the frozen Stage C checkpoint. Do not train a model or construct a graph.
+Stop at the frozen Stage D graph-input checkpoint. Do not train a model or add graph-framework/model code without a separately approved design and implementation scope.
 
-The exact next step is a **feature engineering / HTGraph construction design review**. The review must define the proposed feature and graph schema, temporal/node/edge semantics, data boundaries, evaluation interaction, memory strategy, and acceptance criteria before implementation begins.
+The exact next step is **model/framework design** against the frozen 87-node/86-edge input contract. The review must define framework representation, causal temporal encoding, model architecture, loss, training/evaluation boundaries, reproducibility, resource limits, and acceptance criteria before implementation begins.

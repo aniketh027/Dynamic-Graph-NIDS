@@ -1,0 +1,1056 @@
+{
+  "sanity_version": "stage-d7-bounded-construction-sanity-v1",
+  "provenance": {
+    "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+    "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+    "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb",
+    "d4_report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6",
+    "d5_report_sha256": "1ddfa6caaaf33a04d8b4a973b39b3b815be9ef11904bd0b6e5bf91a95f898b16",
+    "d6_report_sha256": "5e9808efba9754dc40af9503a7ef7fc70cca8204e2ca24e72eac1620376e07ac"
+  },
+  "selection_rule": "[0, N//4, N//2, (3*N)//4, N-1]",
+  "selected_sample_count_per_run": 45,
+  "construction_passes": 2,
+  "tested_batch_sizes": [
+    1,
+    2,
+    5
+  ],
+  "maximum_batch_size": 5,
+  "maximum_batch_feature_payload_bytes": 7800,
+  "experiment_split_results": [
+    {
+      "experiment": "E1",
+      "split": "train",
+      "dataset_length": 2183472,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp1/X_train.npy",
+        "y": "data/processed/preprocessed/exp1/y_train.npy",
+        "split_metadata": "data/processed/preprocessed/exp1/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        545868,
+        1091736,
+        1637604,
+        2183471
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "3ce3a8373c8492ec0d8634db124844d779355de2e55bd351fc8fffd25c10ae8a",
+        "48b5e2b0a122efa4f511aa3bc48782409f20bd832c765b948aecf8cb04b435b9",
+        "775b4f6f79fc9c5c5feaadec00d0e641e0d83878adb46063ebf0bc6b07ac6598",
+        "73db1b175b32331057e913a2d0e8fa9f747e799a5e63a680d6b80ac11f9faab4",
+        "6580afe2a99c0c2c9dd0d979ed90918e6380514d1bd71e2824a10bc294e3c2c5"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "5aa8e78c5f06e74ba5f49ab2c9ee7d73eafe30bb3041f3a9c1a3626f98608d5c"
+        },
+        {
+          "ordered_indices": [
+            545868,
+            1091736
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "ad47992c526ff2781f3c3fc54e16aba25ca1084ef0835e92ea6db7e61a043d1d"
+        },
+        {
+          "ordered_indices": [
+            0,
+            545868,
+            1091736,
+            1637604,
+            2183471
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "2ed5624bb66334b34823f76c66f0795804cd41229b1cd16f82859fe9c5046d73"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E1",
+      "split": "validation",
+      "dataset_length": 311924,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp1/X_val.npy",
+        "y": "data/processed/preprocessed/exp1/y_val.npy",
+        "split_metadata": "data/processed/preprocessed/exp1/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        77981,
+        155962,
+        233943,
+        311923
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "4e6bf04f114781331bb42a173ec53593cd15f07b00ae807cc073378adcb6e183",
+        "1ec83e6c2ec47ebac67641efbb6568e9642608bc70897b8a947aa5a0f83475de",
+        "91b2c9759f64ad2660670db10c7438eee0d5cf3f109dacb895fd12515f61f2ee",
+        "490de376bb620c10ef47d9d1c874f7980cd2735a9f2abd5f03f84dde8fb9c725",
+        "a887cbca18255032c0f6386221ebd386cda85aab2a35f6de8e5f08c621662d9c"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "7e5ffaa544082327bfbf465eb16cb81e43fa43a23a97601f030afc477ac7956c"
+        },
+        {
+          "ordered_indices": [
+            77981,
+            155962
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "51b679350fa44213a71bcfe41c7d6ef2dece2fc40c39ded06ae0bb41e5217af0"
+        },
+        {
+          "ordered_indices": [
+            0,
+            77981,
+            155962,
+            233943,
+            311923
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "8b83fb5239aba7c3fb106b7538ba9437c7106e2d0a53f72cac6d720787c79f62"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E1",
+      "split": "test",
+      "dataset_length": 623851,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp1/X_test.npy",
+        "y": "data/processed/preprocessed/exp1/y_test.npy",
+        "split_metadata": "data/processed/preprocessed/exp1/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        155962,
+        311925,
+        467888,
+        623850
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "7393d876af5bd7c61ee3f7da27c49a7458096b3ef29915df7c1cf1f855b0d1f0",
+        "7007582541f40fbc255e1530d2f0567e409b53ff104475504d49c60bba955ad8",
+        "2cf94dfc5c086b30930f8674fc8c23ec92f58a89c0b84af3fa40f02fc34aaa31",
+        "81388b22cdc028c9e1001dc7dce7744c3665f62590b0fb88c7459994e9230667",
+        "0fba7f8dad9db46063596a91b41b82f6b6f240b601f25ca9163d8c0f3d89b3f9"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "2f6f282c86e910530166228c00213e4f9eb3cfdc29445a3cfa433e97f982b797"
+        },
+        {
+          "ordered_indices": [
+            155962,
+            311925
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "728e33f1d38150d9d7cbca550af91a88d160209ccd42839a0be387d03291c531"
+        },
+        {
+          "ordered_indices": [
+            0,
+            155962,
+            311925,
+            467888,
+            623850
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "e2d1cf517fd94ad82ec6496990de090b6fd7e9fb141f6d53d61d4277bc6177ab"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "train",
+      "dataset_length": 2183465,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp2/X_train.npy",
+        "y": "data/processed/preprocessed/exp2/y_train.npy",
+        "split_metadata": "data/processed/preprocessed/exp2/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        545866,
+        1091732,
+        1637598,
+        2183464
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "1f259431e069365b43b08c148e655942353a47a53dd0b3d5d54715bff5120956",
+        "d3c7face1fb2c767afc47c1407bb63b2ff4d5fc2609d0201551718e9404574af",
+        "37581d8b8198239af4b60f1f93c67de16f68f22c357e5a1679cec4b26d5ea772",
+        "05c904d0ea393180d445eddb93e1acd09bfb270d0712a8982f4a489b5a3a8941",
+        "ad2bbb07e7d23f706eeb9463aff4adb0915147fac0631cbe699bc4c8b817c654"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "11c4a1079ce44621cb37d339c8630af0bde7bc43125e97694db4ac8389f155e3"
+        },
+        {
+          "ordered_indices": [
+            545866,
+            1091732
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "3ae5aaacf6e25ecdd9487450d7c33f1bd000f7fe1ab1b446ef076c236dd79c31"
+        },
+        {
+          "ordered_indices": [
+            0,
+            545866,
+            1091732,
+            1637598,
+            2183464
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "ce9803f658870cde4e21f98b9d4c844db50e5ab15ab1ac208c2f31c0c3695307"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "validation",
+      "dataset_length": 311916,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp2/X_val.npy",
+        "y": "data/processed/preprocessed/exp2/y_val.npy",
+        "split_metadata": "data/processed/preprocessed/exp2/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        77979,
+        155958,
+        233937,
+        311915
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "30e1fd6a4d2608a3d4359098ef2fa2b9e83f847e7893e9eebff15550ff6efb51",
+        "a4ef8c3fab587499c8e67a02d1bba21717952125f583e8f844ba55931e3739dc",
+        "889d086e0fe58a23c509f3aeee7b4ae8cf8ff9eaef4bc4f1c636f52069692ee3",
+        "e54ae63994177361a4423d7867b0bf8e0fc82fbfeccd56c05d699d52b17affa1",
+        "f3ea5c650eb2c1f401eaf56cb3a9404db538f4c614b56efc492b1adab86ad66f"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "c7504f5622cf2516365218e6bf314e10a55d2268af10a2a698b733e72981e301"
+        },
+        {
+          "ordered_indices": [
+            77979,
+            155958
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "c6ec0bc346bd8603c70ea84f9e89b65243feb9eb7c6a0947bbc840fb3881ac52"
+        },
+        {
+          "ordered_indices": [
+            0,
+            77979,
+            155958,
+            233937,
+            311915
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "49fde2745837aa1fcb6f65b77972a184efdb8ff5a4f697eb1c0ed64cfbc5edc2"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E2",
+      "split": "test",
+      "dataset_length": 623866,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp2/X_test.npy",
+        "y": "data/processed/preprocessed/exp2/y_test.npy",
+        "split_metadata": "data/processed/preprocessed/exp2/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        155966,
+        311933,
+        467899,
+        623865
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "1776f3fe9fe4c622eb7811fdb4cea15251715f493f759a2c72847d9c25b5d875",
+        "20340e8cbd24e29636786e282f160ce12b842be7bbc30376ff94c0dbf04d7abf",
+        "b4da381fde1ed270ae0761b4478ba79bfa2fb8c99c423bf0741ec571b29e0dde",
+        "4ebae71b6d775f8dca2cb967b1cca56945bc387e636d584b8934b153d87207f9",
+        "8cc790f46b70c10bf3aa53e67cca4546a1c696c344ea180ac6d1ccf426d67191"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "320f68fbd8852d46e19ab64254a599f92cc3260d3cfa07c79e33e3a4138346c9"
+        },
+        {
+          "ordered_indices": [
+            155966,
+            311933
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "4595a8bdc7c5878f8f7fbfd2aed38dec5106bc92fa263f4b4365b683a965014c"
+        },
+        {
+          "ordered_indices": [
+            0,
+            155966,
+            311933,
+            467899,
+            623865
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "039a74c6a4e0737dfc4bb18f0348acbdece436be4cfa99654445647e54064f22"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "train",
+      "dataset_length": 2183472,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp3/X_train.npy",
+        "y": "data/processed/preprocessed/exp3/y_train.npy",
+        "split_metadata": "data/processed/preprocessed/exp3/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        545868,
+        1091736,
+        1637604,
+        2183471
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "357009bf6f79d423e700aec674777274ff920f91b0ab3aef03513f2bf749130c",
+        "f337eb1722ecbdc946853dd77792172ab7ad196647ed9ada4c6fb5b69b91fc9c",
+        "b712ec61d07c3d856632ac23f7c5985f22462d7a1d89095b0dc104a65c6fe786",
+        "02e6edb4d8f59c8af6b6c2bbc0993f26259a3c5b07d0c3f84533f0b1c251c5f9",
+        "7f82127ef7173f5a624803ccd57b412e8e2910ffeff6c4a044740d32d82c037f"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "12d772c6de396a8958212259f56fee3c6fc4646e38972dbdc57a1a1e3bc28fad"
+        },
+        {
+          "ordered_indices": [
+            545868,
+            1091736
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "d1f83adef97e63b7e84de5baefeace1cdec53c07dd767686ea818f78d344a4f4"
+        },
+        {
+          "ordered_indices": [
+            0,
+            545868,
+            1091736,
+            1637604,
+            2183471
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "ae08b576ea03d4b9a90abb1eb196a7b09f79e43337affcfa768a40be67f0c9a5"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "validation",
+      "dataset_length": 311924,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp3/X_val.npy",
+        "y": "data/processed/preprocessed/exp3/y_val.npy",
+        "split_metadata": "data/processed/preprocessed/exp3/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        77981,
+        155962,
+        233943,
+        311923
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "fa76d0a4029f52d3080a996603221dec4d8d9a51e14dfc22680b49a2025c9dbf",
+        "051254260748637ab50c788c20138fcbcaaf814160e90a3da5bc4102426ef99e",
+        "77dbd1578edf7cec46bfe30d3660c67037dd5c4855214a3acef29fd1963aad74",
+        "bd7162c5fbe9b407e15e523e049440fffb5dfbed98de1890444b8ed032305675",
+        "70e833c59584dc937226bfa5300522bb53008a1c28add3822a94ec4773291639"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "6994493c76595eff51e01d23ccc4633ceeb08cc15f03d2716a17bf098ca7c190"
+        },
+        {
+          "ordered_indices": [
+            77981,
+            155962
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "718c2cebb0db1a9db01f756d458d26071c367db22a655959ce16393aec48654f"
+        },
+        {
+          "ordered_indices": [
+            0,
+            77981,
+            155962,
+            233943,
+            311923
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "e06d06c111ec8374a4818e517cb7803bcc523e0d0e350edda43226a42eb4d9ae"
+        }
+      ],
+      "source_read_only": true
+    },
+    {
+      "experiment": "E3",
+      "split": "test",
+      "dataset_length": 623851,
+      "source_artifacts": {
+        "x": "data/processed/preprocessed/exp3/X_test.npy",
+        "y": "data/processed/preprocessed/exp3/y_test.npy",
+        "split_metadata": "data/processed/preprocessed/exp3/split_metadata.json"
+      },
+      "selected_indices": [
+        0,
+        155962,
+        311925,
+        467888,
+        623850
+      ],
+      "sample_feature_shape": [
+        78,
+        5
+      ],
+      "sample_feature_dtype": "float32",
+      "sample_target_dtype": "int16",
+      "sample_fingerprints_sha256": [
+        "12fbcc5c776b978658cc9ed510c687f36c18b32103276b42125263d1f0546134",
+        "4499093478af04065cbd38001f3d440df97c9b12632c3049b4e3713d0e1fd381",
+        "56fb0d3d5acd2d813ea114c0dcf1bc2727e63cfe803e04790ebf66e1700dd737",
+        "6c9f1a8f61d9fb528e39b830b5cb6f2aa43ec6440fd99f1a98ea823e394d4335",
+        "74d538df9c5a5d38973153cdecc3fafc482d2d12ec2767442aa536b66c8b957d"
+      ],
+      "batch_groupings": [
+        {
+          "ordered_indices": [
+            0
+          ],
+          "batch_size": 1,
+          "feature_x_shape": [
+            1,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            1
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 78,
+          "category_nodes": 8,
+          "sample_nodes": 1,
+          "feature_to_category_edges": 78,
+          "category_to_sample_edges": 8,
+          "total_edges": 86,
+          "batch_fingerprint_sha256": "0b2d004835993f390375ced60178b65140066f10e058047fd4b1c0abfa5692f1"
+        },
+        {
+          "ordered_indices": [
+            155962,
+            311925
+          ],
+          "batch_size": 2,
+          "feature_x_shape": [
+            2,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            2
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 156,
+          "category_nodes": 16,
+          "sample_nodes": 2,
+          "feature_to_category_edges": 156,
+          "category_to_sample_edges": 16,
+          "total_edges": 172,
+          "batch_fingerprint_sha256": "68dd8603ef053c67773b4476b2436615c9cfb777c0c33c414c359d909b6d76de"
+        },
+        {
+          "ordered_indices": [
+            0,
+            155962,
+            311925,
+            467888,
+            623850
+          ],
+          "batch_size": 5,
+          "feature_x_shape": [
+            5,
+            78,
+            5
+          ],
+          "feature_x_dtype": "float32",
+          "targets_shape": [
+            5
+          ],
+          "targets_dtype": "int16",
+          "feature_nodes": 390,
+          "category_nodes": 40,
+          "sample_nodes": 5,
+          "feature_to_category_edges": 390,
+          "category_to_sample_edges": 40,
+          "total_edges": 430,
+          "batch_fingerprint_sha256": "f5f71c02789ccd69c4fd46c3262ac352fc7269da71927bebd241a215cbbed609"
+        }
+      ],
+      "source_read_only": true
+    }
+  ],
+  "graph_contract": {
+    "node_counts_per_sample": {
+      "feature": 78,
+      "category": 8,
+      "sample": 1
+    },
+    "total_nodes_per_sample": 87,
+    "edges_per_sample": 86,
+    "hierarchy": "feature -> category -> sample",
+    "category_membership_counts": {
+      "Context": 2,
+      "Time": 23,
+      "Packets and size": 24,
+      "Rates and ratios": 5,
+      "Flags": 12,
+      "Bulk": 6,
+      "Subflow": 4,
+      "Window": 2
+    },
+    "status": "PASS"
+  },
+  "topology_invariance": {
+    "topology_identity_sha256": "0b5f0e1b65f32f3d19843b3977931fbf50c84c64fc016ad6c0e57e7e8a3c091a",
+    "single_identity_across_all_inputs": true,
+    "independent_of_experiment_split_index_target_and_values": true
+  },
+  "sample_value_and_target_preservation_status": true,
+  "batch_equivalence_status": true,
+  "no_cross_sample_edge_status": true,
+  "e1_e3_feature_equality_status": true,
+  "e1_to_e3_target_conversion_status": true,
+  "e2_independent_source_provenance_status": true,
+  "no_model_input_leakage_status": true,
+  "repeatability": {
+    "selected_indices_identical": true,
+    "sample_fingerprints_identical": true,
+    "batch_fingerprints_identical": true,
+    "topology_identity_identical": true,
+    "overall_status": "PASS"
+  },
+  "source_immutability": {
+    "memory_maps_read_only": true,
+    "batch_arrays_read_only": true,
+    "source_mtimes_unchanged": true,
+    "writes_performed": false
+  },
+  "boundedness": {
+    "whole_split_preloaded": false,
+    "whole_corpus_graphs_materialized": false,
+    "individual_graph_files_serialized": false
+  },
+  "stage_c_integrity": {
+    "stage_c_artifact_count": 33,
+    "stage_c_expected_count": 33,
+    "stage_c_file_set_matches": true,
+    "stage_c_sha256_matches": true,
+    "raw_csv_count": 10,
+    "raw_csv_expected_count": 10,
+    "raw_csv_file_set_matches": true,
+    "raw_csv_sha256_matches": true,
+    "overall_status": "PASS"
+  },
+  "raw_data_integrity": {
+    "raw_csv_count": 10,
+    "raw_csv_expected_count": 10,
+    "raw_csv_file_set_matches": true,
+    "raw_csv_sha256_matches": true
+  },
+  "overall_status": "PASS",
+  "report_sha256": "cc67f8cf87c93977b9b7e820ea57ee3fe989849a8c3e1222266482373a17a55b"
+}

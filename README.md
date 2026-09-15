@@ -1,12 +1,12 @@
 # Dynamic Graph Optimization and Automated Feature Extraction for Efficient Intrusion Detection in Network Systems
 
-This student research project investigates an intrusion-detection pipeline that combines automated feature extraction, heterogeneous temporal graphs, graph neural networks, and attention-guided graph optimization. The repository currently contains the verified data-inspection and preprocessing foundation; it does not yet contain a graph or trained detection model.
+This student research project investigates an intrusion-detection pipeline that combines automated feature extraction, heterogeneous temporal graphs, graph neural networks, and attention-guided graph optimization. The repository currently contains the verified data/preprocessing foundation and framework-independent Stage D graph-input layer; it does not yet contain a graph-framework object or trained detection model.
 
 ## Current Status
 
-Stage C preprocessing is independently verified and frozen. The next project activity is a **feature engineering / HTGraph construction design review**.
+Stage C preprocessing and the Stage D graph-input layer are independently verified and frozen. Stage D defines the approved `78 feature -> 8 category -> 1 sample` hierarchy (87 nodes and 86 directed edges) through D1-D8. The next project activity is **model/framework design** against that frozen contract.
 
-No feature-engineering, graph-construction, HTGNN, GATv2, pruning, or model-training result is claimed in this checkpoint.
+No PyG/HeteroData construction, HTGNN, GATv2, temporal encoder, pruning, model-training, or performance result is claimed in this checkpoint.
 
 ## Project Pipeline
 
@@ -14,8 +14,8 @@ No feature-engineering, graph-construction, HTGNN, GATv2, pruning, or model-trai
 | --- | --- |
 | CSE-CIC-IDS2018 dataset inspection and Stage B profiling | Completed |
 | Canonical cleaning, T=5 windows, E1/E2/E3 splits, train-only preprocessing | Completed, independently verified, frozen |
-| Feature engineering | Planned; design review is next |
-| Heterogeneous temporal graph (HTGraph) construction | Planned |
+| Framework-independent Stage D graph-input schema, adapters, batching, and full-split integration | Completed, independently verified, frozen |
+| Graph-framework and model design | Planned; design review is next |
 | HTGNN / GATv2 detection | Planned |
 | Attention-guided graph optimization and pruning | Planned |
 | Model evaluation | Planned |
@@ -74,11 +74,12 @@ All preprocessing transforms are fitted on the applicable training partition onl
 
 ## Validation
 
-- **460 tests passed; 0 failed; 0 skipped.**
+- **691 tests passed; 0 failed.** Stage D contributes 231 passing tests, including 44 D8 tests.
 - Two corrected full-corpus runs produced identical relative sets of 33 canonical artifacts.
 - All 33 corresponding SHA-256 values were identical; missing = 0, extra = 0, differing = 0.
 - All 10 raw CSV files remained byte-identical.
 - Stage C passed independent adversarial re-audit and is frozen.
+- Stage D D1-D8 passed independent adversarial release audit; see [`docs/STAGE_D_VERIFICATION.md`](docs/STAGE_D_VERIFICATION.md).
 
 Compact machine-readable evidence is retained in [`results/stage_c_full_validation.json`](results/stage_c_full_validation.json). Multi-gigabyte arrays are deliberately not stored in Git.
 
@@ -95,6 +96,7 @@ results/temporal_analysis/     compact T=5 and T-sweep reports
 scripts/                       inspection, profiling, preprocessing, validation CLIs
 src/analysis/                  temporal continuity and robustness analysis
 src/preprocessing/             frozen Stage C implementation
+src/graph/                     frozen framework-independent Stage D graph-input layer
 src/utils/                     logging and reproducibility helpers
 tests/                         setup, profiling, analysis, and Stage C tests
 PROJECT_HANDOFF.md             verified milestone handoff and next boundary
@@ -155,8 +157,8 @@ For a bounded pipeline smoke run, use `python scripts/run_preprocessing.py --deb
 4. E2 preserves chronology within each class, not one global timeline.
 5. T=5 predictive value remains unmeasured because no model has been trained.
 6. Performance claims in the original project report are not verified results.
-7. Graph construction, HTGraph, GATv2, HTGNN, and pruning have not yet been implemented.
+7. No PyG/HeteroData object, temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning has yet been implemented.
 
 ## Next Stage
 
-The exact next step is a **feature engineering / HTGraph construction design review**. Stage C algorithms, counts, and evidence remain frozen during that review.
+The exact next step is **model/framework design** against the frozen Stage D graph-input contract. Stage C algorithms and Stage D D1-D8 contracts, counts, and evidence remain frozen during that review.

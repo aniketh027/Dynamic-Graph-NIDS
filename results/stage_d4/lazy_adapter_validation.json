@@ -1,0 +1,275 @@
+{
+  "adapter_version": "stage-d4-lazy-sample-adapter-v1",
+  "provenance": {
+    "d1_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+    "d2_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+    "d3_report_sha256": "40f4e23e9e0937f5182ebcdb6d6363301012e05c98a90d8b3985968bd1e605bb"
+  },
+  "experiment_splits": [
+    {
+      "experiment": "E1",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp1/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_train.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp1/split_metadata.json",
+      "length": 2183472,
+      "x_shape": [
+        2183472,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183472
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        1091736,
+        2183471
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E1",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp1/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_val.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp1/split_metadata.json",
+      "length": 311924,
+      "x_shape": [
+        311924,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311924
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        155962,
+        311923
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E1",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp1/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp1/y_test.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp1/split_metadata.json",
+      "length": 623851,
+      "x_shape": [
+        623851,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623851
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        311925,
+        623850
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E2",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp2/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_train.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp2/split_metadata.json",
+      "length": 2183465,
+      "x_shape": [
+        2183465,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183465
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        1091732,
+        2183464
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E2",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp2/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_val.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp2/split_metadata.json",
+      "length": 311916,
+      "x_shape": [
+        311916,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311916
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        155958,
+        311915
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E2",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp2/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp2/y_test.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp2/split_metadata.json",
+      "length": 623866,
+      "x_shape": [
+        623866,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623866
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        311933,
+        623865
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E3",
+      "split": "train",
+      "x_artifact": "data/processed/preprocessed/exp3/X_train.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_train.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp3/split_metadata.json",
+      "length": 2183472,
+      "x_shape": [
+        2183472,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        2183472
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        1091736,
+        2183471
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E3",
+      "split": "validation",
+      "x_artifact": "data/processed/preprocessed/exp3/X_val.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_val.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp3/split_metadata.json",
+      "length": 311924,
+      "x_shape": [
+        311924,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        311924
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        155962,
+        311923
+      ],
+      "read_only_memory_map": true
+    },
+    {
+      "experiment": "E3",
+      "split": "test",
+      "x_artifact": "data/processed/preprocessed/exp3/X_test.npy",
+      "y_artifact": "data/processed/preprocessed/exp3/y_test.npy",
+      "metadata_artifact": "data/processed/preprocessed/exp3/split_metadata.json",
+      "length": 623851,
+      "x_shape": [
+        623851,
+        5,
+        78
+      ],
+      "x_dtype": "float32",
+      "y_shape": [
+        623851
+      ],
+      "y_dtype": "int16",
+      "tested_indices": [
+        0,
+        311925,
+        623850
+      ],
+      "read_only_memory_map": true
+    }
+  ],
+  "transpose_validation": {
+    "definition": "feature_x[f,t] == StageC_X[i,t,f]",
+    "all_tested_samples_exact": true
+  },
+  "target_validation": {
+    "definition": "target == StageC_y[i]",
+    "all_tested_targets_exact_int16": true
+  },
+  "feature_order_validation": {
+    "frozen_order_preserved": true,
+    "feature_count": 78
+  },
+  "temporal_order_validation": {
+    "position_0": "earliest flow in frozen T=5 window",
+    "position_4": "fifth/final flow and target source",
+    "all_tested_time_positions_preserved": true
+  },
+  "topology_validation": {
+    "shared_static_object": true,
+    "feature_to_category_edges": 78,
+    "category_to_sample_edges": 8,
+    "total_structural_edges": 86
+  },
+  "e1_e3_consistency": {
+    "selected_feature_x_equal": true,
+    "targets_not_required_equal": true
+  },
+  "e2_independence": {
+    "uses_exp2_artifacts_not_exp1": true
+  },
+  "resource_validation": {
+    "numpy_memory_map": true,
+    "read_only": true,
+    "full_array_scan_performed_by_adapter": false,
+    "selected_samples_finite": true
+  },
+  "stage_c_integrity": {
+    "stage_c_artifact_count": 33,
+    "stage_c_expected_count": 33,
+    "stage_c_file_set_matches": true,
+    "stage_c_sha256_matches": true,
+    "raw_csv_count": 10,
+    "raw_csv_expected_count": 10,
+    "raw_csv_file_set_matches": true,
+    "raw_csv_sha256_matches": true,
+    "overall_status": "PASS"
+  },
+  "overall_status": "PASS",
+  "report_sha256": "ccd065556c533d4fd1cd2e4d821566611db9d2a5a9e7ea036c0cca3b3f6500d6"
+}
