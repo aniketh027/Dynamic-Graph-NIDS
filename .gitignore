@@ -84,3 +84,5 @@ results/temporal_analysis/per_window_continuity.csv
 !results/stage_e1/**
 !results/stage_e2/
 !results/stage_e2/**
+!results/stage_e3/
+!results/stage_e3/**

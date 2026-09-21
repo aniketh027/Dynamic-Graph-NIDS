@@ -1,26 +1,27 @@
-# Project Handoff — Frozen Through Stage E.2
+# Project Handoff — Frozen Through Stage E.3
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The verified implementation currently stops after the Stage E.2 D6-to-PyG `HeteroData` adapter. No learned model, training, or performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the Stage E.3 causal temporal and feature-node encoder, tagged `v0.6-stage-e3-feature-encoder`. No graph message-passing model, training, or performance result exists yet.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
-3. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-4. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-5. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
-6. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-7. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+2. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
+3. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
+4. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+5. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+6. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
+7. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+8. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
 ## Frozen Status
 
-Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Do not change Stage C cleaning, transforms, windows, splits, or the Stage D taxonomy, schema, adapters, batching, construction, full-split integration, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
+Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.3 environment, adapter, feature encoder, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
 
 ## Verified Dataset Facts
 
@@ -93,7 +94,29 @@ position 5. It uses no right padding or dilation and has receptive field 5.
 The 16-dimensional temporal result is concatenated with
 `Embedding(78,8)`, then fused by
 `Linear(24,32) -> LayerNorm(32) -> GELU -> Dropout(0.10)`. This architecture
-is approved for the next stage but is not implemented in this checkpoint.
+is implemented and frozen in the Stage E.3 Git checkpoint.
+
+## Frozen Stage E.3 Contract
+
+`src/graph/feature_encoder.py` exposes
+`CausalTemporalEncoder.forward_sequence([N,5]) -> [N,16,5]`,
+`CausalTemporalEncoder([N,5]) -> [N,16]`, and
+`FeatureNodeEncoder([N,5], [N]) -> [N,32]`. The implementation has exactly
+1,920 learned parameters: 432 temporal-convolution, 624 feature-ID embedding,
+800 fusion-linear, and 64 LayerNorm parameters.
+
+The E.3 validation covers explicit left-only padding, preserved sequence
+length, prefix invariance and zero future gradients at all five positions,
+position-1 reachability from position 5, position-4 isolation from position 5,
+deterministic temporal-order sensitivity, feature-ID distinction, evaluation
+determinism, CPU/CUDA forward and backward, and bounded real D4-to-D6-to-E.2
+integration for all nine E1/E2/E3 split pairs. Identical E1/E3 inputs produce
+identical embeddings under the same model, and all source inputs remain
+unmodified. The canonical E.3 report SHA-256 is
+`b3e838c90a7488eca2c7b9083744386a6340234549318c4709b1176b87ae9adb`.
+
+Stage E.3 deliberately contains no category embeddings, sample token, GATv2,
+classifier, loss, optimizer, training, pruning, or E.4 implementation.
 
 ## Canonical Duplicate Cascade
 
@@ -122,14 +145,21 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Current complete suite: **729 passed, 0 failed**.
-- Stage E.2 suite: **38 passed**; Stage D suite: **231 passed**.
+- Current complete suite: **759 passed, 0 failed**.
+- Stage E.3 focused suite: **30 passed**; Stage E.2 suite: **38 passed**;
+  combined Stage E.2-E.3 suite: **68 passed**; Stage D regression suite:
+  **231 passed**.
+- Stage E.3 deterministic report: canonical SHA-256
+  `b3e838c90a7488eca2c7b9083744386a6340234549318c4709b1176b87ae9adb`;
+  physical file SHA-256
+  `790afb645080f7fd0ae70b7d5c7cb6c1ad4dcab9da8fd28ec9e21ab7b3e6b956`.
 - Two complete corrected full-corpus runs: 33 canonical artifacts each.
 - Relative file sets identical; all 33 corresponding SHA-256 values identical.
 - Comparison result: missing = 0, extra = 0, differing = 0.
 - All 10 raw CSV files remained byte-identical.
 - Independent re-audit verdict: **PASS — Stage C can be frozen**.
 - Stage D release-audit verdict: **PASS — D1-D8 graph input can be frozen**.
+- Stage E.3 release-audit verdict: **PASS — causal feature encoder can be frozen**.
 
 Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json` and `results/stage_d1/` through `results/stage_d8/`.
 
@@ -141,10 +171,10 @@ Large arrays and local recovery copies are deliberately excluded from Git. Compa
 4. E2 preserves within-class chronology rather than one global timeline.
 5. The predictive value of T=5 has not been measured.
 6. Original report performance claims are not verified results.
-7. The PyG `HeteroData` adapter exists, but no causal temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning is implemented.
+7. The causal feature-node encoder exists, but no category/sample initialization, GATv2/HTGNN message-passing model, training, learned attention, or pruning is implemented.
 
 ## Current Boundary and Exact Next Step
 
-Stop at the frozen Stage E.2 PyG-input checkpoint. Do not train a model or implement later model stages under this checkpoint scope.
+Stop after the frozen Stage E.3 causal feature-node encoder. Do not train a model or implement later model stages under this scope.
 
-The exact next safe boundary is **Stage E.3: implement and contract-test the approved causal TCN and feature-node initialization/fusion block** against the frozen E.2 representation. Causality, output length, position-5 receptive field, feature-identity handling, metadata exclusion, output shape, and bounded operation must pass before proceeding to GATv2 model code.
+The exact next safe boundary is **Stage E.4 model code**, beginning only after a separate explicit Stage E.4 contract and authorization. That later boundary may introduce the approved category/sample initialization and GATv2 hierarchy; it must not be inferred from the Stage E.3 authorization.
