@@ -86,3 +86,7 @@ results/temporal_analysis/per_window_continuity.csv
 !results/stage_e2/**
 !results/stage_e3/
 !results/stage_e3/**
+!results/stage_e4/
+results/stage_e4/*
+!results/stage_e4/hierarchical_encoder_validation.json
+!results/stage_e4/hierarchical_encoder_validation.sha256
