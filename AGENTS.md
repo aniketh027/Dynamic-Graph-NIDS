@@ -52,10 +52,15 @@ These instructions apply to the entire repository.
 
 ## Git and repository hygiene
 
-- Do not commit, tag, push, force-push, or rewrite history unless the user explicitly authorizes the specific release action.
-- Never use broad staging such as `git add .`; stage only an inspected allowlist when checkpointing is explicitly authorized.
+- Standing Git authorization applies after an explicitly authorized stage or substage implementation, or an authorized correction, completes and all required validation passes. At that point, inspect the current `HEAD`, worktree, and full diff; verify that only intended files belonging to the authorized work are present; stage those paths explicitly; inspect the staged diff; create one meaningful conventional commit; push it to `origin/main`; and verify that local `HEAD` equals `origin/main`. A later explicit instruction such as `do not commit` or `do not push` overrides this default for that task.
+- Standing Git authorization does not authorize a project stage, substage, training, pruning, evaluation, or any other implementation work. Implement only the boundary explicitly authorized by the user.
+- An implementation commit records that the authorized implementation boundary completed and passed its implementation validation. It does not independently audit or freeze the stage. Stage/checkpoint tags are release-audit actions only and require an independent PASS plus explicit authorization to freeze or checkpoint that stage.
+- If implementation or required validation fails, do not commit, push, or tag. Leave the work available for an authorized correction. If a later audit finds a defect, do not amend, squash, or rewrite the original implementation commit; make the smallest authorized correction, validate it, and record it in a new meaningful commit.
+- Never use broad staging such as `git add .`; stage only an inspected allowlist. Never create empty, no-op, artificial, misleading, or partially validated commits.
+- Before committing, check for unrelated or concurrent changes. Two Codex chats must not simultaneously mutate or commit the same working tree; stop if another task's changes appear rather than staging or altering them.
 - Preserve unrelated user changes and stop if they overlap the requested work.
 - Do not track raw or processed datasets, large arrays, generated graph collections, virtual environments, caches, logs, checkpoints, secrets, credentials, or machine-local recovery files.
+- Never force-push or rewrite history. After an authorized push, report the commit message, local commit SHA, `origin/main` SHA, and final worktree status.
 
 ## Completion report
 

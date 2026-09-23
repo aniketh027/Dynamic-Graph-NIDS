@@ -51,7 +51,21 @@ Do not accept a test count alone as proof. Verify the semantics claimed by the s
 
 ## Git and completion
 
-Do not commit, tag, or push unless the current user request explicitly authorizes that action. Implementation authorization alone is insufficient.
+An explicit user authorization for the stage or substage activates the repository's standing authorization to commit and push that successfully validated implementation. It does not authorize any other stage or any stage/checkpoint tag. A later explicit task instruction such as `do not commit` or `do not push` overrides the standing default.
+
+If any required implementation or validation step fails, do not commit, push, or tag. Report the blocker and leave the work available for correction. Never commit partially validated work merely because files changed.
+
+After all required validation passes:
+
+1. Inspect the current `HEAD`, `git status`, and full diff. Confirm that only intended files belonging to the authorized work are present and that no unrelated concurrent changes appeared. Two Codex chats must not simultaneously mutate or commit the same working tree; stop on unrelated changes rather than including or altering them.
+2. Stage only the inspected intended paths explicitly. Never use `git add .`. Exclude datasets, secrets, temporary or debug files, caches, virtual environments, large unexpected artifacts, and model weights or checkpoints unless the authorized stage explicitly permits them.
+3. Inspect the staged diff and confirm it is a natural, complete engineering boundary. Do not create empty, no-op, artificial, misleading, or partially validated commits.
+4. Create one meaningful conventional commit using an appropriate prefix such as `feat:`, `fix:`, `test:`, `docs:`, `chore:`, or `refactor:`.
+5. Push the resulting commit to `origin/main` without force, then verify that local `HEAD` equals `origin/main` and inspect the final worktree status.
+
+The implementation commit means only that the authorized implementation boundary completed and passed its implementation validation. It does not mean the stage was independently audited or frozen. Do not create a stage/checkpoint tag in this workflow.
+
+If an independent audit later finds a defect, do not amend or squash the implementation commit and do not rewrite history. Return to this workflow for only the authorized correction; after its validation passes, create and push a new meaningful correction commit.
 
 Report:
 
@@ -60,6 +74,7 @@ Report:
 - focused, adversarial, regression, and full-suite results;
 - integrity and deterministic evidence results;
 - Git diff/status and any pre-existing changes;
+- the commit message, local commit SHA, `origin/main` SHA, and final worktree status when the standing Git workflow ran;
 - unresolved concerns;
 - the exact next safe boundary from `PROJECT_HANDOFF.md`.
 
