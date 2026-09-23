@@ -1,28 +1,29 @@
-# Project Handoff — Frozen Through Stage E.4
+# Project Handoff — Frozen Through Stage E.5
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the Stage E.4 hierarchical GATv2 encoder, tagged `v0.7-stage-e4-hierarchical-encoder`. No classifier, training, pruning, or performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the complete untrained Stage E.5 HTGNN classifier contract, tagged `v0.8-stage-e5-htgnn-classifier`. No training, pruning, or performance result exists yet.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
-3. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
-4. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
-5. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-6. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-7. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
-8. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-9. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+2. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
+3. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
+4. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
+5. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
+6. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+7. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+8. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
+9. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+10. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
 ## Frozen Status
 
-Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.4 environment, adapter, encoders, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
+Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Stage E.5 passed an independent task/head-contract, readout, topology, leakage, isolation, attention, trainability, state-dictionary, CPU/CUDA, nine-pair integration, deterministic-evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.5 environment, adapter, encoders, classifier contract, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
 
 ## Verified Dataset Facts
 
@@ -166,7 +167,9 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Current complete suite: **790 passed, 0 failed**.
+- Current complete suite: **857 passed, 0 failed, 0 skipped**.
+- Stage E.5 focused suite: **67 passed**; frozen Stage E.2-E.4 regression
+  suite: **99 passed**.
 - Stage E.4 focused suite: **31 passed**; Stage E.2-E.3 regression suite:
   **68 passed**; Stage D regression suite: **231 passed**.
 - Stage E.3 focused suite: **30 passed**; Stage E.2 suite: **38 passed**;
@@ -176,6 +179,10 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
   `8de906e6adc61c6f0f32f7b4a2c2e1a2b32a39f5fd0b1c9f60f26ebe7e655db9`;
   physical file SHA-256
   `707ed190e0e9e7c36ae5161b5c192ae54f27789515de93c0ef26f2c77397463b`.
+- Stage E.5 deterministic report: canonical SHA-256
+  `9be79532fdc8a685cb5ad8d7b5f7cf88f752e4ae6cac1646b20a28f63f2c9e1f`;
+  physical file SHA-256
+  `edb54f1501de17b4a73f92b6457113fceee014bc2ad7344e4bf0c81ad2628c88`.
 - Stage E.3 deterministic report: canonical SHA-256
   `b3e838c90a7488eca2c7b9083744386a6340234549318c4709b1176b87ae9adb`;
   physical file SHA-256
@@ -189,7 +196,27 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 - Stage E.3 release-audit verdict: **PASS — causal feature encoder can be frozen**.
 - Stage E.4 release-audit verdict: **PASS — hierarchical GATv2 encoder can be frozen**.
 
-Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json`, `results/stage_d1/` through `results/stage_d8/`, and `results/stage_e1/` through `results/stage_e4/`.
+Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json`, `results/stage_d1/` through `results/stage_d8/`, and `results/stage_e1/` through `results/stage_e5/`.
+
+## Frozen Stage E.5 Contract
+
+Stage E.5 is the complete untrained HTGNN model contract. Its construction-time task/output contract is immutable through
+the supported public model API. Independent E.5 audits should reproduce public
+task-mutation rejection, ordinary and currently detected head corruption,
+task/output shapes, trainability, stable `state_dict()` structure, final-sample
+readout, target/metadata independence, exact E.4 attention passthrough,
+topology enforcement, multi-graph isolation, bounded nine-pair integration,
+and frozen-data integrity.
+
+E.5 audits must not require resilience to arbitrary reflective Python mutation
+such as reassigning `__class__`, rewriting `nn.Module._modules`, monkeypatching
+methods or module globals, mutating class dictionaries, or replacing imported
+modules/functions. A caller deliberately exercising arbitrary same-process
+Python code execution is outside the supported API and the model-integrity
+threat model. Existing detection of some isolated internal head mutations is
+defense in depth and does not expand this boundary. This policy does not weaken
+architecture, leakage, topology, provenance, or data-integrity checks, and it
+does not authorize E.6.
 
 ## Known Methodological Limitations
 
@@ -199,10 +226,10 @@ Large arrays and local recovery copies are deliberately excluded from Git. Compa
 4. E2 preserves within-class chronology rather than one global timeline.
 5. The predictive value of T=5 has not been measured.
 6. Original report performance claims are not verified results.
-7. Learned GATv2 attention now exists, but no classifier, training, calibrated prediction, performance result, pruning policy, or physical node removal is implemented.
+7. The untrained task-specific classifier and learned GATv2 attention exist, but no training, calibrated prediction, performance result, pruning policy, or physical node removal is implemented.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the frozen Stage E.4 hierarchical GATv2 encoder. Do not train a model, implement pruning, or begin later model stages under this scope.
+Stop after the frozen Stage E.5 untrained HTGNN classifier contract. Do not train a model, implement pruning, or begin later model stages under this scope.
 
-The exact next safe boundary is **Stage E.5**, beginning only after a separate explicit Stage E.5 contract and authorization. It must not be inferred from the Stage E.4 checkpoint authorization.
+The exact next safe boundary is **Stage E.6**, beginning only after a separate explicit Stage E.6 contract and authorization. It must not be inferred from the Stage E.5 checkpoint authorization.
