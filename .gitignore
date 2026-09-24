@@ -94,3 +94,8 @@ results/stage_e4/*
 results/stage_e5/*
 !results/stage_e5/htgnn_classifier_validation.json
 !results/stage_e5/htgnn_classifier_validation.sha256
+!results/stage_e6/
+results/stage_e6/*
+!results/stage_e6/htgnn_resource_pilot_contract.json
+!results/stage_e6/htgnn_resource_pilot_contract.sha256
+!results/stage_e6/htgnn_resource_pilot_observations.json

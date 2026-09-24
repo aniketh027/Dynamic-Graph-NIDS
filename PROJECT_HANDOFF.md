@@ -1,8 +1,8 @@
-# Project Handoff — Frozen Through Stage E.5
+# Project Handoff — Frozen Through E.5; E.6 Implemented Pending Audit
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the complete untrained Stage E.5 HTGNN classifier contract, tagged `v0.8-stage-e5-htgnn-classifier`. No training, pruning, or performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the complete untrained Stage E.5 HTGNN classifier contract, tagged `v0.8-stage-e5-htgnn-classifier`. Stage E.6 adds bounded forward/resource observations only; no training, pruning, or predictive-performance result exists yet.
 
 ## Authority and Source Hierarchy
 
@@ -24,6 +24,16 @@ If a later document conflicts with verified Stage C facts, stop and resolve the 
 ## Frozen Status
 
 Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Stage E.5 passed an independent task/head-contract, readout, topology, leakage, isolation, attention, trainability, state-dictionary, CPU/CUDA, nine-pair integration, deterministic-evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.5 environment, adapter, encoders, classifier contract, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
+
+Stage E.6 is implemented and implementation-validated but has not yet received
+an independent audit or checkpoint tag. Its bounded real-data pilot uses train
+data only, batch size 32, five CUDA warmups, and twenty measured repetitions
+for each of E1, E2, and E3. It separates E.2 conversion, host-to-device
+transfer, normal forward, and attention-return forward. Canonical contract
+evidence is in `results/stage_e6/htgnn_resource_pilot_contract.json`; noisy
+hardware-specific observations are deliberately separate in
+`results/stage_e6/htgnn_resource_pilot_observations.json`. This status does not
+freeze E.6 and does not authorize E.7.
 
 ## Verified Dataset Facts
 
@@ -167,7 +177,10 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Current complete suite: **857 passed, 0 failed, 0 skipped**.
+- Frozen E.5 checkpoint complete suite: **857 passed, 0 failed, 0 skipped**.
+- Stage E.6 implementation validation: **17 focused tests passed**, **166
+  frozen E.2-E.5 regression tests passed**, and **874 complete-suite tests
+  passed**, with no failures or skips.
 - Stage E.5 focused suite: **67 passed**; frozen Stage E.2-E.4 regression
   suite: **99 passed**.
 - Stage E.4 focused suite: **31 passed**; Stage E.2-E.3 regression suite:
@@ -230,6 +243,13 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the frozen Stage E.5 untrained HTGNN classifier contract. Do not train a model, implement pruning, or begin later model stages under this scope.
+Stop after the implementation-validated Stage E.6 bounded forward/resource
+pilot. Do not train a model, implement pruning, optimize training batch size,
+or begin E.7 or later stages under this scope.
 
-The exact next safe boundary is **Stage E.6**, beginning only after a separate explicit Stage E.6 contract and authorization. It must not be inferred from the Stage E.5 checkpoint authorization.
+The exact next safe boundary is an **independent read-only Stage E.6 audit** of
+the implementation, bounded real measurements, deterministic/non-deterministic
+evidence split, and frozen-source integrity. E.6 must not be checkpointed or
+tagged unless that audit passes and checkpointing is explicitly authorized.
+Stage E.7 requires separate explicit authorization after the E.6 audit; it
+must not be inferred from this implementation.
