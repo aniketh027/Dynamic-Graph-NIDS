@@ -1,8 +1,8 @@
-# Project Handoff — Frozen Through E.5; E.6 Implemented Pending Audit
+# Project Handoff — Frozen Through Stage E.6
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the complete untrained Stage E.5 HTGNN classifier contract, tagged `v0.8-stage-e5-htgnn-classifier`. Stage E.6 adds bounded forward/resource observations only; no training, pruning, or predictive-performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the Stage E.6 bounded forward/resource pilot, tagged `v0.9-stage-e6-resource-pilot`. No training, pruning, or predictive-performance result exists yet.
 
 ## Authority and Source Hierarchy
 
@@ -25,15 +25,28 @@ If a later document conflicts with verified Stage C facts, stop and resolve the 
 
 Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Stage E.5 passed an independent task/head-contract, readout, topology, leakage, isolation, attention, trainability, state-dictionary, CPU/CUDA, nine-pair integration, deterministic-evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.5 environment, adapter, encoders, classifier contract, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
 
-Stage E.6 is implemented and implementation-validated but has not yet received
-an independent audit or checkpoint tag. Its bounded real-data pilot uses train
-data only, batch size 32, five CUDA warmups, and twenty measured repetitions
-for each of E1, E2, and E3. It separates E.2 conversion, host-to-device
-transfer, normal forward, and attention-return forward. Canonical contract
-evidence is in `results/stage_e6/htgnn_resource_pilot_contract.json`; noisy
-hardware-specific observations are deliberately separate in
-`results/stage_e6/htgnn_resource_pilot_observations.json`. This status does not
-freeze E.6 and does not authorize E.7.
+Stage E.6 passed an independent release audit and is frozen. Its verified
+implementation commit is `a959ee93751c585aeaf50341b8739ac0034ffbeb`. The
+bounded real-data pilot uses train data only, batch size 32, five CUDA warmups,
+and twenty measured repetitions for each of E1, E2, and E3. It separates E.2
+conversion, host-to-device transfer, normal forward, and attention-return
+forward. Bounded batch-32 CUDA forward was operational on the verified NVIDIA
+GeForce RTX 4050 Laptop GPU. No architecture modification occurred. This
+result does not prove training feasibility and does not establish an optimal
+batch size.
+
+The independent audit classified repeated E.2 provenance/report validation as
+**clearly material overhead** in this environment and measurement procedure.
+Paired component/complete-conversion medians were E1 13.03/16.24 ms
+(approximately 80.2%), E2 12.17/14.21 ms (approximately 85.7%), and E3
+12.61/14.91 ms (approximately 84.6%). These percentages are observational, not
+universal constants. E.2 was not modified, and no caching or optimization was
+implemented. Any E.2 optimization requires a separately authorized boundary.
+
+Canonical contract evidence is in
+`results/stage_e6/htgnn_resource_pilot_contract.json`; noisy hardware-specific
+observations are deliberately separate in
+`results/stage_e6/htgnn_resource_pilot_observations.json`.
 
 ## Verified Dataset Facts
 
@@ -178,7 +191,8 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 ## Verification Evidence
 
 - Frozen E.5 checkpoint complete suite: **857 passed, 0 failed, 0 skipped**.
-- Stage E.6 implementation validation: **17 focused tests passed**, **166
+- Stage E.6 implementation and independent release-audit verification: **17
+  focused tests passed**, **166
   frozen E.2-E.5 regression tests passed**, and **874 complete-suite tests
   passed**, with no failures or skips.
 - Stage E.5 focused suite: **67 passed**; frozen Stage E.2-E.4 regression
@@ -243,13 +257,11 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the implementation-validated Stage E.6 bounded forward/resource
-pilot. Do not train a model, implement pruning, optimize training batch size,
-or begin E.7 or later stages under this scope.
+Stop after the independently audited and frozen Stage E.6 bounded
+forward/resource pilot. E.7 remains unimplemented. Do not train a model,
+implement pruning, optimize training batch size, modify E.2, or begin E.7 or
+later stages under this scope.
 
-The exact next safe boundary is an **independent read-only Stage E.6 audit** of
-the implementation, bounded real measurements, deterministic/non-deterministic
-evidence split, and frozen-source integrity. E.6 must not be checkpointed or
-tagged unless that audit passes and checkpointing is explicitly authorized.
-Stage E.7 requires separate explicit authorization after the E.6 audit; it
-must not be inferred from this implementation.
+The exact next safe boundary is a separately authorized E.2 optimization or
+Stage E.7 contract and implementation. Neither is authorized by the Stage E.6
+checkpoint.
