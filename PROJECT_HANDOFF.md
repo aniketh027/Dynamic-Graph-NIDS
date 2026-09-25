@@ -1,8 +1,8 @@
-# Project Handoff — Frozen Through Stage E.6; E.2 Correction Pending Audit
+# Project Handoff — Frozen Through E.2 Provenance Cache Correction
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint stops after the Stage E.6 bounded forward/resource pilot, tagged `v0.9-stage-e6-resource-pilot`. No training, pruning, or predictive-performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, tagged `v0.9-stage-e6-resource-pilot`, and the independently audited E.2 provenance-cache correction checkpoint, tagged `v0.9.1-e2-provenance-cache`. No training, pruning, or predictive-performance result exists yet.
 
 ## Authority and Source Hierarchy
 
@@ -15,8 +15,8 @@ Use sources in this order when continuing the work:
 5. `results/stage_e1/`, `results/stage_e2/`,
    `docs/stage_e2_heterodata_adapter.md`, and
    `docs/stage_e2_provenance_cache.md` for the verified PyG environment,
-   D6-to-`HeteroData` adapter, and separately authorized provenance-cache
-   correction pending independent audit.
+   D6-to-`HeteroData` adapter, and independently audited and frozen
+   provenance-cache correction.
 6. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
 7. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
 8. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
@@ -53,23 +53,40 @@ Canonical contract evidence is in
 observations are deliberately separate in
 `results/stage_e6/htgnn_resource_pilot_observations.json`.
 
-## Implemented E.2 Provenance Correction — Pending Independent Audit
+## Frozen E.2 Provenance-Cache Correction
 
-A separately authorized correction now uses a one-entry, process-local cache
-for successful validation of only the compact frozen D8 and E.1 provenance
-artifacts. The first call still performs full validation. The cache key binds
-the result to the resolved root, approved constants and hashes, resolved paths,
-file identity, mode/link count, size, and nanosecond timestamps. Detectable
-changes miss the cache and return to the original full validation path; a
-change during validation fails closed. The immutable cache value contains only
-identity strings, and each caller receives a fresh dictionary.
+A separately authorized correction, implemented in commit
+`062fb227edf02f2be65c2d45fafa2481f2be138b`, passed an independent audit and
+is frozen at checkpoint tag `v0.9.1-e2-provenance-cache`. Its engineering
+purpose is to eliminate repeated D8 and E.1 provenance/report validation
+overhead while preserving the frozen E.2 predictive, topology, and ownership
+contract. It is not a new research experiment.
+
+The correction uses a lazy, process-local, thread-safe, one-entry cache for
+successful validation of only the compact frozen D8 and E.1 provenance
+identity. Memory remains bounded, and no logical batch, graph, tensor, label,
+model output, or model state is cached. The first call still performs full
+validation. The cache key binds the result to the resolved root, approved
+constants and hashes, resolved paths, file identity, mode/link count, size,
+and nanosecond timestamps. Ordinary filesystem-detectable changes miss the
+cache and return to the original full validation path; a change during
+validation fails closed. The immutable cache value contains only identity
+strings, and each caller receives a fresh dictionary.
 
 Every conversion still validates the D6 batch provenance, experiment, split,
 read-only arrays, ownership, target domain, and exact topology and still
 creates new CPU-owned tensors. Frozen pre-correction output fingerprints match
-corrected cold and warm output for bounded real batches from all nine E1/E2/E3
-split pairs. No training, pruning, E.7 behavior, predictive input, topology,
-label, or model change was introduced.
+corrected cold and warm output exactly for bounded real batches from all nine
+E1/E2/E3 train, validation, and test pairs. No training, pruning, E.7 behavior,
+predictive input, topology, label, model architecture, or frozen predictive
+semantic change was introduced.
+
+The documented coherence boundary is filesystem-detectable identity. A
+privileged same-process or filesystem adversary that deliberately rewrites an
+artifact and restores every cache identity field remains outside that
+boundary; detecting that case would require re-reading and rehashing the
+artifacts on every conversion and defeat the optimization. The cache is not
+claimed to be cryptographically tamper-proof.
 
 Canonical correction evidence is
 `results/stage_e2/provenance_cache_validation.json`, with canonical SHA-256
@@ -77,13 +94,21 @@ Canonical correction evidence is
 and physical SHA-256
 `ecba8747cb54a138f502297feb189bb23f2ddbe454473b8cc822668dac91982d`.
 Hardware-specific timing observations remain separate in
-`results/stage_e2/provenance_cache_observations.json`. This correction is
-implemented but is **not frozen** until an independent audit passes and a
-separately authorized checkpoint is created.
+`results/stage_e2/provenance_cache_observations.json`. In the independent
+paired audit, batch-32 cold/warm conversion medians were 10.8813/3.0034 ms for
+E1, 12.0495/2.9959 ms for E2, and 11.8971/3.0711 ms for E3. Warm repeated
+conversion was approximately 25–28% of cold conversion in that environment
+and measurement procedure. These observations are not universal constants or
+performance guarantees. The project-level conclusion is that the Stage E.6
+provenance bottleneck was materially reduced before the training-harness
+stage.
 
-Implementation validation passed 20 focused cache tests, 183 frozen E.2-E.6
-regression tests, and 894 complete-suite tests, with no failures or skips.
-Stage C integrity remained 33/33 and raw CSV integrity remained 10/10.
+The independent audit reconfirmed 20 focused cache tests, 183 frozen E.2-E.6
+regression tests, and the complete suite at 894 passed, 0 failed, and 0
+skipped. Stage C integrity remained 33/33 and raw CSV integrity remained
+10/10. The real batch-32 CUDA path passed with E1/E2 logits `[32,15]`, E3
+logits `[32]`, and unchanged parameter counts of 7,183 for E1/E2 and 6,721 for
+E3.
 
 ## Verified Dataset Facts
 
@@ -294,13 +319,13 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the separately authorized E.2 provenance-validation performance
-correction built on the independently audited and frozen Stage E.6 checkpoint.
-E.7 remains unimplemented. Do not train a model, implement pruning, optimize
-training batch size, extend the E.2 correction, or begin E.7 or later stages
-under this scope.
+Stop after the independently audited and frozen E.2 provenance-validation
+performance correction built on the frozen Stage E.6 checkpoint. E.7 remains
+unimplemented. Do not train a model, implement pruning, optimize training batch
+size, extend the E.2 correction, or begin E.7 or later stages under this
+scope.
 
-The exact next safe boundary is an independent read-only audit of the E.2
-provenance correction. A later freeze/checkpoint action requires a passing
-audit and separate explicit authorization. Stage E.7 remains a separate,
-unauthorized boundary.
+The exact next safe numbered boundary is Stage E.7, which requires separate
+explicit authorization. This correction remains an engineering-project
+performance correction and does not authorize or constitute a new research
+experiment.
