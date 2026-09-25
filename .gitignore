@@ -47,6 +47,10 @@ scratch/
 # Model/runtime outputs
 checkpoints/*
 !checkpoints/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.safetensors
 plots/*
 !plots/.gitkeep
 logs/*
@@ -99,3 +103,7 @@ results/stage_e6/*
 !results/stage_e6/htgnn_resource_pilot_contract.json
 !results/stage_e6/htgnn_resource_pilot_contract.sha256
 !results/stage_e6/htgnn_resource_pilot_observations.json
+!results/stage_e7/
+results/stage_e7/*
+!results/stage_e7/htgnn_training_harness_validation.json
+!results/stage_e7/htgnn_training_harness_validation.sha256
