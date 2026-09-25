@@ -72,6 +72,15 @@ def build_report(
             "task_and_architecture_mismatch_rejected": True,
             "model_weights_committed": False,
         },
+        "logging": {
+            "ownership": "one JSONL file per training run",
+            "existing_paths_rejected": True,
+            "empty_precreated_paths_rejected": True,
+            "exclusive_atomic_reservation": True,
+            "checkpoint_log_alias_rejected": True,
+            "validated_before_training": True,
+            "resume_or_cross_run_append_supported": False,
+        },
         "weighted_ablations": "not implemented in E.7",
         "parameter_counts": dict(e7.EXPECTED_PARAMETERS),
         "frozen_source_sha256": dict(frozen_source_sha256),
@@ -132,6 +141,17 @@ def validate_report(report: Mapping[str, Any]) -> None:
         errors.append("bounded real smoke coverage is incomplete")
     if report.get("checkpoint", {}).get("model_weights_committed") is not False:
         errors.append("checkpoint policy permits committed model weights")
+    logging = report.get("logging", {})
+    if (
+        logging.get("ownership") != "one JSONL file per training run"
+        or logging.get("existing_paths_rejected") is not True
+        or logging.get("empty_precreated_paths_rejected") is not True
+        or logging.get("exclusive_atomic_reservation") is not True
+        or logging.get("checkpoint_log_alias_rejected") is not True
+        or logging.get("validated_before_training") is not True
+        or logging.get("resume_or_cross_run_append_supported") is not False
+    ):
+        errors.append("single-run JSONL ownership contract changed")
     verification = report.get("verification", {})
     if not isinstance(verification, Mapping) or verification.get("status") != "PASS":
         errors.append("verification status is not PASS")

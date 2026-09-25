@@ -45,7 +45,9 @@ def _run_pytest(project_root: Path, args: list[str]) -> dict[str, Any]:
     }
 
 
-def _smoke_task(project_root: Path, task: str, checkpoint: Path) -> dict[str, Any]:
+def _smoke_task(
+    project_root: Path, task: str, checkpoint: Path, log_path: Path
+) -> dict[str, Any]:
     config = e7.TrainingConfig(
         task=task,
         learning_rate=3e-4,
@@ -59,6 +61,7 @@ def _smoke_task(project_root: Path, task: str, checkpoint: Path) -> dict[str, An
         config,
         project_root=project_root,
         checkpoint_path=checkpoint,
+        log_path=log_path,
         device="auto",
     )
     metadata, validation, model = e7.evaluate_saved_validation_checkpoint(
@@ -87,6 +90,10 @@ def _smoke_task(project_root: Path, task: str, checkpoint: Path) -> dict[str, An
     with torch.no_grad():
         logits = model(batch)
     expected_shape = [8] if task == "E3" else [8, 15]
+    log_records = [
+        json.loads(line)
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+    ]
     reloaded_matches = bool(
         np.isclose(validation.loss, metadata["validation_loss"], rtol=1e-5, atol=1e-6)
         and np.isclose(
@@ -113,6 +120,8 @@ def _smoke_task(project_root: Path, task: str, checkpoint: Path) -> dict[str, An
         "best_checkpoint_selected": result.best_epoch == 1,
         "checkpoint_reloaded": True,
         "reloaded_validation_state_matches": reloaded_matches,
+        "log_record_count": len(log_records),
+        "log_epoch_sequence": [record.get("epoch") for record in log_records],
     }
     checks["status"] = (
         "PASS"
@@ -127,6 +136,8 @@ def _smoke_task(project_root: Path, task: str, checkpoint: Path) -> dict[str, An
                 checks["gradient_and_optimizer_step_completed"],
                 checks["best_checkpoint_selected"],
                 checks["reloaded_validation_state_matches"],
+                checks["log_record_count"] == 1,
+                checks["log_epoch_sequence"] == [1],
             )
         )
         else "FAIL"
@@ -153,7 +164,12 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="stage_e7_smoke_") as temporary:
         temp_root = Path(temporary)
         smoke = [
-            _smoke_task(project_root, task, temp_root / f"{task}.pt")
+            _smoke_task(
+                project_root,
+                task,
+                temp_root / f"{task}.pt",
+                temp_root / f"{task}.jsonl",
+            )
             for task in e7.TASKS
         ]
     temporary_removed = not temp_root.exists()

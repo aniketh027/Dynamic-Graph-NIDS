@@ -758,13 +758,62 @@ def _parameters_changed(
     return any(not torch.equal(left, right) for left, right in zip(before, after, strict=True))
 
 
+def _resolve_output_path(path: Path, description: str) -> Path:
+    try:
+        return Path(path).resolve(strict=False)
+    except OSError as exc:
+        raise TrainingContractError(
+            f"cannot resolve {description} path {path}: {exc}"
+        ) from exc
+
+
+def _reserve_run_outputs(
+    checkpoint_path: Path, log_path: Path | None
+) -> tuple[Path, Path | None]:
+    """Normalize outputs and atomically reserve one fresh log for one run.
+
+    ``open('x')`` maps to exclusive creation and therefore combines the
+    existence check and file creation without a check-then-create race.  Every
+    existing path, including an empty file, is rejected.  The checkpoint/log
+    alias check occurs before directory or file creation.
+    """
+
+    resolved_checkpoint = _resolve_output_path(checkpoint_path, "checkpoint")
+    if log_path is None:
+        return resolved_checkpoint, None
+    resolved_log = _resolve_output_path(log_path, "log")
+    if resolved_checkpoint == resolved_log:
+        raise TrainingContractError(
+            "checkpoint and log paths must resolve to different targets"
+        )
+    try:
+        resolved_log.parent.mkdir(parents=True, exist_ok=True)
+        with resolved_log.open("x", encoding="utf-8", newline="\n"):
+            pass
+    except FileExistsError as exc:
+        raise TrainingContractError(
+            f"log path already exists; one log file belongs to one run: {resolved_log}"
+        ) from exc
+    except OSError as exc:
+        raise TrainingContractError(
+            f"cannot reserve log path {resolved_log}: {exc}"
+        ) from exc
+    return resolved_checkpoint, resolved_log
+
+
 def _append_jsonl(path: Path | None, record: Mapping[str, Any]) -> None:
     if path is None:
         return
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8", newline="\n") as handle:
-        handle.write(json.dumps(dict(record), sort_keys=True, separators=(",", ":")))
-        handle.write("\n")
+    try:
+        with path.open("r+", encoding="utf-8", newline="\n") as handle:
+            handle.seek(0, 2)
+            handle.write(
+                json.dumps(dict(record), sort_keys=True, separators=(",", ":"))
+            )
+            handle.write("\n")
+            handle.flush()
+    except OSError as exc:
+        raise TrainingContractError(f"cannot write reserved log path {path}: {exc}") from exc
 
 
 def run_training(
@@ -778,6 +827,7 @@ def run_training(
     """Train on the frozen train split and select only on frozen validation."""
 
     project_root = Path(project_root).resolve()
+    checkpoint_path, log_path = _reserve_run_outputs(checkpoint_path, log_path)
     frozen_hashes = e6.require_frozen_sources(project_root)
     seed_everything(config.seed)
     selected_device = resolve_device(device)

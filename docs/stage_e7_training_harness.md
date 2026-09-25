@@ -59,7 +59,13 @@ resume execution because the handoff does not require it.
 
 Checkpoint and log directories remain ignored by Git. JSONL logs record epoch,
 train/validation loss, selection value, batch and example counts, and traversal
-digests. Smoke values are engineering checks, not model-quality results.
+digests. One JSONL log path belongs to exactly one training run. Before model,
+data, or optimizer setup, E.7 normalizes the checkpoint and log paths, rejects
+resolved checkpoint/log aliases, and atomically reserves the log with exclusive
+creation. Every existing log path is rejected, including an empty precreated
+file; E.7 never truncates or appends a new run to prior log evidence. Resume and
+log-append semantics remain unsupported. Smoke values are engineering checks,
+not model-quality results.
 
 Compact deterministic contract and smoke evidence is written by
 `scripts/validate_stage_e7.py`; it stores pass/fail facts and shapes, never

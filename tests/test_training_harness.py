@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
 import random
 import subprocess
+import threading
 
 import numpy as np
 import pytest
@@ -70,6 +72,31 @@ def config(task: str = "E1", **overrides: object) -> e7.TrainingConfig:
     }
     values.update(overrides)
     return e7.TrainingConfig(**values)  # type: ignore[arg-type]
+
+
+def install_rejection_side_effect_probes(monkeypatch):
+    probe = TinyModel("E3")
+    before = [parameter.detach().clone() for parameter in probe.parameters()]
+    calls: list[str] = []
+
+    def record(name, result=None):
+        def wrapped(*args, **kwargs):
+            calls.append(name)
+            if name == "create_model":
+                return probe
+            if result is not None:
+                return result
+            raise AssertionError(f"unexpected training-side effect: {name}")
+
+        return wrapped
+
+    monkeypatch.setattr(e7.e6, "require_frozen_sources", record("frozen_sources", {}))
+    monkeypatch.setattr(e7, "seed_everything", record("seed", {}))
+    monkeypatch.setattr(e7, "create_model", record("create_model"))
+    monkeypatch.setattr(e7, "create_optimizer", record("create_optimizer"))
+    monkeypatch.setattr(e7, "iter_production_batches", record("iterate"))
+    monkeypatch.setattr(e7, "save_checkpoint", record("checkpoint_write"))
+    return probe, before, calls
 
 
 @pytest.mark.parametrize("task", ["E1", "E2"])
@@ -400,6 +427,142 @@ def test_checkpoint_configuration_mismatch_fails(tmp_path):
         )
 
 
+@pytest.mark.parametrize("existing_content", ["", "existing evidence\n"])
+def test_existing_log_is_rejected_before_training_side_effects(
+    tmp_path, monkeypatch, existing_content
+):
+    run_config = config("E3")
+    log_path = tmp_path / "run.jsonl"
+    log_path.write_text(existing_content, encoding="utf-8")
+    checkpoint = tmp_path / "checkpoint.pt"
+    checkpoint.write_bytes(b"existing checkpoint evidence")
+    probe, before, calls = install_rejection_side_effect_probes(monkeypatch)
+
+    with pytest.raises(e7.TrainingContractError, match="log path already exists"):
+        e7.run_training(
+            run_config,
+            project_root=PROJECT_ROOT,
+            checkpoint_path=checkpoint,
+            log_path=log_path,
+            device="cpu",
+        )
+
+    assert calls == []
+    assert log_path.read_text(encoding="utf-8") == existing_content
+    assert checkpoint.read_bytes() == b"existing checkpoint evidence"
+    assert all(
+        torch.equal(left, right)
+        for left, right in zip(before, probe.parameters(), strict=True)
+    )
+
+
+@pytest.mark.parametrize("normalized_alias", [False, True])
+def test_checkpoint_log_alias_is_rejected_before_any_output(
+    tmp_path, monkeypatch, normalized_alias
+):
+    target = tmp_path / "same-output.pt"
+    checkpoint = (
+        tmp_path / "unused" / ".." / "same-output.pt"
+        if normalized_alias
+        else target
+    )
+    probe, before, calls = install_rejection_side_effect_probes(monkeypatch)
+
+    with pytest.raises(e7.TrainingContractError, match="different targets"):
+        e7.run_training(
+            config("E3"),
+            project_root=PROJECT_ROOT,
+            checkpoint_path=checkpoint,
+            log_path=target.resolve(),
+            device="cpu",
+        )
+
+    assert calls == []
+    assert not target.exists()
+    assert not (tmp_path / "unused").exists()
+    assert all(
+        torch.equal(left, right)
+        for left, right in zip(before, probe.parameters(), strict=True)
+    )
+
+
+def test_log_reservation_is_exclusive_under_a_thread_race(tmp_path):
+    barrier = threading.Barrier(2)
+    log_path = tmp_path / "shared.jsonl"
+
+    def reserve(index):
+        barrier.wait()
+        try:
+            e7._reserve_run_outputs(tmp_path / f"checkpoint-{index}.pt", log_path)
+            return "reserved"
+        except e7.TrainingContractError:
+            return "rejected"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        outcomes = list(executor.map(reserve, range(2)))
+    assert sorted(outcomes) == ["rejected", "reserved"]
+    assert log_path.is_file()
+    assert log_path.stat().st_size == 0
+
+
+def test_reusing_valid_run_log_is_rejected_without_new_side_effects(
+    tmp_path, monkeypatch
+):
+    run_config = config("E3", batch_size=4)
+    log_path = tmp_path / "run.jsonl"
+    first_checkpoint = tmp_path / "first.pt"
+    e7.run_training(
+        run_config,
+        project_root=PROJECT_ROOT,
+        checkpoint_path=first_checkpoint,
+        log_path=log_path,
+        device="auto",
+    )
+    original_log = log_path.read_bytes()
+    original_checkpoint = first_checkpoint.read_bytes()
+    second_checkpoint = tmp_path / "second.pt"
+    probe, before, calls = install_rejection_side_effect_probes(monkeypatch)
+
+    with pytest.raises(e7.TrainingContractError, match="log path already exists"):
+        e7.run_training(
+            run_config,
+            project_root=PROJECT_ROOT,
+            checkpoint_path=second_checkpoint,
+            log_path=log_path,
+            device="auto",
+        )
+
+    assert calls == []
+    assert log_path.read_bytes() == original_log
+    assert first_checkpoint.read_bytes() == original_checkpoint
+    assert not second_checkpoint.exists()
+    assert all(
+        torch.equal(left, right)
+        for left, right in zip(before, probe.parameters(), strict=True)
+    )
+
+
+def test_early_stopped_run_logs_each_completed_epoch_once(tmp_path):
+    run_config = config("E3", batch_size=4, max_epochs=10)
+    log_path = tmp_path / "early-stop.jsonl"
+    result = e7.run_training(
+        run_config,
+        project_root=PROJECT_ROOT,
+        checkpoint_path=tmp_path / "best.pt",
+        log_path=log_path,
+        device="auto",
+    )
+    records = [
+        json.loads(line)
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+    ]
+    epochs = [record["epoch"] for record in records]
+    assert result.stopped_early is True
+    assert result.epochs_completed == 6
+    assert epochs == list(range(1, 7))
+    assert len(epochs) == len(set(epochs))
+
+
 def test_no_model_weights_are_tracked_by_git():
     tracked = subprocess.run(
         ["git", "ls-files"],
@@ -453,10 +616,12 @@ def test_deterministic_evidence_validation_rejects_tampering():
 def test_bounded_real_training_checkpoint_and_reload(task, tmp_path):
     run_config = config(task, batch_size=8)
     checkpoint = tmp_path / f"{task}.pt"
+    log_path = tmp_path / f"{task}.jsonl"
     result = e7.run_training(
         run_config,
         project_root=PROJECT_ROOT,
         checkpoint_path=checkpoint,
+        log_path=log_path,
         device="auto",
     )
     metadata, validation, model = e7.evaluate_saved_validation_checkpoint(
@@ -469,6 +634,11 @@ def test_bounded_real_training_checkpoint_and_reload(task, tmp_path):
     assert result.epochs_completed == 1
     assert result.best_epoch == 1
     assert checkpoint.is_file()
+    records = [
+        json.loads(line)
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert [record["epoch"] for record in records] == [1]
     assert np.isfinite(result.history[0]["train_loss"])
     assert np.isfinite(result.history[0]["validation_loss"])
     assert validation.loss == pytest.approx(metadata["validation_loss"], rel=1e-5, abs=1e-6)
