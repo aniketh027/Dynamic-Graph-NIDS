@@ -1,4 +1,4 @@
-# Project Handoff — Frozen Through Stage E.6
+# Project Handoff — Frozen Through Stage E.6; E.2 Correction Pending Audit
 
 ## Project Goal
 
@@ -12,7 +12,11 @@ Use sources in this order when continuing the work:
 2. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
 3. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
 4. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
-5. `results/stage_e1/`, `results/stage_e2/`, and `docs/stage_e2_heterodata_adapter.md` for the verified PyG environment and D6-to-`HeteroData` adapter.
+5. `results/stage_e1/`, `results/stage_e2/`,
+   `docs/stage_e2_heterodata_adapter.md`, and
+   `docs/stage_e2_provenance_cache.md` for the verified PyG environment,
+   D6-to-`HeteroData` adapter, and separately authorized provenance-cache
+   correction pending independent audit.
 6. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
 7. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
 8. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `scripts/`, and `tests/`.
@@ -23,7 +27,7 @@ If a later document conflicts with verified Stage C facts, stop and resolve the 
 
 ## Frozen Status
 
-Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Stage E.5 passed an independent task/head-contract, readout, topology, leakage, isolation, attention, trainability, state-dictionary, CPU/CUDA, nine-pair integration, deterministic-evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.5 environment, adapter, encoders, classifier contract, verified counts, hashes, or tests without a separately approved methodology change and a new audit.
+Stage C passed an independent adversarial re-audit and is frozen. Stage D D1-D8 also passed an independent adversarial release audit and is frozen. Stage E.1-E.2 passed independent environment, conversion, CUDA-transfer, storage-ownership, provenance, and integrity checks. Stage E.3 passed an independent causal-contract, architecture, integration, device, evidence, and regression audit and is frozen. Stage E.4 passed an independent exact-topology, attention-semantics, architecture, isolation, leakage, device, integration, evidence, and regression audit and is frozen. Stage E.5 passed an independent task/head-contract, readout, topology, leakage, isolation, attention, trainability, state-dictionary, CPU/CUDA, nine-pair integration, deterministic-evidence, and regression audit and is frozen. Do not change Stage C cleaning, transforms, windows, splits, the Stage D graph-input layer, or the Stage E.1-E.5 environment, predictive adapter contract, encoders, classifier contract, verified counts, hashes, or tests without a separately approved change and a new audit.
 
 Stage E.6 passed an independent release audit and is frozen. Its verified
 implementation commit is `a959ee93751c585aeaf50341b8739ac0034ffbeb`. The
@@ -35,7 +39,8 @@ GeForce RTX 4050 Laptop GPU. No architecture modification occurred. This
 result does not prove training feasibility and does not establish an optimal
 batch size.
 
-The independent audit classified repeated E.2 provenance/report validation as
+At the frozen E.6 checkpoint, the independent audit classified repeated E.2
+provenance/report validation as
 **clearly material overhead** in this environment and measurement procedure.
 Paired component/complete-conversion medians were E1 13.03/16.24 ms
 (approximately 80.2%), E2 12.17/14.21 ms (approximately 85.7%), and E3
@@ -47,6 +52,38 @@ Canonical contract evidence is in
 `results/stage_e6/htgnn_resource_pilot_contract.json`; noisy hardware-specific
 observations are deliberately separate in
 `results/stage_e6/htgnn_resource_pilot_observations.json`.
+
+## Implemented E.2 Provenance Correction — Pending Independent Audit
+
+A separately authorized correction now uses a one-entry, process-local cache
+for successful validation of only the compact frozen D8 and E.1 provenance
+artifacts. The first call still performs full validation. The cache key binds
+the result to the resolved root, approved constants and hashes, resolved paths,
+file identity, mode/link count, size, and nanosecond timestamps. Detectable
+changes miss the cache and return to the original full validation path; a
+change during validation fails closed. The immutable cache value contains only
+identity strings, and each caller receives a fresh dictionary.
+
+Every conversion still validates the D6 batch provenance, experiment, split,
+read-only arrays, ownership, target domain, and exact topology and still
+creates new CPU-owned tensors. Frozen pre-correction output fingerprints match
+corrected cold and warm output for bounded real batches from all nine E1/E2/E3
+split pairs. No training, pruning, E.7 behavior, predictive input, topology,
+label, or model change was introduced.
+
+Canonical correction evidence is
+`results/stage_e2/provenance_cache_validation.json`, with canonical SHA-256
+`cd2b8cd961c9ebfe6bb6e21c69b600db799897b8d7df3a3bcd0e4e2f234539bc`
+and physical SHA-256
+`ecba8747cb54a138f502297feb189bb23f2ddbe454473b8cc822668dac91982d`.
+Hardware-specific timing observations remain separate in
+`results/stage_e2/provenance_cache_observations.json`. This correction is
+implemented but is **not frozen** until an independent audit passes and a
+separately authorized checkpoint is created.
+
+Implementation validation passed 20 focused cache tests, 183 frozen E.2-E.6
+regression tests, and 894 complete-suite tests, with no failures or skips.
+Stage C integrity remained 33/33 and raw CSV integrity remained 10/10.
 
 ## Verified Dataset Facts
 
@@ -257,11 +294,13 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the independently audited and frozen Stage E.6 bounded
-forward/resource pilot. E.7 remains unimplemented. Do not train a model,
-implement pruning, optimize training batch size, modify E.2, or begin E.7 or
-later stages under this scope.
+Stop after the separately authorized E.2 provenance-validation performance
+correction built on the independently audited and frozen Stage E.6 checkpoint.
+E.7 remains unimplemented. Do not train a model, implement pruning, optimize
+training batch size, extend the E.2 correction, or begin E.7 or later stages
+under this scope.
 
-The exact next safe boundary is a separately authorized E.2 optimization or
-Stage E.7 contract and implementation. Neither is authorized by the Stage E.6
-checkpoint.
+The exact next safe boundary is an independent read-only audit of the E.2
+provenance correction. A later freeze/checkpoint action requires a passing
+audit and separate explicit authorization. Stage E.7 remains a separate,
+unauthorized boundary.

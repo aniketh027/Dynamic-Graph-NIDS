@@ -52,7 +52,7 @@ EXPECTED_PARAMETERS: Final = {"E1": 7183, "E2": 7183, "E3": 6721}
 EXPECTED_LOGIT_WIDTHS: Final = {"E1": 15, "E2": 15, "E3": 1}
 FROZEN_SOURCE_SHA256: Final = {
     "src/graph/pyg_adapter.py": (
-        "b0236db682d60d83a9f0d69f9a72ce50a2f8c7e73887c98637d6168d84782404"
+        "32097a6af3640522595b99e03a2d82906cfaae7d930eb93e4e13d451b5d9fb20"
     ),
     "src/graph/feature_encoder.py": (
         "83f7352e3ee4ff8e3e3b607f28cdadb02ec91a98ff552a29fb226de0d881fdca"

@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import threading
 from typing import Any, Mapping
 
 import numpy as np
@@ -36,6 +37,12 @@ FEATURE_RELATION = ("feature", "contributes_to", "category")
 CATEGORY_RELATION = ("category", "contributes_to", "sample")
 NODE_TYPES = ("feature", "category", "sample")
 EDGE_TYPES = (FEATURE_RELATION, CATEGORY_RELATION)
+_FROZEN_IDENTITY_ARTIFACTS = (
+    ("d8_report", Path("results/stage_d8/full_split_integration.json")),
+    ("e1_environment_report", Path("results/stage_e1/environment-report.json")),
+)
+_FROZEN_IDENTITY_CACHE_LOCK = threading.RLock()
+_FROZEN_IDENTITY_CACHE: tuple[tuple[object, ...], tuple[tuple[str, str], ...]] | None = None
 
 
 class HeteroDataAdapterError(ValueError):
@@ -54,7 +61,55 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _load_frozen_identities(project_root: Path) -> dict[str, str]:
+def _artifact_identity(path: Path) -> tuple[object, ...]:
+    """Return cheap identity fields that change on normal writes/replacements."""
+
+    try:
+        resolved = path.resolve(strict=True)
+        stat = resolved.stat()
+    except OSError as exc:
+        raise HeteroDataAdapterError(
+            f"cannot inspect frozen provenance artifact {path}: {exc}"
+        ) from exc
+    if not resolved.is_file():
+        raise HeteroDataAdapterError(
+            f"frozen provenance artifact is not a regular file: {resolved}"
+        )
+    return (
+        str(resolved),
+        int(stat.st_dev),
+        int(stat.st_ino),
+        int(stat.st_mode),
+        int(stat.st_nlink),
+        int(stat.st_size),
+        int(stat.st_mtime_ns),
+        int(stat.st_ctime_ns),
+    )
+
+
+def _frozen_identity_cache_key(project_root: Path) -> tuple[object, ...]:
+    """Bind cached validation to its root, authorities, and artifact identities."""
+
+    try:
+        resolved_root = Path(project_root).resolve(strict=True)
+    except OSError as exc:
+        raise HeteroDataAdapterError(f"cannot resolve project root: {exc}") from exc
+    artifact_identities = tuple(
+        (name, _artifact_identity(resolved_root / relative_path))
+        for name, relative_path in _FROZEN_IDENTITY_ARTIFACTS
+    )
+    return (
+        str(resolved_root),
+        tuple(sorted(d8.APPROVED_PROVENANCE.items())),
+        APPROVED_D8_REPORT_SHA256,
+        APPROVED_E1_REPORT_SHA256,
+        artifact_identities,
+    )
+
+
+def _load_frozen_identities_uncached(project_root: Path) -> dict[str, str]:
+    """Fully read and validate the compact frozen provenance artifacts."""
+
     expected_batch_provenance = {
         key: d8.APPROVED_PROVENANCE[key]
         for key in (
@@ -91,6 +146,45 @@ def _load_frozen_identities(project_root: Path) -> dict[str, str]:
         "d8_report_sha256": APPROVED_D8_REPORT_SHA256,
         "e1_environment_report_sha256": e1_hash,
     }
+
+
+def _load_frozen_identities(project_root: Path) -> dict[str, str]:
+    """Return validated identities, revalidating after any detectable change.
+
+    The single-entry cache stores only immutable identity strings. Every caller
+    receives a fresh dictionary, so normal caller mutation cannot alter cached
+    authority. Holding the lock across a cache miss makes cold validation
+    atomic for concurrent callers and prevents duplicate or partial entries.
+    """
+
+    global _FROZEN_IDENTITY_CACHE
+    with _FROZEN_IDENTITY_CACHE_LOCK:
+        try:
+            resolved_root = Path(project_root).resolve(strict=True)
+        except OSError as exc:
+            raise HeteroDataAdapterError(f"cannot resolve project root: {exc}") from exc
+        key_before = _frozen_identity_cache_key(resolved_root)
+        cached = _FROZEN_IDENTITY_CACHE
+        if cached is not None and cached[0] == key_before:
+            return dict(cached[1])
+
+        identities = _load_frozen_identities_uncached(resolved_root)
+        key_after = _frozen_identity_cache_key(resolved_root)
+        if key_after != key_before:
+            raise HeteroDataAdapterError(
+                "frozen provenance artifacts changed during validation"
+            )
+        immutable_identities = tuple(identities.items())
+        _FROZEN_IDENTITY_CACHE = (key_after, immutable_identities)
+        return dict(immutable_identities)
+
+
+def _reset_frozen_identity_cache() -> None:
+    """Clear process-local validation state for tests and cold measurements."""
+
+    global _FROZEN_IDENTITY_CACHE
+    with _FROZEN_IDENTITY_CACHE_LOCK:
+        _FROZEN_IDENTITY_CACHE = None
 
 
 def _require_array(
