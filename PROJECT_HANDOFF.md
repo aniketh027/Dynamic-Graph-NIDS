@@ -1,28 +1,32 @@
-# Project Handoff — Frozen Through Stage E.7 Training Harness
+# Project Handoff — Frozen Through Stage E.8 Optimization Pilot
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, and the independently audited Stage E.7 training harness. Stage E.7 provides training infrastructure only: no heavy/full model training, pruning, or predictive-performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized production configuration, locked-test evaluation, pruning, or project-level predictive-performance result exists yet.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `results/stage_e7/htgnn_training_harness_validation.json` and `docs/stage_e7_training_harness.md` for the frozen Stage E.7 training-harness contract.
-3. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
-4. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
-5. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
-6. `results/stage_e1/`, `results/stage_e2/`,
+2. `results/stage_e8/htgnn_optimization_pilot_contract.json`,
+   `results/stage_e8/htgnn_optimization_pilot_observations.json`, and
+   `docs/stage_e8_optimization_pilot.md` for the frozen Stage E.8 bounded
+   optimization-pilot contract and its observational output.
+3. `results/stage_e7/htgnn_training_harness_validation.json` and `docs/stage_e7_training_harness.md` for the corrected and frozen Stage E.7 training-harness contract.
+4. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
+5. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
+6. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
+7. `results/stage_e1/`, `results/stage_e2/`,
    `docs/stage_e2_heterodata_adapter.md`, and
    `docs/stage_e2_provenance_cache.md` for the verified PyG environment,
    D6-to-`HeteroData` adapter, and independently audited and frozen
    provenance-cache correction.
-7. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-8. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-9. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `src/training/`, `scripts/`, and `tests/`.
-10. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-11. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+8. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+9. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+10. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `src/training/`, `scripts/`, and `tests/`.
+11. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+12. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
@@ -155,10 +159,11 @@ still test leakage. The explicitly authorized correction now derives
 `validation_selection_class_codes` only from the authoritative E2 train and
 validation target memory maps using train support ≥100 and validation support
 ≥30. It does not consult test labels, support, membership, metadata, or
-final-reporting eligibility. This corrected E.7 source is not yet independently
-audited or frozen; the historical tag is not rewritten.
+final-reporting eligibility. This corrected E.7 source passed the independent
+E.7/E.8 correction re-audit and is frozen as part of the Stage E.8 checkpoint.
+The historical E.7 tag is not rewritten.
 
-## Unfrozen Stage E.8 Corrected Implementation State
+## Frozen Stage E.8 Corrected Optimization Pilot
 
 Stage E.8 has a regenerated implementation-level bounded optimization pilot
 built around the corrected E.7 harness. It compares only the approved learning
@@ -179,9 +184,13 @@ compact deterministic contract and separate observational output are under
 every validation-selection class, and all rankings remain bounded observations
 rather than a finalized production configuration or project-performance result.
 
-This corrected E.8 state has not yet received an independent re-audit and is
-not frozen.
-The current frozen checkpoint remains `v0.10-stage-e7-training-harness`.
+The corrected implementation and regenerated pilot are recorded by correction
+commit `517d37783d518e04200f400a0f5a238255a887fa`. They passed an independent
+adversarial re-audit and are frozen at checkpoint tag
+`v0.11-stage-e8-optimization-pilot`. The audit independently reproduced the
+test-blind E2 selection boundary, live candidate/checkpoint/log reconciliation,
+bounded checkpoint metrics, deterministic evidence hashes, frozen-data
+integrity, focused tests, frozen-stage regressions, and the complete suite.
 The corrected E2 bounded observations remain a tie between `1e-4` and `3e-4`
 at `0.02813852813852814`; this numerical equality with the rejected package is
 expected because the real test-ineligible classes also fail the train or
@@ -200,8 +209,9 @@ SHA-256 values are
 The corrected E.8 canonical/physical contract SHA-256 values are
 `2c34c71c99c2aee4dba69a909e7094eadd4aa12b1cd7627e318b43c4813746ee` /
 `2015a4b71c7e70f6a9600f76b34388a953b27b33bca356e539e1c1570da1ee62`.
-These are implementation-validation results, not an independent audit or
-freeze.
+The independent correction/E.8 release-audit verdict is **PASS**. These hashes
+identify the frozen deterministic evidence; the candidate metrics remain
+bounded observations with the limitations above.
 
 ## Verified Dataset Facts
 
@@ -352,11 +362,11 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
-- Unfrozen E.7/E.8 E2 selection-leakage correction implementation validation:
+- Frozen E.7/E.8 E2 selection-leakage correction and independent release audit:
   **44 focused E.7 tests**, **20 focused E.8 tests**, **203 frozen E.2-E.6
   regressions**, **247 E.2-E.7 regressions**, and **962 complete-suite tests
   passed**, with no failures or skips; Stage C/raw integrity remained 33/33 and
-  10/10. Independent re-audit is still required.
+  10/10. The combined selection-methodology/E.7/E.8 suite passed 116 tests.
 - Stage E.7 implementation, log-ownership correction, and independent release
   re-audit: **42 focused tests passed**, **203 frozen E.2-E.6 regression tests
   passed**, and **936 complete-suite tests passed**, with no failures or skips.
@@ -393,7 +403,7 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 - Stage E.3 release-audit verdict: **PASS — causal feature encoder can be frozen**.
 - Stage E.4 release-audit verdict: **PASS — hierarchical GATv2 encoder can be frozen**.
 
-Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json`, `results/stage_d1/` through `results/stage_d8/`, and `results/stage_e1/` through `results/stage_e7/`.
+Large arrays and local recovery copies are deliberately excluded from Git. Compact validation evidence is in `results/stage_c_full_validation.json`, `results/stage_d1/` through `results/stage_d8/`, and `results/stage_e1/` through `results/stage_e8/`.
 
 ## Frozen Stage E.5 Contract
 
@@ -428,14 +438,12 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the implemented but unfrozen E2 selection-leakage correction and
-regenerated Stage E.8 bounded optimization pilot.
+Stop after the independently audited and frozen E2 selection-leakage correction
+and regenerated Stage E.8 bounded optimization pilot.
 Do not launch full model training, a three-seed study, weighted-loss ablations,
 batch-size selection, baseline models, locked-test evaluation, pruning, or E.9
 and later work under this scope.
 
-The exact next safe action is an independent read-only re-audit of the E.7/E.8
-E2 selection-leakage correction, compact contract evidence, and regenerated
-observational report. Only a passing independent audit plus explicit release
-authorization may freeze or tag the correction/E.8 state. E.9 remains
-unauthorized.
+The exact next safe boundary is Stage E.9, but it remains unauthorized and
+requires a separate explicit implementation scope. No E.9 work was performed
+or implied by the Stage E.8 checkpoint.
