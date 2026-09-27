@@ -72,6 +72,9 @@ def _complete_record(
         "parameter_update_observed": True,
         "parameter_count": e7.EXPECTED_PARAMETERS[candidate.task],
         "model_state_schema_sha256": "a" * 64,
+        "validation_selection_class_codes": (
+            list(range(12)) if candidate.task == "E2" else []
+        ),
         "checkpoint_sha256": "b" * 64,
         "log_sha256": "c" * 64,
         "elapsed_seconds": 1.0,
@@ -146,6 +149,23 @@ def test_correct_frozen_validation_objective_per_task():
         candidate.task: candidate.selection_name
         for candidate in e8.enumerate_candidates()
     } == e8.EXPECTED_SELECTION_NAMES
+
+
+def test_e8_ranking_contract_uses_test_blind_e2_selection_only():
+    source = inspect.getsource(e8)
+    assert "class_eligibility" not in source
+    assert "test_class_distribution" not in source
+    records = [
+        _complete_record(PROJECT_ROOT, candidate)
+        for candidate in e8.enumerate_candidates()
+    ]
+    report = e8.build_observations(
+        run_id=RUN_ID, executor="test", records=records
+    )
+    policy = report["e2_validation_selection_policy"]
+    assert policy["thresholds"] == {"min_train": 100, "min_val": 30}
+    assert policy["test_support_consulted"] is False
+    assert policy["final_reporting_eligibility_consulted"] is False
 
 
 def test_task_ranking_is_deterministic_and_uses_approved_lr_tie_order(tmp_path):
@@ -230,6 +250,9 @@ def test_run_candidate_delegates_once_to_e7_without_split_or_test_access(
         lambda *args, **kwargs: {
             "parameter_count": e7.EXPECTED_PARAMETERS[candidate.task],
             "model_state_schema_sha256": "d" * 64,
+            "selection_class_codes": (
+                list(range(12)) if candidate.task == "E2" else []
+            ),
         },
     )
     record = e8.run_candidate(
@@ -283,8 +306,8 @@ def test_aggregate_rejects_missing_candidate_results(tmp_path, monkeypatch):
         )
 
 
-def test_frozen_e7_and_model_sources_remain_unchanged():
-    assert e8.require_frozen_contracts(PROJECT_ROOT) == e8.FROZEN_E7_SOURCE_SHA256
+def test_corrected_e7_and_frozen_model_sources_remain_unchanged():
+    assert e8.require_frozen_contracts(PROJECT_ROOT) == e8.CORRECTED_E7_SOURCE_SHA256
 
 
 def test_orchestrator_contains_no_duplicate_training_or_downstream_implementation():

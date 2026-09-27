@@ -25,6 +25,14 @@ from src.training import harness as e7  # noqa: E402
 from src.training import validation as evidence  # noqa: E402
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def _run_pytest(project_root: Path, args: list[str]) -> dict[str, Any]:
     completed = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", *args],
@@ -122,6 +130,9 @@ def _smoke_task(
         "reloaded_validation_state_matches": reloaded_matches,
         "log_record_count": len(log_records),
         "log_epoch_sequence": [record.get("epoch") for record in log_records],
+        "validation_selection_class_codes": list(
+            validation.selection_class_codes
+        ),
     }
     checks["status"] = (
         "PASS"
@@ -210,6 +221,16 @@ def main() -> int:
     )
     report = evidence.build_report(
         frozen_source_sha256=frozen_hashes,
+        correction_source_sha256={
+            relative: _sha256(project_root / relative)
+            for relative in (
+                "src/preprocessing/splitting.py",
+                "src/training/harness.py",
+                "src/training/validation.py",
+                "tests/test_preprocessing_splitting.py",
+                "tests/test_training_harness.py",
+            )
+        },
         smoke_validation=smoke,
         integrity=integrity,
         verification=verification,

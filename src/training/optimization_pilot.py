@@ -25,7 +25,7 @@ from src.graph import schema as d2
 from src.training import harness as e7
 
 
-PILOT_VERSION: Final = "stage-e8-optimization-pilot-v1"
+PILOT_VERSION: Final = "stage-e8-optimization-pilot-v2"
 PILOT_TASKS: Final = ("E1", "E2", "E3")
 PILOT_LEARNING_RATES: Final = (1e-4, 3e-4, 1e-3)
 PILOT_SEED: Final = 2025
@@ -40,15 +40,18 @@ OBSERVATIONAL_RANKING_RULE: Final = (
 )
 EXPECTED_SELECTION_NAMES: Final = {
     "E1": "support_restricted_macro_f1",
-    "E2": "eligible_class_macro_f1",
+    "E2": "validation_selection_macro_f1",
     "E3": "pr_auc_average_precision",
 }
-FROZEN_E7_SOURCE_SHA256: Final = {
+CORRECTED_E7_SOURCE_SHA256: Final = {
+    "src/preprocessing/splitting.py": (
+        "11c11605e59015fb32b9fc4634363ba2979918ac9de9025088ea70da2e084445"
+    ),
     "src/training/harness.py": (
-        "f20da5c010d202b4e2e96feeebc6ff6c0b6d1f0410a4812073c9a282f1c00973"
+        "22a6579ad60ebdfe16950d3d6fa1f4516bb6aa7b1ce698cacd5289e5a6b47010"
     ),
     "src/training/validation.py": (
-        "bf28fbab6a16dee86dee1c5049574c3086310e3605766d9b80bc9df65e631778"
+        "4e1e116dfad6adc1514bba6a242619bea2404c2abc51847a030ce8bf12b67c9f"
     ),
     "src/training/__init__.py": (
         "d699309aa3e24338d7926d6bd2018367f16b1ea837eb53ba612a42b6ca671e7a"
@@ -56,8 +59,11 @@ FROZEN_E7_SOURCE_SHA256: Final = {
     "scripts/train_htgnn.py": (
         "5421759cdbfcac33e384638f723308b053c4346f99150b83465c7565f30fff8d"
     ),
+    "tests/test_preprocessing_splitting.py": (
+        "142a3d76b2ef6a64e920d849d4dc0b1ea946728caf1a6ffe84753da3eaac9aeb"
+    ),
     "tests/test_training_harness.py": (
-        "8aecc3feea2bf0fab0a0266a0121c4898d78dc4669accbce58654dba450e9f0b"
+        "2f3e273a863b18e1da766cf45c284e0910e7c98b85df40cbd0f4beab08030373"
     ),
 }
 _RUN_ID_PATTERN: Final = re.compile(r"^[a-z0-9][a-z0-9._-]{7,95}$")
@@ -178,19 +184,19 @@ def new_run_id() -> str:
 
 
 def require_frozen_contracts(project_root: Path) -> dict[str, str]:
-    """Fail closed if E.2-E.7 frozen sources or constants have changed."""
+    """Fail closed if frozen E.2-E.6 or corrected E.7 sources changed."""
 
     root = Path(project_root).resolve()
     e6.require_frozen_sources(root)
     actual: dict[str, str] = {}
-    for relative, expected in FROZEN_E7_SOURCE_SHA256.items():
+    for relative, expected in CORRECTED_E7_SOURCE_SHA256.items():
         path = root / relative
         if not path.is_file():
-            raise OptimizationPilotError(f"frozen E.7 source is missing: {relative}")
+            raise OptimizationPilotError(f"corrected E.7 source is missing: {relative}")
         actual[relative] = _sha256(path)
         if actual[relative] != expected:
             raise OptimizationPilotError(
-                f"frozen E.7 source changed: {relative}: "
+                f"corrected E.7 source changed: {relative}: "
                 f"{actual[relative]} != {expected}"
             )
     expected_constants = {
@@ -421,6 +427,9 @@ def run_candidate(
             "model_state_schema_sha256": metadata[
                 "model_state_schema_sha256"
             ],
+            "validation_selection_class_codes": list(
+                metadata.get("selection_class_codes", ())
+            ) if candidate.task == "E2" else [],
             "checkpoint_sha256": _sha256(paths.checkpoint),
             "log_sha256": _sha256(paths.log),
             "elapsed_seconds": round(time.perf_counter() - started, 6),
@@ -480,6 +489,7 @@ def validate_candidate_record(
         "history",
         "parameter_count",
         "model_state_schema_sha256",
+        "validation_selection_class_codes",
         "checkpoint_sha256",
         "log_sha256",
         "elapsed_seconds",
@@ -511,6 +521,22 @@ def validate_candidate_record(
             raise OptimizationPilotError(f"complete candidate {key} is invalid")
     if record.get("parameter_count") != e7.EXPECTED_PARAMETERS[candidate.task]:
         raise OptimizationPilotError("complete candidate parameter count changed")
+    selection_codes = record.get("validation_selection_class_codes")
+    if not isinstance(selection_codes, list):
+        raise OptimizationPilotError(
+            "complete candidate validation-selection classes are malformed"
+        )
+    if candidate.task == "E2":
+        if not selection_codes or not all(
+            isinstance(code, int) and 0 <= code < 15 for code in selection_codes
+        ):
+            raise OptimizationPilotError(
+                "E2 candidate lacks validation-selection class authority"
+            )
+    elif selection_codes:
+        raise OptimizationPilotError(
+            "non-E2 candidate unexpectedly records E2 selection classes"
+        )
 
 
 def _verify_live_artifacts(
@@ -621,6 +647,21 @@ def rank_task_records(records: Sequence[Mapping[str, Any]]) -> tuple[str, ...]:
     return tuple(str(record["candidate_id"]) for record in ordered)
 
 
+def _e2_validation_selection_class_codes(
+    records: Sequence[Mapping[str, Any]],
+) -> list[int]:
+    observed = {
+        tuple(record.get("validation_selection_class_codes", ()))
+        for record in records
+        if record.get("task") == "E2" and record.get("status") == "COMPLETE"
+    }
+    if len(observed) > 1:
+        raise OptimizationPilotError(
+            "E2 candidates used different validation-selection class sets"
+        )
+    return list(next(iter(observed), ()))
+
+
 def build_observations(
     *,
     run_id: str,
@@ -666,6 +707,17 @@ def build_observations(
         "production_configuration_finalized": False,
         "test_accessed": False,
         "test_metrics_recorded": False,
+        "e2_validation_selection_policy": {
+            "thresholds": {"min_train": 100, "min_val": 30},
+            "validation_selection_class_codes": (
+                _e2_validation_selection_class_codes(records)
+            ),
+            "test_labels_consulted": False,
+            "test_support_consulted": False,
+            "test_membership_consulted": False,
+            "test_metadata_consulted": False,
+            "final_reporting_eligibility_consulted": False,
+        },
         "interpretation": (
             "Bounded pilot observations only; no multi-seed robustness, full-data "
             "training result, locked-test result, or production configuration."
@@ -690,6 +742,21 @@ def validate_observations(report: Mapping[str, Any]) -> None:
         errors.append("observations contain test metrics")
     if report.get("production_configuration_finalized") is not False:
         errors.append("pilot observations incorrectly finalize a configuration")
+    e2_policy = report.get("e2_validation_selection_policy", {})
+    if (
+        e2_policy.get("thresholds") != {"min_train": 100, "min_val": 30}
+        or any(
+            e2_policy.get(key) is not False
+            for key in (
+                "test_labels_consulted",
+                "test_support_consulted",
+                "test_membership_consulted",
+                "test_metadata_consulted",
+                "final_reporting_eligibility_consulted",
+            )
+        )
+    ):
+        errors.append("E2 validation-selection policy is not test-blind")
     records = report.get("candidate_results")
     candidates = enumerate_candidates()
     if not isinstance(records, list) or len(records) != len(candidates):
@@ -704,6 +771,11 @@ def validate_observations(report: Mapping[str, Any]) -> None:
                     raise OptimizationPilotError("pilot mixes run identifiers")
             _validate_fairness(records)
             _validate_stored_paths(records, str(report.get("run_id")))
+            expected_codes = _e2_validation_selection_class_codes(records)
+            if e2_policy.get("validation_selection_class_codes") != expected_codes:
+                raise OptimizationPilotError(
+                    "E2 validation-selection class evidence is inconsistent"
+                )
             expected_task_observations: dict[str, Any] = {}
             for task in PILOT_TASKS:
                 task_records = [

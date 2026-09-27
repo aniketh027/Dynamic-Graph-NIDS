@@ -37,8 +37,9 @@ Experiment 2 — Multiclass Separability  (PRIMARY EXPERIMENT A)
     class may be later in wall-clock time than a test window of another class.
     E2 must never be described as leakage-free or globally chronological.
 
-    Primary reporting for E2 is restricted to *eligible* classes — see
-    :func:`class_eligibility`.
+    Final locked-test reporting for E2 is restricted to *reporting-eligible*
+    classes — see :func:`class_eligibility`.  Train/validation decisions use
+    the separate test-blind :func:`validation_selection_eligibility` policy.
 
 Experiment 3 — Strict Chronological Binary Classification  (PRIMARY EXPERIMENT B)
     Same global window sequence and the same strict 70/10/20 chronological cut
@@ -50,7 +51,12 @@ Experiment 3 — Strict Chronological Binary Classification  (PRIMARY EXPERIMENT
     required to identify an attack subclass it has not seen — so E3 measures
     temporal generalization under a strict chronological protocol.
 
-Class eligibility (E2 primary reporting)
+Validation-selection eligibility (E2 train/validation decisions)
+    A class enters the validation objective when it has at least 100 train and
+    30 validation windows.  Test labels, support, membership, and metadata are
+    not inputs to this policy.
+
+Final-reporting eligibility (E2 locked-test reporting)
     Post-windowing, a class is eligible if it has at least 100 train, 30
     validation and 30 test windows.  This is an ENGINEERING REPORTING POLICY,
     not a claim of statistical significance and not a universal statistical
@@ -82,7 +88,7 @@ from src.preprocessing.labels import (
 )
 
 # ---------------------------------------------------------------------------
-# Eligibility policy (E2 primary reporting)
+# E2 validation-selection and final-reporting policies
 # ---------------------------------------------------------------------------
 
 #: Minimum post-windowing train windows for a class to be eligible.
@@ -91,6 +97,13 @@ ELIGIBILITY_MIN_TRAIN: int = 100
 ELIGIBILITY_MIN_VAL: int = 30
 #: Minimum post-windowing test windows for a class to be eligible.
 ELIGIBILITY_MIN_TEST: int = 30
+
+VALIDATION_SELECTION_POLICY_NOTE: str = (
+    "A class is eligible for E2 validation selection when it has at least "
+    f"{ELIGIBILITY_MIN_TRAIN} train and {ELIGIBILITY_MIN_VAL} validation "
+    "windows after windowing.  Test labels, support, membership, metadata, "
+    "and final-reporting eligibility are not consulted."
+)
 
 ELIGIBILITY_POLICY_NOTE: str = (
     "A class is eligible for primary multiclass reporting when it has at least "
@@ -273,12 +286,13 @@ def class_eligibility(
     min_val: int = ELIGIBILITY_MIN_VAL,
     min_test: int = ELIGIBILITY_MIN_TEST,
 ) -> Dict[str, object]:
-    """Apply the post-windowing class eligibility rule.
+    """Apply the post-windowing final-reporting eligibility rule.
 
     For every class in the vocabulary, record its train/val/test window counts,
     whether it is eligible, and — when it is not — the exact reason(s).  No
     class is merged, relabelled or removed from the dataset by this function;
-    it only decides what enters the *eligible-class evaluation set*.
+    it only decides what enters the later locked-test reporting set.  This
+    three-split function must not be used for train/validation decisions.
     """
     tr = _class_distribution(y_train)
     va = _class_distribution(y_val)
@@ -345,6 +359,73 @@ def class_eligibility(
             "semantic macro-classes and their underlying labels are not "
             "modified in the raw or preprocessed data."
         ),
+    }
+
+
+def validation_selection_eligibility(
+    y_train: np.ndarray,
+    y_val: np.ndarray,
+    min_train: int = ELIGIBILITY_MIN_TRAIN,
+    min_val: int = ELIGIBILITY_MIN_VAL,
+    *,
+    chunk_size: int = 1_000_000,
+) -> Dict[str, object]:
+    """Derive the authoritative E2 validation-selection class set.
+
+    The API intentionally accepts only train and validation targets.  Counts
+    are accumulated in bounded chunks so production callers can pass the
+    frozen target memory maps without materialising either split.
+    """
+    if not isinstance(min_train, int) or min_train < 1:
+        raise ValueError("min_train must be an int >= 1")
+    if not isinstance(min_val, int) or min_val < 1:
+        raise ValueError("min_val must be an int >= 1")
+    if not isinstance(chunk_size, int) or chunk_size < 1:
+        raise ValueError("chunk_size must be an int >= 1")
+
+    def _bounded_counts(values: np.ndarray, split: str) -> np.ndarray:
+        if not isinstance(values, np.ndarray) or values.ndim != 1:
+            raise ValueError(f"{split} targets must be a one-dimensional NumPy array")
+        if values.dtype.kind not in {"i", "u"}:
+            raise ValueError(f"{split} targets must have an integer dtype")
+        counts = np.zeros(len(LABEL_VOCABULARY), dtype=np.int64)
+        for start in range(0, len(values), chunk_size):
+            codes, observed = np.unique(
+                values[start : start + chunk_size], return_counts=True
+            )
+            for raw_code, raw_count in zip(codes, observed, strict=True):
+                code = int(raw_code)
+                if code not in INT_TO_LABEL:
+                    raise ValueError(
+                        f"{split} targets contain non-canonical class code {code}"
+                    )
+                counts[code] += int(raw_count)
+        return counts
+
+    train_counts = _bounded_counts(y_train, "train")
+    val_counts = _bounded_counts(y_val, "validation")
+    selected_codes = [
+        code
+        for code in sorted(INT_TO_LABEL)
+        if int(train_counts[code]) >= min_train
+        and int(val_counts[code]) >= min_val
+    ]
+    if not selected_codes:
+        raise ValueError("no classes satisfy E2 validation-selection thresholds")
+
+    return {
+        "thresholds": {"min_train": min_train, "min_val": min_val},
+        "policy_note": VALIDATION_SELECTION_POLICY_NOTE,
+        "test_support_consulted": False,
+        "validation_selection_class_codes": selected_codes,
+        "per_class": {
+            INT_TO_LABEL[code]: {
+                "n_train": int(train_counts[code]),
+                "n_val": int(val_counts[code]),
+                "selected": code in selected_codes,
+            }
+            for code in sorted(INT_TO_LABEL)
+        },
     }
 
 

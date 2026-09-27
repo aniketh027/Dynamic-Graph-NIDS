@@ -6,6 +6,7 @@ from pathlib import Path
 import random
 import subprocess
 import threading
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -195,6 +196,65 @@ def test_test_split_is_rejected_before_training():
         )
 
 
+def test_e2_selection_derivation_is_test_blind_and_uses_authoritative_mapping():
+    train = np.concatenate(
+        (
+            np.full(100, 0, dtype=np.int16),
+            np.full(99, 1, dtype=np.int16),
+        )
+    )
+    validation = np.concatenate(
+        (
+            np.full(30, 0, dtype=np.int16),
+            np.full(30, 1, dtype=np.int16),
+        )
+    )
+    train_dataset = SimpleNamespace(y_memmap=train)
+    validation_dataset = SimpleNamespace(y_memmap=validation)
+
+    assert e7._derive_e2_validation_selection_class_codes(
+        train_dataset, validation_dataset
+    ) == (0,)
+
+
+def test_bounded_e2_training_succeeds_without_reporting_eligibility_access(
+    tmp_path, monkeypatch
+):
+    def reporting_forbidden(*args, **kwargs):
+        raise AssertionError("final-reporting eligibility must be inaccessible")
+
+    original_read_text = Path.read_text
+    original_d5_loader = e7.d6._load_approved_d5_report
+
+    def deny_reporting_metadata(path, *args, **kwargs):
+        normalized = path.as_posix()
+        if normalized.endswith("class_eligibility.json"):
+            raise AssertionError("test-derived reporting metadata was accessed")
+        return original_read_text(path, *args, **kwargs)
+
+    def d5_without_reporting_eligibility(path):
+        report = original_d5_loader(path)
+        report.pop("e2_class_eligibility_policy", None)
+        return report
+
+    monkeypatch.setattr(
+        e7.stage_c_splitting, "class_eligibility", reporting_forbidden
+    )
+    monkeypatch.setattr(Path, "read_text", deny_reporting_metadata)
+    monkeypatch.setattr(
+        e7.d6, "_load_approved_d5_report", d5_without_reporting_eligibility
+    )
+    result = e7.run_training(
+        config("E2"),
+        project_root=PROJECT_ROOT,
+        checkpoint_path=tmp_path / "e2.pt",
+        log_path=tmp_path / "e2.jsonl",
+        device="auto",
+    )
+    assert result.task == "E2"
+    assert result.selection_name == "validation_selection_macro_f1"
+
+
 def test_training_and_validation_switch_modes_and_update_parameters():
     model = TinyModel("E1")
     before = [parameter.detach().clone() for parameter in model.parameters()]
@@ -289,7 +349,7 @@ def test_e1_macro_f1_is_restricted_to_train_validation_support():
     assert stats.selection_class_codes == (0, 2)
 
 
-def test_e2_macro_f1_uses_only_supplied_frozen_eligible_codes():
+def test_e2_macro_f1_uses_only_train_validation_selection_codes():
     model = TinyModel("E2")
     stats = e7.validate_one_epoch(
         task="E2",
@@ -298,7 +358,7 @@ def test_e2_macro_f1_uses_only_supplied_frozen_eligible_codes():
         criterion=e7.create_loss("E2"),
         device=torch.device("cpu"),
         train_target_codes=(),
-        eligible_codes=(0, 1),
+        validation_selection_class_codes=(0, 1),
     )
     assert stats.selection_class_codes == (0, 1)
 
@@ -592,7 +652,14 @@ def test_training_harness_has_no_pruning_dependency_or_attention_collection():
 
 
 def test_deterministic_evidence_validation_rejects_tampering():
-    smoke = [{"task": task, "status": "PASS"} for task in e7.TASKS]
+    smoke = [
+        {
+            "task": task,
+            "status": "PASS",
+            "validation_selection_class_codes": [0] if task == "E2" else [],
+        }
+        for task in e7.TASKS
+    ]
     verification = {
         "focused_e7": {"status": "PASS", "passed": 1},
         "frozen_e2_e6_regression": {"status": "PASS", "passed": 1},
@@ -601,6 +668,16 @@ def test_deterministic_evidence_validation_rejects_tampering():
     }
     report = evidence.build_report(
         frozen_source_sha256=e6.FROZEN_SOURCE_SHA256,
+        correction_source_sha256={
+            relative: "a" * 64
+            for relative in (
+                "src/preprocessing/splitting.py",
+                "src/training/harness.py",
+                "src/training/validation.py",
+                "tests/test_preprocessing_splitting.py",
+                "tests/test_training_harness.py",
+            )
+        },
         smoke_validation=smoke,
         integrity={"stage_c": "PASS", "raw_csv": "PASS"},
         verification=verification,

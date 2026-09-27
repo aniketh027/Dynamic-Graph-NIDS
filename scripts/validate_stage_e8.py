@@ -56,7 +56,7 @@ def _build_report(
     observations: Mapping[str, Any],
     verification: Mapping[str, Any],
 ) -> dict[str, Any]:
-    frozen_e7_hashes = e8.require_frozen_contracts(project_root)
+    corrected_e7_hashes = e8.require_frozen_contracts(project_root)
     e8.validate_observations(observations)
     integrity_result = d4.verify_frozen_integrity(project_root)
     integrity = {
@@ -116,11 +116,19 @@ def _build_report(
             "test_accessed": False,
             "test_metrics_recorded": False,
             "enforcement": (
-                "E.8 exposes no split parameter and delegates only to frozen E.7 "
+                "E.8 exposes no split parameter and delegates only to corrected E.7 "
                 "run_training, whose production path constructs train and validation."
             ),
         },
         "validation_objectives": dict(e8.EXPECTED_SELECTION_NAMES),
+        "e2_validation_selection_policy": dict(
+            observations.get("e2_validation_selection_policy", {})
+        ),
+        "e2_final_reporting_policy": {
+            "separate_from_validation_selection": True,
+            "thresholds": {"min_train": 100, "min_val": 30, "min_test": 30},
+            "use": "later locked-test/final reporting only",
+        },
         "optimization": {
             "optimizer": "AdamW",
             "weight_decay": e7.WEIGHT_DECAY,
@@ -154,7 +162,7 @@ def _build_report(
             "overall_status": observations.get("overall_status"),
             "content_class": "observational",
         },
-        "frozen_e7_source_sha256": frozen_e7_hashes,
+        "corrected_e7_source_sha256": corrected_e7_hashes,
         "stage_e8_source_sha256": source_hashes,
         "frozen_parameter_counts": dict(e7.EXPECTED_PARAMETERS),
         "integrity": integrity,
@@ -198,6 +206,26 @@ def validate_report(report: Mapping[str, Any]) -> None:
         or data_boundary.get("test_metrics_recorded") is not False
     ):
         errors.append("test exclusion contract failed")
+    e2_policy = report.get("e2_validation_selection_policy", {})
+    if (
+        e2_policy.get("thresholds") != {"min_train": 100, "min_val": 30}
+        or not e2_policy.get("validation_selection_class_codes")
+        or any(
+            e2_policy.get(key) is not False
+            for key in (
+                "test_labels_consulted",
+                "test_support_consulted",
+                "test_membership_consulted",
+                "test_metadata_consulted",
+                "final_reporting_eligibility_consulted",
+            )
+        )
+    ):
+        errors.append("E2 validation-selection contract is not test-blind")
+    if report.get("e2_final_reporting_policy", {}).get(
+        "separate_from_validation_selection"
+    ) is not True:
+        errors.append("E2 final-reporting policy is not separate")
     interpretation = report.get("interpretation", {})
     if interpretation.get("production_configuration_finalized") is not False:
         errors.append("pilot incorrectly finalized a configuration")

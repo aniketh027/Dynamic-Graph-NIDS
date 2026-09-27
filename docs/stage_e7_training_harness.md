@@ -24,13 +24,21 @@ The task contracts are:
 | Task | Raw output | Loss | Validation selection |
 | --- | --- | --- | --- |
 | E1 | `[B, 15]` | unweighted `CrossEntropyLoss` | macro F1 restricted to classes supported by the processed train and validation batches |
-| E2 | `[B, 15]` | unweighted `CrossEntropyLoss` | macro F1 over the frozen D5 eligible-class codes |
+| E2 | `[B, 15]` | unweighted `CrossEntropyLoss` | macro F1 over `validation_selection_class_codes`, derived only from E2 train support ≥100 and validation support ≥30 |
 | E3 | `[B]` | unweighted `BCEWithLogitsLoss` | PR-AUC represented by average precision on validation raw-logit rankings |
 
 Softmax and sigmoid are not applied before the losses. Ordinary training does
 not request attention and contains no pruning path. Weighted E2/E3 loss
 ablations are intentionally deferred because the current handoff does not put
 them inside E.7.
+
+E2 validation selection is deliberately separate from final reporting. The
+selection class set is derived in bounded chunks directly from the
+authoritative E2 train and validation target memory maps. Its API has no test
+input, and E.7 does not read the three-split reporting-eligibility field for
+selection. The later locked-test reporting policy remains train ≥100,
+validation ≥30, and test ≥30; that policy is not consulted by training, early
+stopping, checkpoint selection, or validation metrics.
 
 ## Optimization and stopping
 
@@ -70,6 +78,15 @@ not model-quality results.
 Compact deterministic contract and smoke evidence is written by
 `scripts/validate_stage_e7.py`; it stores pass/fail facts and shapes, never
 checkpoint weights, loss values, predictive scores, timing, or memory claims.
+
+The authorized E2 methodology correction regenerated this evidence after 44
+focused E.7 tests, 203 frozen E.2-E.6 regression tests, and 962 complete-suite
+tests passed with zero failures or skips. Stage C integrity remained 33/33 and
+raw CSV integrity remained 10/10. The corrected canonical evidence SHA-256 is
+`9b6669e35344757dde130b7ffc6f089192aae56494a009ba3e76994e7920062a`;
+the physical file SHA-256 is
+`3ea99b2bb39e9f8a5e6e1b04ef46ba837037d0797cde38dadfd9bb9a1b00e67b`.
+This correction is ready for independent re-audit and is not frozen.
 
 ## Device and determinism
 

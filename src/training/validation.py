@@ -6,6 +6,7 @@ import json
 from typing import Any, Mapping
 
 from src.graph import schema as d2
+from src.preprocessing import splitting as stage_c_splitting
 from src.training import harness as e7
 
 
@@ -16,10 +17,14 @@ class TrainingEvidenceError(ValueError):
 def build_report(
     *,
     frozen_source_sha256: Mapping[str, str],
+    correction_source_sha256: Mapping[str, str],
     smoke_validation: list[Mapping[str, Any]],
     integrity: Mapping[str, Any],
     verification: Mapping[str, Any],
 ) -> dict[str, Any]:
+    e2_smoke = next(
+        (item for item in smoke_validation if item.get("task") == "E2"), {}
+    )
     report: dict[str, Any] = {
         "stage": "E.7",
         "harness_version": e7.HARNESS_VERSION,
@@ -64,6 +69,30 @@ def build_report(
             "test": "not accepted by E.7 training/selection",
             "full_split_feature_or_graph_materialization": False,
         },
+        "e2_validation_selection_policy": {
+            "authority": "authoritative E2 train and validation target memmaps",
+            "thresholds": {
+                "min_train": stage_c_splitting.ELIGIBILITY_MIN_TRAIN,
+                "min_val": stage_c_splitting.ELIGIBILITY_MIN_VAL,
+            },
+            "validation_selection_class_codes": e2_smoke.get(
+                "validation_selection_class_codes"
+            ),
+            "test_labels_consulted": False,
+            "test_support_consulted": False,
+            "test_membership_consulted": False,
+            "test_metadata_consulted": False,
+            "final_reporting_eligibility_consulted": False,
+        },
+        "e2_final_reporting_policy": {
+            "separate_from_validation_selection": True,
+            "thresholds": {
+                "min_train": stage_c_splitting.ELIGIBILITY_MIN_TRAIN,
+                "min_val": stage_c_splitting.ELIGIBILITY_MIN_VAL,
+                "min_test": stage_c_splitting.ELIGIBILITY_MIN_TEST,
+            },
+            "use": "later locked-test/final reporting only",
+        },
         "checkpoint": {
             "schema_version": e7.CHECKPOINT_SCHEMA_VERSION,
             "state_dict_only": True,
@@ -84,6 +113,7 @@ def build_report(
         "weighted_ablations": "not implemented in E.7",
         "parameter_counts": dict(e7.EXPECTED_PARAMETERS),
         "frozen_source_sha256": dict(frozen_source_sha256),
+        "correction_source_sha256": dict(correction_source_sha256),
         "bounded_real_smoke": smoke_validation,
         "integrity": dict(integrity),
         "verification": dict(verification),
@@ -118,6 +148,25 @@ def validate_report(report: Mapping[str, Any]) -> None:
         errors.append("harness version mismatch")
     if report.get("parameter_counts") != e7.EXPECTED_PARAMETERS:
         errors.append("frozen parameter counts changed")
+    correction_hashes = report.get("correction_source_sha256", {})
+    required_correction_sources = {
+        "src/preprocessing/splitting.py",
+        "src/training/harness.py",
+        "src/training/validation.py",
+        "tests/test_preprocessing_splitting.py",
+        "tests/test_training_harness.py",
+    }
+    if (
+        not isinstance(correction_hashes, Mapping)
+        or set(correction_hashes) != required_correction_sources
+        or not all(
+            isinstance(value, str)
+            and len(value) == 64
+            and all(character in "0123456789abcdef" for character in value)
+            for value in correction_hashes.values()
+        )
+    ):
+        errors.append("correction source identity is incomplete")
     if report.get("optimizer", {}).get("weight_decay") != e7.WEIGHT_DECAY:
         errors.append("optimizer weight decay changed")
     stopping = report.get("early_stopping", {})
@@ -152,6 +201,32 @@ def validate_report(report: Mapping[str, Any]) -> None:
         or logging.get("resume_or_cross_run_append_supported") is not False
     ):
         errors.append("single-run JSONL ownership contract changed")
+    e2_selection = report.get("e2_validation_selection_policy", {})
+    if (
+        e2_selection.get("thresholds") != {"min_train": 100, "min_val": 30}
+        or not isinstance(
+            e2_selection.get("validation_selection_class_codes"), list
+        )
+        or not e2_selection.get("validation_selection_class_codes")
+        or any(
+            e2_selection.get(key) is not False
+            for key in (
+                "test_labels_consulted",
+                "test_support_consulted",
+                "test_membership_consulted",
+                "test_metadata_consulted",
+                "final_reporting_eligibility_consulted",
+            )
+        )
+    ):
+        errors.append("E2 validation-selection policy is not test-blind")
+    e2_reporting = report.get("e2_final_reporting_policy", {})
+    if (
+        e2_reporting.get("separate_from_validation_selection") is not True
+        or e2_reporting.get("thresholds")
+        != {"min_train": 100, "min_val": 30, "min_test": 30}
+    ):
+        errors.append("E2 final-reporting policy is not separate")
     verification = report.get("verification", {})
     if not isinstance(verification, Mapping) or verification.get("status") != "PASS":
         errors.append("verification status is not PASS")

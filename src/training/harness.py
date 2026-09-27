@@ -25,14 +25,14 @@ from torch_geometric.data import HeteroData
 
 from src.graph import adapter as d4
 from src.graph import batching as d6
-from src.graph import experiment_validation as d5
 from src.graph import htgnn_classifier as e5
 from src.graph import pyg_adapter as e2
 from src.graph import resource_pilot as e6
 from src.preprocessing.labels import LABEL_TO_INT
+from src.preprocessing import splitting as stage_c_splitting
 
 
-HARNESS_VERSION: Final = "stage-e7-htgnn-training-harness-v1"
+HARNESS_VERSION: Final = "stage-e7-htgnn-training-harness-v2"
 CHECKPOINT_SCHEMA_VERSION: Final = 1
 TASKS: Final = ("E1", "E2", "E3")
 APPROVED_SEEDS: Final = (2025, 2026, 2027)
@@ -47,7 +47,7 @@ MAX_BATCH_SIZE: Final = 128
 EXPECTED_PARAMETERS: Final = {"E1": 7_183, "E2": 7_183, "E3": 6_721}
 SELECTION_NAMES: Final = {
     "E1": "support_restricted_macro_f1",
-    "E2": "eligible_class_macro_f1",
+    "E2": "validation_selection_macro_f1",
     "E3": "pr_auc_average_precision",
 }
 
@@ -412,7 +412,10 @@ class _MetricAccumulator:
             self.binary_targets.append(target_array.astype(np.int8))
 
     def selection(
-        self, *, train_target_codes: Sequence[int], eligible_codes: Sequence[int]
+        self,
+        *,
+        train_target_codes: Sequence[int],
+        validation_selection_class_codes: Sequence[int],
     ) -> tuple[float, bool, tuple[int, ...]]:
         if self.task == "E3":
             targets = np.concatenate(self.binary_targets)
@@ -424,7 +427,7 @@ class _MetricAccumulator:
         if self.task == "E1":
             selected = sorted(set(train_target_codes) & self.target_codes)
         else:
-            selected = list(eligible_codes)
+            selected = list(validation_selection_class_codes)
         if not selected:
             raise TrainingContractError("no authorized classes support validation F1")
         scores: list[float] = []
@@ -448,7 +451,7 @@ def _run_epoch(
     optimizer: Optimizer | None,
     expected_split: str,
     train_target_codes: Sequence[int] = (),
-    eligible_codes: Sequence[int] = (),
+    validation_selection_class_codes: Sequence[int] = (),
 ) -> EpochStats:
     training = optimizer is not None
     if training != (expected_split == "train"):
@@ -502,7 +505,7 @@ def _run_epoch(
     if not training:
         selection_value, support_complete, selection_codes = metric.selection(
             train_target_codes=train_target_codes,
-            eligible_codes=eligible_codes,
+            validation_selection_class_codes=validation_selection_class_codes,
         )
     return EpochStats(
         loss=loss_total / example_total,
@@ -545,7 +548,7 @@ def validate_one_epoch(
     criterion: nn.Module,
     device: torch.device,
     train_target_codes: Sequence[int],
-    eligible_codes: Sequence[int] = (),
+    validation_selection_class_codes: Sequence[int] = (),
 ) -> EpochStats:
     return _run_epoch(
         task=task,
@@ -556,24 +559,31 @@ def validate_one_epoch(
         device=device,
         expected_split="validation",
         train_target_codes=train_target_codes,
-        eligible_codes=eligible_codes,
+        validation_selection_class_codes=validation_selection_class_codes,
     )
 
 
-def _load_eligible_codes(project_root: Path) -> tuple[int, ...]:
-    path = project_root / "results" / "stage_d5" / "experiment_boundary_validation.json"
+def _derive_e2_validation_selection_class_codes(
+    train_dataset: d4.LazyGraphDataset,
+    validation_dataset: d4.LazyGraphDataset,
+) -> tuple[int, ...]:
+    """Derive E2 selection classes from train/validation targets only."""
     try:
-        report = json.loads(path.read_text(encoding="utf-8"))
-        d5.validate_report(report)
+        policy = stage_c_splitting.validation_selection_eligibility(
+            train_dataset.y_memmap,
+            validation_dataset.y_memmap,
+        )
     except Exception as exc:
-        raise TrainingContractError(f"frozen D5 authority is invalid: {exc}") from exc
-    if report.get("report_sha256") != d6.APPROVED_D5_REPORT_SHA256:
-        raise TrainingContractError("frozen D5 authority hash is not approved")
-    codes = report.get("e2_class_eligibility_policy", {}).get(
-        "eligible_class_codes"
-    )
+        raise TrainingContractError(
+            f"E2 train/validation selection authority is invalid: {exc}"
+        ) from exc
+    if policy.get("test_support_consulted") is not False:
+        raise TrainingContractError("E2 validation selection consulted test support")
+    codes = policy.get("validation_selection_class_codes")
     if not isinstance(codes, list) or not codes:
-        raise TrainingContractError("frozen E2 eligible-class authority is missing")
+        raise TrainingContractError(
+            "E2 train/validation selection class authority is missing"
+        )
     return tuple(int(code) for code in codes)
 
 
@@ -841,8 +851,12 @@ def run_training(
     model = create_model(config.task).to(selected_device)
     criterion = create_loss(config.task).to(selected_device)
     optimizer = create_optimizer(model, config.learning_rate)
-    eligible_codes = (
-        _load_eligible_codes(project_root) if config.task == "E2" else ()
+    validation_selection_class_codes = (
+        _derive_e2_validation_selection_class_codes(
+            train_dataset, validation_dataset
+        )
+        if config.task == "E2"
+        else ()
     )
     e1_train_support = (
         _load_e1_train_support(project_root) if config.task == "E1" else ()
@@ -885,7 +899,7 @@ def run_training(
             train_target_codes=(
                 e1_train_support if config.task == "E1" else train_stats.target_codes
             ),
-            eligible_codes=eligible_codes,
+            validation_selection_class_codes=validation_selection_class_codes,
         )
         if validation_stats.selection_value is None:
             raise TrainingContractError("validation did not produce a selection value")
@@ -982,11 +996,24 @@ def evaluate_saved_validation_checkpoint(
         if config.task == "E1"
         else ()
     )
-    eligible_codes = (
-        _load_eligible_codes(Path(project_root).resolve())
-        if config.task == "E2"
-        else ()
-    )
+    validation_selection_class_codes: tuple[int, ...] = ()
+    if config.task == "E2":
+        train_dataset = d4.LazyGraphDataset(
+            config.task, "train", processed_root=processed_root
+        )
+        validation_selection_class_codes = (
+            _derive_e2_validation_selection_class_codes(
+                train_dataset, validation_dataset
+            )
+        )
+        checkpoint_codes = tuple(
+            int(value) for value in metadata.get("selection_class_codes", ())
+        )
+        if checkpoint_codes != validation_selection_class_codes:
+            raise TrainingContractError(
+                "checkpoint E2 validation-selection classes do not match "
+                "current train/validation authority"
+            )
     validation = validate_one_epoch(
         task=config.task,
         model=model,
@@ -1001,6 +1028,6 @@ def evaluate_saved_validation_checkpoint(
         criterion=criterion,
         device=selected_device,
         train_target_codes=train_codes,
-        eligible_codes=eligible_codes,
+        validation_selection_class_codes=validation_selection_class_codes,
     )
     return metadata, validation, model

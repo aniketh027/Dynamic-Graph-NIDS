@@ -8,6 +8,8 @@ src/training/harness.py -text
 src/training/validation.py -text
 scripts/train_htgnn.py -text
 tests/test_training_harness.py -text
+src/preprocessing/splitting.py -text
+tests/test_preprocessing_splitting.py -text
 src/training/optimization_pilot.py -text
 scripts/run_stage_e8_optimization_pilot.py -text
 scripts/validate_stage_e8.py -text

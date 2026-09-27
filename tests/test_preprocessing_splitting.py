@@ -25,6 +25,7 @@ from src.preprocessing.splitting import (
     experiment1_global_chronological,
     experiment2_per_class_chronological,
     experiment3_binary_chronological,
+    validation_selection_eligibility,
 )
 
 T = 5
@@ -360,6 +361,56 @@ class TestClassEligibility:
         y_tr, y_va, y_te = self._y({"Bot": (10, 5, 5)})
         el = class_eligibility(y_tr, y_va, y_te, min_train=10, min_val=5, min_test=5)
         assert el["per_class"]["Bot"]["eligible"] is True
+
+    def test_validation_selection_and_final_reporting_are_distinct(self):
+        y_tr, y_va, y_te = self._y(
+            {
+                "Benign": (
+                    ELIGIBILITY_MIN_TRAIN,
+                    ELIGIBILITY_MIN_VAL,
+                    ELIGIBILITY_MIN_TEST - 1,
+                ),
+                "Bot": (
+                    ELIGIBILITY_MIN_TRAIN - 1,
+                    ELIGIBILITY_MIN_VAL,
+                    ELIGIBILITY_MIN_TEST,
+                ),
+                "DDOS attack-HOIC": (
+                    ELIGIBILITY_MIN_TRAIN,
+                    ELIGIBILITY_MIN_VAL - 1,
+                    ELIGIBILITY_MIN_TEST,
+                ),
+            }
+        )
+        selection = validation_selection_eligibility(y_tr, y_va)
+        reporting = class_eligibility(y_tr, y_va, y_te)
+
+        benign = LABEL_TO_INT["Benign"]
+        assert selection["validation_selection_class_codes"] == [benign]
+        assert selection["test_support_consulted"] is False
+        assert reporting["per_class"]["Benign"]["eligible"] is False
+        assert reporting["per_class"]["Bot"]["eligible"] is False
+        assert reporting["per_class"]["DDOS attack-HOIC"]["eligible"] is False
+
+    def test_changing_only_test_support_cannot_change_validation_selection(self):
+        y_tr, y_va, low_test = self._y({"Benign": (100, 30, 0)})
+        _, _, high_test = self._y({"Benign": (100, 30, 10_000)})
+
+        low_selection = validation_selection_eligibility(y_tr, y_va)
+        high_selection = validation_selection_eligibility(y_tr, y_va)
+        assert low_selection == high_selection
+        assert class_eligibility(y_tr, y_va, low_test)["eligible_class_codes"] == []
+        assert class_eligibility(y_tr, y_va, high_test)["eligible_class_codes"] == [
+            LABEL_TO_INT["Benign"]
+        ]
+
+    @pytest.mark.parametrize("short_split", ["train", "validation"])
+    def test_validation_selection_threshold_boundaries(self, short_split):
+        train = ELIGIBILITY_MIN_TRAIN - (short_split == "train")
+        validation = ELIGIBILITY_MIN_VAL - (short_split == "validation")
+        y_tr, y_va, _ = self._y({"Benign": (train, validation, 0)})
+        with pytest.raises(ValueError, match="no classes satisfy"):
+            validation_selection_eligibility(y_tr, y_va)
 
 
 # ---------------------------------------------------------------------------

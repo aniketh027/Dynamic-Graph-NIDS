@@ -146,32 +146,62 @@ predictive-performance study was run. Later expensive work remains subject to
 the hybrid execution rule and may be run manually by the user only after its
 separate stage is authorized.
 
-## Unfrozen Stage E.8 Implementation State
+That release statement records the historical E.7 checkpoint. A later
+independent E.8 audit found an indirect methodology defect: E.7 loaded its E2
+validation class set from D5 reporting eligibility, which had been derived
+from train, validation, **and test** support. The real corpus happened to yield
+the same class codes under a train+validation-only rule, but the dependency was
+still test leakage. The explicitly authorized correction now derives
+`validation_selection_class_codes` only from the authoritative E2 train and
+validation target memory maps using train support ≥100 and validation support
+≥30. It does not consult test labels, support, membership, metadata, or
+final-reporting eligibility. This corrected E.7 source is not yet independently
+audited or frozen; the historical tag is not rewritten.
 
-Stage E.8 has an implementation-level bounded optimization pilot built around
-the frozen E.7 harness. It compares only the approved learning rates `1e-4`,
+## Unfrozen Stage E.8 Corrected Implementation State
+
+Stage E.8 has a regenerated implementation-level bounded optimization pilot
+built around the corrected E.7 harness. It compares only the approved learning
+rates `1e-4`,
 `3e-4`, and `1e-3` for E1, E2, and E3 with the frozen unweighted task losses,
 single seed `2025`, batch size 32, three epochs, 16 train batches, and 128
 sequential validation batches per epoch. It does not implement weighted-loss
 ablations, full training, a three-seed study, batch-size optimization,
 baselines, test evaluation, or pruning.
 
-The bounded CUDA pilot completed all nine candidates without test access. Its
+The first independent E.8 audit was **BLOCKED** by the indirect E2
+test-informed selection dependency described above, and E.8 was never frozen.
+The corrected bounded CUDA pilot reran all nine candidates under one consistent
+corrected harness identity without E2 selection access to test information. Its
 compact deterministic contract and separate observational output are under
 `results/stage_e8/`, and the exact bounds and limitations are documented in
 `docs/stage_e8_optimization_pilot.md`. The E2 validation prefix does not cover
-every eligible class, and all rankings remain bounded observations rather than
-a finalized production configuration or project-performance result.
+every validation-selection class, and all rankings remain bounded observations
+rather than a finalized production configuration or project-performance result.
 
-This E.8 state has not yet received an independent audit and is not frozen.
+This corrected E.8 state has not yet received an independent re-audit and is
+not frozen.
 The current frozen checkpoint remains `v0.10-stage-e7-training-harness`.
-Implementation validation passed 19 focused E.8 tests, 245 frozen E.2-E.7
-regression tests, and 955 complete-suite tests, with no failures or skips.
-Stage C integrity remained 33/33 and raw CSV integrity remained 10/10. The
-canonical E.8 contract SHA-256 is
-`ac6585282224e28041cb8e65984b26611fd3f03459709233dcd4ac1c96cc0922`;
-the physical file SHA-256 is
-`da7c80cea736ca32a6e259d000fbac1f259ec43f783cfe4435ffaae07f33842c`.
+The corrected E2 bounded observations remain a tie between `1e-4` and `3e-4`
+at `0.02813852813852814`; this numerical equality with the rejected package is
+expected because the real test-ineligible classes also fail the train or
+validation thresholds. It does not weaken the methodological correction. E2
+validation-prefix support remains incomplete. The E3 validation prefix remains
+4,095 attacks and one benign example, so its near-one PR-AUC is highly
+composition-dependent. No final learning rate is selected.
+
+Correction validation passed 44 focused E.7 tests, 20 focused E.8 tests, 203
+frozen E.2-E.6 regressions, 247 E.2-E.7 regressions, and 962 complete-suite
+tests, with zero failures or skips. Stage C integrity remained 33/33 and raw
+CSV integrity remained 10/10. The corrected E.7 canonical/physical evidence
+SHA-256 values are
+`9b6669e35344757dde130b7ffc6f089192aae56494a009ba3e76994e7920062a` /
+`3ea99b2bb39e9f8a5e6e1b04ef46ba837037d0797cde38dadfd9bb9a1b00e67b`.
+The corrected E.8 canonical/physical contract SHA-256 values are
+`2c34c71c99c2aee4dba69a909e7094eadd4aa12b1cd7627e318b43c4813746ee` /
+`2015a4b71c7e70f6a9600f76b34388a953b27b33bca356e539e1c1570da1ee62`.
+These are implementation-validation results, not an independent audit or
+freeze.
 
 ## Verified Dataset Facts
 
@@ -307,7 +337,14 @@ Global 70/10/20 split, no shuffle, no stratification. E1 is diagnostic only and 
 
 ### E2 — Primary Multiclass Supervised Experiment
 
-Group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, and recombine partitions. E2 is not globally chronological. Reporting eligibility is train ≥ 100, validation ≥ 30, and test ≥ 30. E2 preprocessing is fitted on E2-train only.
+Group windows by final-flow class, preserve chronology within each class, split
+each class 70/10/20, and recombine partitions. E2 is not globally
+chronological. Validation-selection eligibility is train ≥100 and validation
+≥30, with no test information consulted. This set alone governs E2 validation
+macro F1, early stopping, best-checkpoint selection, and E.8 learning-rate
+ranking. Final locked-test reporting eligibility remains separately defined as
+train ≥100, validation ≥30, and test ≥30. E2 preprocessing is fitted on
+E2-train only.
 
 ### E3 — Primary Strict Global Capture-Order Binary Experiment
 
@@ -315,6 +352,11 @@ Use the global E1 boundaries with `Benign → 0` and every attack label `→ 1`.
 
 ## Verification Evidence
 
+- Unfrozen E.7/E.8 E2 selection-leakage correction implementation validation:
+  **44 focused E.7 tests**, **20 focused E.8 tests**, **203 frozen E.2-E.6
+  regressions**, **247 E.2-E.7 regressions**, and **962 complete-suite tests
+  passed**, with no failures or skips; Stage C/raw integrity remained 33/33 and
+  10/10. Independent re-audit is still required.
 - Stage E.7 implementation, log-ownership correction, and independent release
   re-audit: **42 focused tests passed**, **203 frozen E.2-E.6 regression tests
   passed**, and **936 complete-suite tests passed**, with no failures or skips.
@@ -382,15 +424,18 @@ does not authorize E.6.
 5. The predictive value of T=5 has not been measured.
 6. Original report performance claims are not verified results.
 7. The task-specific training harness and learned GATv2 attention exist, but no full trained-model checkpoint, calibrated prediction, performance result, pruning policy, or physical node removal has been established.
+8. The bounded E.8 E3 validation prefix contains 4,095 attacks and one benign example; its observed PR-AUC is highly composition-dependent.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the implemented but unfrozen Stage E.8 bounded optimization pilot.
+Stop after the implemented but unfrozen E2 selection-leakage correction and
+regenerated Stage E.8 bounded optimization pilot.
 Do not launch full model training, a three-seed study, weighted-loss ablations,
 batch-size selection, baseline models, locked-test evaluation, pruning, or E.9
 and later work under this scope.
 
-The exact next safe action is an independent read-only Stage E.8 audit against
-the frozen E.7 checkpoint, implementation, compact contract evidence, and
-separate observational report. Only a passing independent audit plus explicit
-release authorization may freeze or tag E.8. E.9 remains unauthorized.
+The exact next safe action is an independent read-only re-audit of the E.7/E.8
+E2 selection-leakage correction, compact contract evidence, and regenerated
+observational report. Only a passing independent audit plus explicit release
+authorization may freeze or tag the correction/E.8 state. E.9 remains
+unauthorized.
