@@ -1,0 +1,14 @@
+# Preserve exact bytes for frozen sources and Stage E.8 evidence inputs.
+src/graph/feature_encoder.py -text
+src/graph/hierarchical_encoder.py -text
+src/graph/htgnn_classifier.py -text
+src/graph/pyg_adapter.py -text
+src/training/__init__.py -text
+src/training/harness.py -text
+src/training/validation.py -text
+scripts/train_htgnn.py -text
+tests/test_training_harness.py -text
+src/training/optimization_pilot.py -text
+scripts/run_stage_e8_optimization_pilot.py -text
+scripts/validate_stage_e8.py -text
+tests/test_optimization_pilot.py -text

@@ -107,3 +107,8 @@ results/stage_e6/*
 results/stage_e7/*
 !results/stage_e7/htgnn_training_harness_validation.json
 !results/stage_e7/htgnn_training_harness_validation.sha256
+!results/stage_e8/
+results/stage_e8/*
+!results/stage_e8/htgnn_optimization_pilot_contract.json
+!results/stage_e8/htgnn_optimization_pilot_contract.sha256
+!results/stage_e8/htgnn_optimization_pilot_observations.json

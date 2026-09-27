@@ -146,6 +146,33 @@ predictive-performance study was run. Later expensive work remains subject to
 the hybrid execution rule and may be run manually by the user only after its
 separate stage is authorized.
 
+## Unfrozen Stage E.8 Implementation State
+
+Stage E.8 has an implementation-level bounded optimization pilot built around
+the frozen E.7 harness. It compares only the approved learning rates `1e-4`,
+`3e-4`, and `1e-3` for E1, E2, and E3 with the frozen unweighted task losses,
+single seed `2025`, batch size 32, three epochs, 16 train batches, and 128
+sequential validation batches per epoch. It does not implement weighted-loss
+ablations, full training, a three-seed study, batch-size optimization,
+baselines, test evaluation, or pruning.
+
+The bounded CUDA pilot completed all nine candidates without test access. Its
+compact deterministic contract and separate observational output are under
+`results/stage_e8/`, and the exact bounds and limitations are documented in
+`docs/stage_e8_optimization_pilot.md`. The E2 validation prefix does not cover
+every eligible class, and all rankings remain bounded observations rather than
+a finalized production configuration or project-performance result.
+
+This E.8 state has not yet received an independent audit and is not frozen.
+The current frozen checkpoint remains `v0.10-stage-e7-training-harness`.
+Implementation validation passed 19 focused E.8 tests, 245 frozen E.2-E.7
+regression tests, and 955 complete-suite tests, with no failures or skips.
+Stage C integrity remained 33/33 and raw CSV integrity remained 10/10. The
+canonical E.8 contract SHA-256 is
+`ac6585282224e28041cb8e65984b26611fd3f03459709233dcd4ac1c96cc0922`;
+the physical file SHA-256 is
+`da7c80cea736ca32a6e259d000fbac1f259ec43f783cfe4435ffaae07f33842c`.
+
 ## Verified Dataset Facts
 
 | Measurement | Value |
@@ -358,12 +385,12 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the independently audited and frozen Stage E.7 training harness.
-Do not launch full model training, run learning-rate or batch-size selection,
-perform imbalance studies, evaluate the locked test split, implement pruning,
-or begin E.8 or later work under this scope.
+Stop after the implemented but unfrozen Stage E.8 bounded optimization pilot.
+Do not launch full model training, a three-seed study, weighted-loss ablations,
+batch-size selection, baseline models, locked-test evaluation, pruning, or E.9
+and later work under this scope.
 
-The exact next safe numbered boundary is Stage E.8, which requires separate
-explicit authorization. Stage E.7 establishes training infrastructure only;
-it does not authorize or constitute a completed training study or predictive
-result. The hybrid execution rule remains active for later expensive runs.
+The exact next safe action is an independent read-only Stage E.8 audit against
+the frozen E.7 checkpoint, implementation, compact contract evidence, and
+separate observational report. Only a passing independent audit plus explicit
+release authorization may freeze or tag E.8. E.9 remains unauthorized.
