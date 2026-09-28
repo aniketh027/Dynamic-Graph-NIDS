@@ -1,8 +1,8 @@
-# Project Handoff — Frozen Through Stage E.8 Optimization Pilot
+# Project Handoff — Stage E.8 Frozen; Stage E.9 Contract Frozen
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized production configuration, locked-test evaluation, pruning, or project-level predictive-performance result exists yet.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized production configuration, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below; E.9 implementation and execution remain unauthorized.
 
 ## Authority and Source Hierarchy
 
@@ -212,6 +212,154 @@ The corrected E.8 canonical/physical contract SHA-256 values are
 The independent correction/E.8 release-audit verdict is **PASS**. These hashes
 identify the frozen deterministic evidence; the candidate metrics remain
 bounded observations with the limitations above.
+
+## Frozen Stage E.9 Engineering Contract
+
+This section defines the complete authoritative Stage E.9 engineering
+contract. It does not implement or execute E.9, create baseline source files,
+run the batch-size pilot, authorize E.10, or modify any frozen model, training,
+or data source.
+
+### Final-Flow MLP Baseline
+
+The final-flow baseline consumes only the fifth/final flow from the frozen
+preprocessed `T=5` window. Its exact input shape is `[B,78]`. Production code
+must derive this tensor as the final temporal position from the same
+authoritative preprocessed window and must not access temporal positions 1-4.
+
+Its architecture is exactly:
+
+```text
+Linear(78,64, bias=True)
+LayerNorm(64)
+GELU
+Dropout(0.10)
+Linear(64,32, bias=True)
+LayerNorm(32)
+GELU
+Dropout(0.10)
+```
+
+The task head is `Linear(32,15, bias=True)` for E1 and E2 and
+`Linear(32,1, bias=True)` for E3. Forward returns raw logits. The canonical
+public E3 output shape follows the frozen E.5 convention and is `[B]`. No
+sigmoid or softmax is applied. This baseline contains no BatchNorm, residual
+connection, TCN, graph operation, attention, or pooling.
+
+### Flattened Five-Flow MLP Baseline
+
+The flattened baseline consumes the full frozen ordered `T=5` window with
+shape `[B,5,78]`. It flattens deterministically in temporal-major order: flow
+1 features 0-77, then flow 2 features 0-77, then flows 3, 4, and 5 in the same
+feature order, producing `[B,390]`.
+
+Its architecture is exactly:
+
+```text
+Linear(390,64, bias=True)
+LayerNorm(64)
+GELU
+Dropout(0.10)
+Linear(64,32, bias=True)
+LayerNorm(32)
+GELU
+Dropout(0.10)
+```
+
+It uses the same E1/E2/E3 task-head and raw-logit output contract as the
+final-flow baseline, including canonical public E3 output shape `[B]`. No
+sigmoid or softmax is applied. This baseline contains no BatchNorm, residual
+connection, TCN, graph operation, attention, or temporal pooling before
+flattening.
+
+### Baseline Fairness Contract
+
+Both baselines must reuse the authoritative preprocessing, `T=5` windows,
+split membership, labels, task mapping, training losses, AdamW configuration,
+validation objectives, early stopping, and checkpoint/log contracts from the
+frozen upstream stages. E.9 must not add new split logic, preprocessing, label
+mapping, class-eligibility authority, or training implementation. It must
+measure the actual parameter count of each baseline and must not alter either
+architecture merely to force exact parameter matching with HTGNN.
+
+### HTGNN Batch-Size Pilot
+
+The resource pilot task is E2 because E2 is the primary supervised multiclass
+project experiment. The pilot seed is `2025`. Its learning rate is `3e-4`, a
+predeclared engineering value for this resource pilot only and the middle
+value of the already approved `1e-4`, `3e-4`, `1e-3` grid. Using it in E.9
+does not finalize or select a learning rate; Stage E.8 did not finalize any
+task learning rate.
+
+The pilot must reuse the frozen E.7 E2 baseline: unweighted
+`CrossEntropyLoss`, AdamW, `weight_decay=1e-4`, and no scheduler. The exact
+batch-size candidates are `32`, `64`, `128`, and `256`; E.9 must not probe
+beyond `256`.
+
+For each batch-size candidate, the pilot must:
+
+- use only the authoritative E2 train stream;
+- seed traversal with `2025` and restart from the same deterministic seeded
+  training traversal for every candidate;
+- use no validation data for resource measurement and no test data;
+- perform 5 warmup optimizer steps followed by 20 measured optimizer steps;
+- include host-to-device transfer when applicable, forward,
+  `CrossEntropyLoss`, backward, and optimizer step in every step; and
+- discard the pilot-trained weights rather than preserve them as project
+  results.
+
+This is a bounded resource pilot, not model-quality training.
+
+### Timing and GPU-Memory Measurement
+
+Measured CUDA training steps must use correct CUDA synchronization, exclude
+warmups, retain the individual measured samples, and report the median, p95
+or an equivalent documented spread, and examples/windows per second.
+Asynchronous CUDA launch time must not be treated as completed execution time.
+
+The pilot must verify the live GPU and total VRAM. For every candidate it must
+record baseline allocated memory, baseline reserved memory, peak allocated
+memory, and peak reserved memory. Peak statistics must be reset appropriately
+after warmup and before measurement. Zero additional reserved-memory growth
+must not be reported or interpreted as zero reserved-memory usage.
+
+### Resource Eligibility and Batch-Size Selection
+
+A candidate is `RESOURCE-ELIGIBLE` only when all bounded warmup and measured
+training steps complete, no CUDA out-of-memory condition occurs, losses remain
+finite, gradients remain finite, optimizer steps succeed, and peak absolute
+CUDA reserved memory remains strictly below 80% of live total GPU VRAM. The
+80% rule is the project headroom threshold. E.9 must not intentionally
+approach out-of-memory conditions beyond the approved candidate set.
+
+Stage E.9 is authorized to finalize the HTGNN training batch size using this
+deterministic rule:
+
+1. Compute the median examples/second for every resource-eligible candidate.
+2. Identify the maximum median throughput.
+3. Define the throughput-tied set as candidates whose median throughput is at
+   least 95% of that maximum.
+4. Select the smallest batch size in the throughput-tied set.
+
+This rule preserves memory headroom when a larger batch provides less than a
+5% throughput advantage. If no candidate is resource-eligible, E.9 must block
+rather than invent another batch size. If exactly one candidate is eligible,
+that candidate is selected.
+
+### E.9 Authority and Execution Limits
+
+Stage E.9 may finalize only the HTGNN training batch size. It may not finalize
+a learning rate, weighted-loss configuration, task performance, final model
+checkpoint, or test performance. Stage E.8 remains a bounded learning-rate
+observation only.
+
+Codex may execute the E.9 pilot directly only while it remains short and
+bounded. If execution becomes clearly expensive, Codex must provide exact
+commands for the user to run manually; methodological correctness must not be
+reduced merely to avoid manual execution.
+
+E.10 remains unauthorized. Stage E.9 implementation and execution require
+separate explicit authorization after this contract update.
 
 ## Verified Dataset Facts
 
@@ -438,12 +586,11 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the independently audited and frozen E2 selection-leakage correction
-and regenerated Stage E.8 bounded optimization pilot.
-Do not launch full model training, a three-seed study, weighted-loss ablations,
-batch-size selection, baseline models, locked-test evaluation, pruning, or E.9
-and later work under this scope.
+Stop after freezing the Stage E.9 engineering contract. No E.9 source,
+baseline, pilot execution, result, or selected batch size exists under this
+scope. Do not launch full model training, a three-seed study, weighted-loss
+ablations, locked-test evaluation, pruning, or E.10 and later work.
 
-The exact next safe boundary is Stage E.9, but it remains unauthorized and
-requires a separate explicit implementation scope. No E.9 work was performed
-or implied by the Stage E.8 checkpoint.
+The exact next safe boundary is Stage E.9 implementation and bounded execution,
+but it remains unauthorized and requires a separate explicit implementation
+scope.
