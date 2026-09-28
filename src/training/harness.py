@@ -30,10 +30,13 @@ from src.graph import pyg_adapter as e2
 from src.graph import resource_pilot as e6
 from src.preprocessing.labels import LABEL_TO_INT
 from src.preprocessing import splitting as stage_c_splitting
+from src.training import baseline_integration
+from src.training import baselines
 
 
 HARNESS_VERSION: Final = "stage-e7-htgnn-training-harness-v2"
-CHECKPOINT_SCHEMA_VERSION: Final = 1
+CHECKPOINT_SCHEMA_VERSION: Final = 2
+LEGACY_HTGNN_CHECKPOINT_SCHEMA_VERSION: Final = 1
 TASKS: Final = ("E1", "E2", "E3")
 APPROVED_SEEDS: Final = (2025, 2026, 2027)
 LEARNING_RATE_CANDIDATES: Final = (1e-4, 3e-4, 1e-3)
@@ -43,8 +46,17 @@ MIN_EPOCHS: Final = 3
 PATIENCE: Final = 5
 MIN_DELTA: Final = 1e-4
 DEFAULT_BATCH_SIZE: Final = 32
-MAX_BATCH_SIZE: Final = 128
+MAX_BATCH_SIZE: Final = 256
 EXPECTED_PARAMETERS: Final = {"E1": 7_183, "E2": 7_183, "E3": 6_721}
+HTGNN_MODEL_FAMILY: Final = "htgnn"
+MODEL_FAMILIES: Final = (HTGNN_MODEL_FAMILY, *baselines.BASELINE_KINDS)
+MODEL_INPUT_CONTRACTS: Final = {
+    HTGNN_MODEL_FAMILY: "frozen_e2_heterodata_78_feature_8_category_1_sample",
+    baselines.FINAL_FLOW: "frozen_e2_window_float32_Bx5x78_final_position_to_Bx78",
+    baselines.FLATTENED_FIVE_FLOW: (
+        "frozen_e2_window_float32_Bx5x78_temporal_major_to_Bx390"
+    ),
+}
 SELECTION_NAMES: Final = {
     "E1": "support_restricted_macro_f1",
     "E2": "validation_selection_macro_f1",
@@ -54,6 +66,17 @@ SELECTION_NAMES: Final = {
 
 class TrainingContractError(RuntimeError):
     """Raised when an E.7 safety or training contract is violated."""
+
+
+@dataclass(frozen=True, slots=True)
+class ModelContract:
+    """Identity derived from an actual supported production model instance."""
+
+    family: str
+    architecture_version: str
+    input_contract: str
+    task: str
+    parameter_count: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,6 +151,7 @@ class TrainingResult:
     history: tuple[Mapping[str, Any], ...]
     parameter_update_observed: bool
     device: str
+    model_family: str
 
 
 @dataclass(slots=True)
@@ -224,16 +248,60 @@ def resolve_device(requested: str) -> torch.device:
     return torch.device(requested)
 
 
-def create_model(task: str) -> e5.HTGNNClassifier:
+def create_model(
+    task: str, model_family: str = HTGNN_MODEL_FAMILY
+) -> nn.Module:
     if task not in TASKS:
         raise ValueError("task must be exactly one of E1, E2, or E3")
-    model = e5.HTGNNClassifier(task)
-    count = sum(parameter.numel() for parameter in model.parameters())
-    if count != EXPECTED_PARAMETERS[task]:
-        raise TrainingContractError(
-            f"{task} parameter count changed: {count} != {EXPECTED_PARAMETERS[task]}"
+    if model_family == HTGNN_MODEL_FAMILY:
+        model: nn.Module = e5.HTGNNClassifier(task)
+    elif model_family in baselines.BASELINE_KINDS:
+        dense = baselines.create_baseline(model_family, task)
+        model = baseline_integration.BaselineTrainingAdapter(
+            dense, kind=model_family, task=task
         )
+    else:
+        raise ValueError(f"model_family must be one of {MODEL_FAMILIES}")
+    model_contract(model)
     return model
+
+
+def model_contract(model: nn.Module) -> ModelContract:
+    """Derive model identity from the instance and reject relabelled models."""
+
+    if isinstance(model, e5.HTGNNClassifier):
+        task = model.task
+        family = HTGNN_MODEL_FAMILY
+        architecture_version = e5.MODEL_VERSION
+        expected = EXPECTED_PARAMETERS[task]
+    elif type(model) is baseline_integration.BaselineTrainingAdapter:
+        try:
+            family = baselines.model_family(model.model)
+        except (TypeError, ValueError) as exc:
+            raise TrainingContractError(f"invalid baseline model identity: {exc}") from exc
+        task = model.model.task
+        if model.kind != family or model.task != task:
+            raise TrainingContractError(
+                "baseline adapter identity does not match its actual model"
+            )
+        architecture_version = baselines.BASELINE_VERSION
+        expected = baselines.EXPECTED_PARAMETER_COUNTS[family][task]
+    else:
+        raise TrainingContractError("unsupported production model class")
+    if task not in TASKS:
+        raise TrainingContractError("production model has an invalid task identity")
+    count = sum(parameter.numel() for parameter in model.parameters())
+    if count != expected:
+        raise TrainingContractError(
+            f"{family}/{task} parameter count changed: {count} != {expected}"
+        )
+    return ModelContract(
+        family=family,
+        architecture_version=architecture_version,
+        input_contract=MODEL_INPUT_CONTRACTS[family],
+        task=task,
+        parameter_count=count,
+    )
 
 
 def create_loss(task: str) -> nn.Module:
@@ -635,13 +703,19 @@ def checkpoint_metadata(
     validation: EpochStats,
     frozen_source_hashes: Mapping[str, str],
 ) -> dict[str, Any]:
+    identity = model_contract(model)
+    if identity.task != config.task:
+        raise TrainingContractError("checkpoint model task does not match configuration")
     return {
         "schema_version": CHECKPOINT_SCHEMA_VERSION,
         "harness_version": HARNESS_VERSION,
         "task": config.task,
-        "model_version": e5.MODEL_VERSION,
+        "model_family": identity.family,
+        "model_contract_version": identity.architecture_version,
+        "model_input_contract": identity.input_contract,
+        "model_version": identity.architecture_version,
         "model_state_schema_sha256": model_state_schema_sha256(model),
-        "parameter_count": sum(parameter.numel() for parameter in model.parameters()),
+        "parameter_count": identity.parameter_count,
         "epoch": epoch,
         "selection_name": SELECTION_NAMES[config.task],
         "selection_value": validation.selection_value,
@@ -689,13 +763,13 @@ def save_checkpoint(
 def load_checkpoint(
     path: Path,
     *,
-    model: e5.HTGNNClassifier,
+    model: nn.Module,
     expected_task: str,
     optimizer: Optimizer | None = None,
     expected_config: TrainingConfig | None = None,
     map_location: str | torch.device = "cpu",
 ) -> Mapping[str, Any]:
-    """Load an E.7 state-dict checkpoint after metadata/architecture checks."""
+    """Load a shared state-dict checkpoint after identity checks, then weights."""
 
     if expected_task not in TASKS:
         raise ValueError("expected_task must be exactly one of E1, E2, or E3")
@@ -708,22 +782,45 @@ def load_checkpoint(
     metadata = payload.get("metadata")
     if not isinstance(metadata, Mapping):
         raise TrainingContractError("checkpoint metadata is missing")
+    identity = model_contract(model)
+    if identity.task != expected_task:
+        raise TrainingContractError("target model task does not match requested task")
+    schema_version = metadata.get("schema_version")
+    if schema_version not in {
+        LEGACY_HTGNN_CHECKPOINT_SCHEMA_VERSION,
+        CHECKPOINT_SCHEMA_VERSION,
+    }:
+        raise TrainingContractError(
+            f"checkpoint schema_version mismatch: {schema_version!r}"
+        )
+    if (
+        schema_version == LEGACY_HTGNN_CHECKPOINT_SCHEMA_VERSION
+        and identity.family != HTGNN_MODEL_FAMILY
+    ):
+        raise TrainingContractError(
+            "legacy checkpoints are valid only for the HTGNN model family"
+        )
     expected = {
-        "schema_version": CHECKPOINT_SCHEMA_VERSION,
         "harness_version": HARNESS_VERSION,
         "task": expected_task,
-        "model_version": e5.MODEL_VERSION,
-        "parameter_count": EXPECTED_PARAMETERS[expected_task],
+        "model_version": identity.architecture_version,
+        "parameter_count": identity.parameter_count,
         "model_state_schema_sha256": model_state_schema_sha256(model),
         "frozen_source_sha256": dict(e6.FROZEN_SOURCE_SHA256),
     }
+    if schema_version == CHECKPOINT_SCHEMA_VERSION:
+        expected.update(
+            {
+                "model_family": identity.family,
+                "model_contract_version": identity.architecture_version,
+                "model_input_contract": identity.input_contract,
+            }
+        )
     for key, value in expected.items():
         if metadata.get(key) != value:
             raise TrainingContractError(
                 f"checkpoint {key} mismatch: {metadata.get(key)!r} != {value!r}"
             )
-    if model.task != expected_task:
-        raise TrainingContractError("target model task does not match requested task")
     if metadata.get("selection_name") != SELECTION_NAMES[expected_task]:
         raise TrainingContractError("checkpoint validation selection contract mismatch")
     if (
@@ -833,10 +930,13 @@ def run_training(
     checkpoint_path: Path,
     log_path: Path | None = None,
     device: str = "auto",
+    model_family: str = HTGNN_MODEL_FAMILY,
 ) -> TrainingResult:
-    """Train on the frozen train split and select only on frozen validation."""
+    """Train one supported family on train and select only on validation."""
 
     project_root = Path(project_root).resolve()
+    if model_family not in MODEL_FAMILIES:
+        raise ValueError(f"model_family must be one of {MODEL_FAMILIES}")
     checkpoint_path, log_path = _reserve_run_outputs(checkpoint_path, log_path)
     frozen_hashes = e6.require_frozen_sources(project_root)
     seed_everything(config.seed)
@@ -848,7 +948,8 @@ def run_training(
     validation_dataset = d4.LazyGraphDataset(
         config.task, "validation", processed_root=processed_root
     )
-    model = create_model(config.task).to(selected_device)
+    model = create_model(config.task, model_family).to(selected_device)
+    identity = model_contract(model)
     criterion = create_loss(config.task).to(selected_device)
     optimizer = create_optimizer(model, config.learning_rate)
     validation_selection_class_codes = (
@@ -925,6 +1026,9 @@ def run_training(
             )
         record: Mapping[str, Any] = {
             "task": config.task,
+            "model_family": identity.family,
+            "model_contract_version": identity.architecture_version,
+            "model_input_contract": identity.input_contract,
             "seed": config.seed,
             "learning_rate": config.learning_rate,
             "epoch": epoch,
@@ -964,6 +1068,7 @@ def run_training(
         history=tuple(history),
         parameter_update_observed=_parameters_changed(parameters_before, model),
         device=str(selected_device),
+        model_family=identity.family,
     )
 
 
@@ -973,12 +1078,13 @@ def evaluate_saved_validation_checkpoint(
     project_root: Path,
     checkpoint_path: Path,
     device: str = "auto",
-) -> tuple[Mapping[str, Any], EpochStats, e5.HTGNNClassifier]:
+    model_family: str = HTGNN_MODEL_FAMILY,
+) -> tuple[Mapping[str, Any], EpochStats, nn.Module]:
     """Reload a best checkpoint and rerun the same bounded validation path."""
 
     selected_device = resolve_device(device)
     e6.require_frozen_sources(Path(project_root).resolve())
-    model = create_model(config.task).to(selected_device)
+    model = create_model(config.task, model_family).to(selected_device)
     metadata = load_checkpoint(
         checkpoint_path,
         model=model,

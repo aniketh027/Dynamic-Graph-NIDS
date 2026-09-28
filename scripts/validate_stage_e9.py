@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 from typing import Any
 
 import torch
@@ -28,13 +29,17 @@ from src.training import harness as e7  # noqa: E402
 
 
 E9_SOURCE_PATHS = (
+    "PROJECT_HANDOFF.md",
     "src/training/baselines.py",
     "src/training/baseline_integration.py",
     "src/training/batch_size_pilot.py",
+    "src/training/harness.py",
+    "src/training/optimization_pilot.py",
     "scripts/run_stage_e9_batch_size_pilot.py",
     "scripts/validate_stage_e9.py",
     "tests/test_stage_e9_baselines.py",
     "tests/test_stage_e9_batch_size_pilot.py",
+    "tests/test_stage_e9_training_integration.py",
     "docs/stage_e9_baselines_batch_size_pilot.md",
 )
 
@@ -73,101 +78,97 @@ def _baseline_smoke(
     project_root: Path, *, kind: str, task: str, device_name: str
 ) -> dict[str, Any]:
     e7.seed_everything(2025)
-    device = torch.device(device_name)
     processed = project_root / "data" / "processed" / "preprocessed"
-    train_dataset = d4.LazyGraphDataset(task, "train", processed_root=processed)
     validation_dataset = d4.LazyGraphDataset(
         task, "validation", processed_root=processed
     )
-    train_batch = next(
-        e7.iter_production_batches(
-            train_dataset,
-            task=task,
-            split="train",
-            batch_size=4,
-            epoch_seed=2025,
-            max_batches=1,
-        )
+    config = e7.TrainingConfig(
+        task=task,
+        learning_rate=3e-4,
+        seed=2025,
+        batch_size=4,
+        max_epochs=1,
+        max_train_batches=1,
+        max_validation_batches=1,
     )
-    validation_batch = next(
-        e7.iter_production_batches(
-            validation_dataset,
-            task=task,
-            split="validation",
-            batch_size=4,
-            epoch_seed=None,
-            max_batches=1,
-        )
-    )
-    dense_model = baselines.create_baseline(kind, task)
     expected_parameters = baselines.EXPECTED_PARAMETER_COUNTS[kind][task]
-    model = integration.BaselineTrainingAdapter(
-        dense_model, kind=kind, task=task
-    ).to(device)
-    before = [parameter.detach().cpu().clone() for parameter in model.parameters()]
-    criterion = e7.create_loss(task).to(device)
-    optimizer = e7.create_optimizer(model, 3e-4)
-    train = e7.train_one_epoch(
-        task=task,
-        model=model,
-        batches=[train_batch],
-        criterion=criterion,
-        optimizer=optimizer,
-        device=device,
-    )
-    selection_codes = (
-        e7._derive_e2_validation_selection_class_codes(
-            train_dataset, validation_dataset
+    with tempfile.TemporaryDirectory(prefix=f"stage-e9-{kind}-{task}-") as temporary:
+        temporary_root = Path(temporary)
+        checkpoint = temporary_root / "best.pt"
+        log = temporary_root / "run.jsonl"
+        result = e7.run_training(
+            config,
+            project_root=project_root,
+            checkpoint_path=checkpoint,
+            log_path=log,
+            device=device_name,
+            model_family=kind,
         )
-        if task == "E2"
-        else ()
-    )
-    validation = e7.validate_one_epoch(
-        task=task,
-        model=model,
-        batches=[validation_batch],
-        criterion=criterion,
-        device=device,
-        train_target_codes=(
-            e7._load_e1_train_support(project_root)
-            if task == "E1"
-            else train.target_codes
-        ),
-        validation_selection_class_codes=selection_codes,
-    )
-    early_stopping = e7.EarlyStopping()
-    is_best, should_stop = early_stopping.update(
-        1, float(validation.selection_value)
-    )
-    replacement = integration.BaselineTrainingAdapter(
-        baselines.create_baseline(kind, task), kind=kind, task=task
-    )
-    replacement.load_state_dict(model.state_dict(), strict=True)
-    changed = any(
-        not torch.equal(left, right.detach().cpu())
-        for left, right in zip(before, model.parameters(), strict=True)
-    )
+        records = [
+            json.loads(line)
+            for line in log.read_text(encoding="utf-8").splitlines()
+        ]
+        metadata, validation, first = e7.evaluate_saved_validation_checkpoint(
+            config,
+            project_root=project_root,
+            checkpoint_path=checkpoint,
+            device=device_name,
+            model_family=kind,
+        )
+        second = e7.create_model(task, kind).to(device_name)
+        e7.load_checkpoint(
+            checkpoint,
+            model=second,
+            expected_task=task,
+            expected_config=config,
+            map_location=device_name,
+        )
+        validation_batch = next(
+            e7.iter_production_batches(
+                validation_dataset,
+                task=task,
+                split="validation",
+                batch_size=4,
+                epoch_seed=None,
+                max_batches=1,
+            )
+        ).to(device_name)
+        first.eval()
+        second.eval()
+        with torch.no_grad():
+            first_output = first(validation_batch)
+            second_output = second(validation_batch)
+        output_reproduced = torch.allclose(
+            first_output, second_output, rtol=1e-6, atol=1e-7
+        )
+        checkpoint_written = checkpoint.is_file() and checkpoint.stat().st_size > 0
+        jsonl_written = log.is_file() and len(records) == 1
     checks = {
         "baseline": kind,
         "task": task,
         "device": device_name,
-        "parameter_count": baselines.parameter_count(dense_model),
+        "model_family": metadata["model_family"],
+        "model_contract_version": metadata["model_contract_version"],
+        "model_input_contract": metadata["model_input_contract"],
+        "parameter_count": metadata["parameter_count"],
         "expected_parameter_count": expected_parameters,
-        "train_batches": train.batches,
-        "train_examples": train.examples,
+        "train_batches": records[0]["train_batches"],
+        "train_examples": records[0]["train_examples"],
         "validation_batches": validation.batches,
         "validation_examples": validation.examples,
-        "train_loss_finite": math.isfinite(train.loss),
+        "train_loss_finite": math.isfinite(records[0]["train_loss"]),
         "validation_loss_finite": math.isfinite(validation.loss),
-        "parameter_update_observed": changed,
+        "parameter_update_observed": result.parameter_update_observed,
         "validation_selection_name": validation.selection_name,
         "validation_selection_value_finite": math.isfinite(
             float(validation.selection_value)
         ),
-        "early_stopping_reused": is_best and not should_stop,
+        "early_stopping_reused": result.best_epoch == 1,
         "strict_state_dict_reload": True,
-        "checkpoint_written": False,
-        "jsonl_log_written": False,
+        "reloaded_output_reproduced": bool(output_reproduced),
+        "checkpoint_written": checkpoint_written,
+        "jsonl_log_written": jsonl_written,
+        "jsonl_epoch_records": len(records),
         "test_accessed": False,
     }
     checks["status"] = (
@@ -185,6 +186,11 @@ def _baseline_smoke(
                 checks["validation_selection_name"] == e7.SELECTION_NAMES[task],
                 checks["validation_selection_value_finite"],
                 checks["early_stopping_reused"],
+                checks["model_family"] == kind,
+                checks["checkpoint_written"],
+                checks["jsonl_log_written"],
+                checks["jsonl_epoch_records"] == 1,
+                checks["reloaded_output_reproduced"],
             )
         )
         else "FAIL"
@@ -230,7 +236,10 @@ def main() -> int:
     )
     output = args.output if args.output.is_absolute() else root / args.output
     observations = json.loads(observations_path.read_text(encoding="utf-8"))
-    e9.validate_observations(observations)
+    e9.validate_observations(
+        observations, project_root=root, verify_live_device=True
+    )
+    observations_physical_sha256 = _sha256(observations_path)
     frozen_hashes = e9.require_frozen_upstream(root)
 
     devices = ["cpu"] + (["cuda"] if torch.cuda.is_available() else [])
@@ -263,6 +272,7 @@ def main() -> int:
             [
                 "tests/test_stage_e9_baselines.py",
                 "tests/test_stage_e9_batch_size_pilot.py",
+                "tests/test_stage_e9_training_integration.py",
             ],
         ),
         "frozen_e2_e8_regression": _run_pytest(
@@ -348,7 +358,9 @@ def main() -> int:
         "batch_size_pilot": {
             "contract": e9.pilot_contract(),
             "observations_path": observations_path.relative_to(root).as_posix(),
-            "observations_physical_sha256": _sha256(observations_path),
+            "observations_physical_sha256": observations_physical_sha256,
+            "observation_file_hash_bound": True,
+            "production_compatibility": observations["production_compatibility"],
             "all_candidates_complete": all(
                 record["status"] == "COMPLETE"
                 for record in observations["candidate_results"]
@@ -383,6 +395,14 @@ def main() -> int:
         ),
     }
     _write_contract(report, output)
+    e9.validate_observation_file(
+        observations_path,
+        project_root=root,
+        expected_sha256=report["batch_size_pilot"][
+            "observations_physical_sha256"
+        ],
+        verify_live_device=True,
+    )
     print(f"overall_status={report['overall_status']}")
     print(f"report_sha256={report['report_sha256']}")
     print(f"physical_sha256={_sha256(output)}")

@@ -23,7 +23,9 @@ scripts/run_stage_e9_batch_size_pilot.py -text
 scripts/validate_stage_e9.py -text
 tests/test_stage_e9_baselines.py -text
 tests/test_stage_e9_batch_size_pilot.py -text
+tests/test_stage_e9_training_integration.py -text
 docs/stage_e9_baselines_batch_size_pilot.md -text
+PROJECT_HANDOFF.md -text
 results/stage_e9/htgnn_batch_size_pilot_observations.json -text
 results/stage_e9/stage_e9_contract.json -text
 results/stage_e9/stage_e9_contract.sha256 -text

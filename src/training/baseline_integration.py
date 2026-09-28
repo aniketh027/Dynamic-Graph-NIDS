@@ -91,11 +91,24 @@ class BaselineTrainingAdapter(nn.Module):
         super().__init__()
         if kind not in baselines.BASELINE_KINDS:
             raise ValueError(f"kind must be one of {baselines.BASELINE_KINDS}")
+        actual_kind = baselines.model_family(model)
+        if actual_kind != kind:
+            raise BaselineIntegrationError(
+                "declared baseline family does not match the actual model class"
+            )
         if getattr(model, "task", None) != task:
             raise BaselineIntegrationError("baseline model/task mismatch")
         self.model = model
-        self.kind = kind
-        self.task = task
+        self._kind = actual_kind
+        self._task = task
+
+    @property
+    def kind(self) -> str:
+        return self._kind
+
+    @property
+    def task(self) -> str:
+        return self._task
 
     def forward(self, data: HeteroData) -> torch.Tensor:
         inputs = (

@@ -1,32 +1,36 @@
-# Project Handoff — Stage E.8 Frozen; Stage E.9 Contract Frozen
+# Project Handoff — Stage E.8 Frozen; Stage E.9 Correction Awaiting Re-Audit
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized production configuration, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below; E.9 implementation and execution remain unauthorized.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized learning rate, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below. Its first implementation was independently audited and blocked; the explicitly authorized production-integration correction has now rerun the bounded resource pilot and selected batch size 256 under the frozen rule. The correction remains unfrozen pending an independent read-only re-audit.
 
 ## Authority and Source Hierarchy
 
 Use sources in this order when continuing the work:
 
 1. The current task's explicit requirements and stage boundary.
-2. `results/stage_e8/htgnn_optimization_pilot_contract.json`,
+2. `results/stage_e9/stage_e9_contract.json`,
+   `results/stage_e9/htgnn_batch_size_pilot_observations.json`, and
+   `docs/stage_e9_baselines_batch_size_pilot.md` for the current, unfrozen
+   Stage E.9 correction evidence and its explicit limitations.
+3. `results/stage_e8/htgnn_optimization_pilot_contract.json`,
    `results/stage_e8/htgnn_optimization_pilot_observations.json`, and
    `docs/stage_e8_optimization_pilot.md` for the frozen Stage E.8 bounded
    optimization-pilot contract and its observational output.
-3. `results/stage_e7/htgnn_training_harness_validation.json` and `docs/stage_e7_training_harness.md` for the corrected and frozen Stage E.7 training-harness contract.
-4. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
-5. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
-6. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
-7. `results/stage_e1/`, `results/stage_e2/`,
+4. `results/stage_e7/htgnn_training_harness_validation.json` and `docs/stage_e7_training_harness.md` for the corrected and frozen Stage E.7 training-harness contract.
+5. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
+6. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
+7. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
+8. `results/stage_e1/`, `results/stage_e2/`,
    `docs/stage_e2_heterodata_adapter.md`, and
    `docs/stage_e2_provenance_cache.md` for the verified PyG environment,
    D6-to-`HeteroData` adapter, and independently audited and frozen
    provenance-cache correction.
-8. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-9. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-10. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `src/training/`, `scripts/`, and `tests/`.
-11. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-12. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+9. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
+10. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
+11. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `src/training/`, `scripts/`, and `tests/`.
+12. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
+13. The original report and extracted text as background only; their experimental performance claims are not verified authority.
 
 If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
 
@@ -358,8 +362,59 @@ bounded. If execution becomes clearly expensive, Codex must provide exact
 commands for the user to run manually; methodological correctness must not be
 reduced merely to avoid manual execution.
 
-E.10 remains unauthorized. Stage E.9 implementation and execution require
-separate explicit authorization after this contract update.
+E.10 remains unauthorized.
+
+## Stage E.9 Implementation, Blocked Audit, and Correction
+
+The frozen E.9 contract was recorded in commit
+`76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f`. The first E.9 implementation
+was recorded in commit `a717a2af00d1f333f462b27ad8dad7f9e05ac31b`.
+Its independent audit verdict was **BLOCKED**. The bounded CUDA measurements
+themselves reproduced, but three production defects were confirmed:
+
+1. the resource rule selected batch 256 while production configuration and
+   iteration still rejected values above 128;
+2. baseline checkpoints could not reliably distinguish task, model family,
+   architecture, or input contract and the claimed checkpoint/log smoke wrote
+   neither artifact; and
+3. the observation validator accepted corrupted source, device, throughput,
+   and related critical evidence.
+
+The explicitly authorized correction preserves the frozen candidate set and
+selection method. The production maximum is now 256, while the default remains
+32. Boundary checks accept 128 and 256 and reject 257 and 512. The actual E2
+production iterator emitted 256 examples, and one bounded HTGNN production
+train step produced raw `[256,15]` logits, finite cross-entropy and gradients,
+and a successful optimizer update.
+
+The E.7 checkpoint/training machinery now supports first-class `htgnn`,
+`final_flow_mlp`, and `flattened_five_flow_mlp` identities. Checkpoint schema
+v2 binds task, family, architecture version, input contract, parameter count,
+training configuration, validation-selection state, model state, and optimizer
+state before weight loading. Existing valid schema-v1 HTGNN checkpoints remain
+loadable. Both baseline families use the shared harness for all E1/E2/E3 task
+contracts, including real temporary JSONL and best-checkpoint creation,
+matching-model reload, and output reproduction. The E.7 exclusive one-log-per-
+run and checkpoint/log alias rules remain intact.
+
+Observation validation now checks exact candidate coverage/order, the frozen
+configuration identity, current source bindings, audited CUDA device identity,
+raw timing/loss counts, timing-derived throughput and summaries, memory
+relationships, eligibility, selection, and final production compatibility.
+The deterministic evidence binds the exact observation-file bytes by SHA-256.
+Adversarial mutations of every audit-critical field are rejected.
+
+The complete corrected bounded pilot reran on the NVIDIA GeForce RTX 4050
+Laptop GPU with 6,438,780,928 bytes of VRAM. All candidates 32, 64, 128, and
+256 completed and were resource-eligible. Their full-precision median
+throughputs were approximately 1,867.347, 3,270.384, 5,474.137, and
+10,650.330 windows/second. The 95% threshold was approximately 10,117.814
+windows/second; only batch 256 entered the tied set, so the corrected run again
+selected HTGNN production batch size **256** under the frozen rule.
+
+The `3e-4` learning rate remains a resource-pilot-only engineering value. E.8
+did not finalize a learning rate. E.9 remains **unfrozen** pending an independent
+read-only re-audit. No E.9 checkpoint tag exists, and E.10 remains unauthorized.
 
 ## Verified Dataset Facts
 
@@ -583,14 +638,15 @@ does not authorize E.6.
 6. Original report performance claims are not verified results.
 7. The task-specific training harness and learned GATv2 attention exist, but no full trained-model checkpoint, calibrated prediction, performance result, pruning policy, or physical node removal has been established.
 8. The bounded E.8 E3 validation prefix contains 4,095 attacks and one benign example; its observed PR-AUC is highly composition-dependent.
+9. The Stage E.9 batch-size selection is a bounded hardware- and environment-specific engineering result, not a predictive-performance result or portability guarantee.
 
 ## Current Boundary and Exact Next Step
 
-Stop after freezing the Stage E.9 engineering contract. No E.9 source,
-baseline, pilot execution, result, or selected batch size exists under this
-scope. Do not launch full model training, a three-seed study, weighted-loss
-ablations, locked-test evaluation, pruning, or E.10 and later work.
+Stop after the Stage E.9 production-integration correction and corrected
+bounded execution. Do not launch full model training, a three-seed study,
+weighted-loss ablations, locked-test evaluation, pruning, or E.10 and later
+work.
 
-The exact next safe boundary is Stage E.9 implementation and bounded execution,
-but it remains unauthorized and requires a separate explicit implementation
-scope.
+The exact next safe boundary is an independent, read-only Stage E.9 correction
+re-audit. A checkpoint/tag may be created only after an independent PASS and
+separate explicit freeze authorization. E.10 remains unauthorized.

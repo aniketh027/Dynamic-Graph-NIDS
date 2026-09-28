@@ -59,9 +59,9 @@ class _FrozenMLP(nn.Module):
     ) -> None:
         super().__init__()
         self._task = _validate_task(task)
-        self.input_width = input_width
-        self.input_shape_tail = input_shape_tail
-        self.baseline_kind = baseline_kind
+        self._input_width = input_width
+        self._input_shape_tail = input_shape_tail
+        self._baseline_kind = baseline_kind
         self.hidden = nn.Sequential(
             nn.Linear(input_width, 64, bias=True),
             nn.LayerNorm(64),
@@ -84,6 +84,18 @@ class _FrozenMLP(nn.Module):
     @property
     def task(self) -> str:
         return self._task
+
+    @property
+    def input_width(self) -> int:
+        return self._input_width
+
+    @property
+    def input_shape_tail(self) -> tuple[int, ...]:
+        return self._input_shape_tail
+
+    @property
+    def baseline_kind(self) -> str:
+        return self._baseline_kind
 
     def _validate_input(self, values: torch.Tensor) -> None:
         if not isinstance(values, torch.Tensor):
@@ -158,6 +170,20 @@ def create_baseline(kind: str, task: str) -> _FrozenMLP:
     if kind == FLATTENED_FIVE_FLOW:
         return FlattenedFiveFlowMLP(task)
     raise ValueError(f"kind must be one of {BASELINE_KINDS}")
+
+
+def model_family(model: nn.Module) -> str:
+    """Derive and verify the immutable family of a supported baseline instance."""
+
+    if type(model) is FinalFlowMLP:
+        expected = FINAL_FLOW
+    elif type(model) is FlattenedFiveFlowMLP:
+        expected = FLATTENED_FIVE_FLOW
+    else:
+        raise BaselineContractError("unsupported baseline model class")
+    if model.baseline_kind != expected:
+        raise BaselineContractError("baseline class and family identity disagree")
+    return expected
 
 
 def parameter_count(model: nn.Module) -> int:

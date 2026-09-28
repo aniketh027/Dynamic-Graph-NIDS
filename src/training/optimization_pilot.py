@@ -48,7 +48,7 @@ CORRECTED_E7_SOURCE_SHA256: Final = {
         "11c11605e59015fb32b9fc4634363ba2979918ac9de9025088ea70da2e084445"
     ),
     "src/training/harness.py": (
-        "22a6579ad60ebdfe16950d3d6fa1f4516bb6aa7b1ce698cacd5289e5a6b47010"
+        "da3175de7a17659cfbbf665d189fa0a78223eb6b9feb99faae1cea7d72e0b584"
     ),
     "src/training/validation.py": (
         "4e1e116dfad6adc1514bba6a242619bea2404c2abc51847a030ce8bf12b67c9f"

@@ -28,7 +28,9 @@ def main() -> int:
     project_root = args.project_root.resolve()
     output = args.output if args.output.is_absolute() else project_root / args.output
     report = e9.run_pilot(project_root, executor=args.executor)
-    e9.write_observations(report, output)
+    observation_sha256 = e9.write_observations(
+        report, output, project_root=PROJECT_ROOT
+    )
     print(
         json.dumps(
             {
@@ -37,6 +39,7 @@ def main() -> int:
                 "selected_htgnn_training_batch_size": report["selection"][
                     "selected_batch_size"
                 ],
+                "observations_physical_sha256": observation_sha256,
                 "output": str(output),
                 "learning_rate_finalized": False,
                 "test_accessed": False,
