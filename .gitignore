@@ -112,3 +112,8 @@ results/stage_e8/*
 !results/stage_e8/htgnn_optimization_pilot_contract.json
 !results/stage_e8/htgnn_optimization_pilot_contract.sha256
 !results/stage_e8/htgnn_optimization_pilot_observations.json
+!results/stage_e9/
+results/stage_e9/*
+!results/stage_e9/stage_e9_contract.json
+!results/stage_e9/stage_e9_contract.sha256
+!results/stage_e9/htgnn_batch_size_pilot_observations.json
