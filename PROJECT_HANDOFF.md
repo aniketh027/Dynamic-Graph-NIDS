@@ -1,8 +1,8 @@
-# Project Handoff — Stage E.8 Frozen; Stage E.9 Correction Awaiting Re-Audit
+# Project Handoff — Stage E.8 Frozen; Stage E.9 Fail-Closed Correction Awaiting Re-Audit
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized learning rate, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below. Its first implementation was independently audited and blocked; the explicitly authorized production-integration correction has now rerun the bounded resource pilot and selected batch size 256 under the frozen rule. The correction remains unfrozen pending an independent read-only re-audit.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized learning rate, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below. Its first implementation and its production-integration correction were each independently audited and blocked. The authorized fail-closed correction has now made checkpoint loading transactional, strengthened raw execution invariants, and rerun the complete bounded pilot. E.9 remains unfrozen pending another independent read-only re-audit.
 
 ## Authority and Source Hierarchy
 
@@ -364,7 +364,7 @@ reduced merely to avoid manual execution.
 
 E.10 remains unauthorized.
 
-## Stage E.9 Implementation, Blocked Audit, and Correction
+## Stage E.9 Implementation, Two Blocked Audits, and Corrections
 
 The frozen E.9 contract was recorded in commit
 `76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f`. The first E.9 implementation
@@ -404,13 +404,52 @@ relationships, eligibility, selection, and final production compatibility.
 The deterministic evidence binds the exact observation-file bytes by SHA-256.
 Adversarial mutations of every audit-critical field are rejected.
 
-The complete corrected bounded pilot reran on the NVIDIA GeForce RTX 4050
+Production-integration correction commit
+`5f945149859b9b7d2002e712525b7b34ed82e1be` was then independently audited.
+That second audit also returned **BLOCKED** for two remaining defects. First,
+the loader applied checkpoint model weights before discovering a missing or
+malformed optimizer payload, and strict model loading could copy multiple
+tensors before reporting a missing model key. Second, internally coordinated
+edits could label a complete finite trace as nonfinite or CUDA OOM, recompute
+the related summaries, and pass the forged record to deterministic evidence
+generation for new hash binding.
+
+The authorized fail-closed correction keeps the one production checkpoint
+loader and adds a two-phase transaction. Preflight now validates the complete
+model key set, tensor shapes/dtypes/layouts, model identity and parameter
+contract, optimizer fields, parameter-group structure, AdamW state tensors,
+and a disposable optimizer load before target mutation. Exact model and
+optimizer snapshots are then captured; any exception after mutation starts
+restores both targets, including optimizer state and parameter-group
+configuration, and re-raises the original failure. Adversarial tests prove
+model and nested optimizer state equality after every required rejection and
+also force a post-preflight optimizer failure to exercise rollback.
+
+Candidate observations now contain a compact ordered raw trace for each
+attempted warmup and measured step. Completion, finite loss, finite gradients,
+optimizer success, CUDA OOM, failure stage, measured latency, candidate status,
+counts, summaries, and eligibility must form one legal state. The validator
+derives the stored summaries and status from that trace, accepts honest partial
+failures as ineligible, and rejects correlated false-nonfinite, false-OOM,
+false-success, optimizer-failure, and raw-nonfinite stories. The deterministic
+evidence generator runs the full semantic validator before binding any input.
+
+The complete fail-closed bounded pilot reran on the NVIDIA GeForce RTX 4050
 Laptop GPU with 6,438,780,928 bytes of VRAM. All candidates 32, 64, 128, and
 256 completed and were resource-eligible. Their full-precision median
-throughputs were approximately 1,867.347, 3,270.384, 5,474.137, and
-10,650.330 windows/second. The 95% threshold was approximately 10,117.814
-windows/second; only batch 256 entered the tied set, so the corrected run again
-selected HTGNN production batch size **256** under the frozen rule.
+throughputs were approximately 1,061.324, 2,210.558, 6,226.861, and
+11,598.067 windows/second. The 95% threshold was approximately 11,018.163
+windows/second; only batch 256 entered the tied set, so the fresh run again
+selected HTGNN production batch size **256** under the frozen rule. Its
+execution identity is `e9-20260929t155457z`, and the observation-file physical
+SHA-256 is
+`6e9b484d0f0d4219d2141a2bcec9ae3b7b52a4114005319ccfc9f1bde6140d6d`.
+
+Validation passed 121 focused E.9 tests, 44 focused E.7 tests, 85
+D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,083 complete-suite
+tests, all without failures or skips. The evidence path additionally runs 12
+real baseline checkpoint/JSONL smokes and verifies Stage C 33/33 and raw CSV
+10/10 integrity.
 
 The `3e-4` learning rate remains a resource-pilot-only engineering value. E.8
 did not finalize a learning rate. E.9 remains **unfrozen** pending an independent
@@ -642,8 +681,8 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the Stage E.9 production-integration correction and corrected
-bounded execution. Do not launch full model training, a three-seed study,
+Stop after the Stage E.9 fail-closed correction and fresh bounded execution.
+Do not launch full model training, a three-seed study,
 weighted-loss ablations, locked-test evaluation, pruning, or E.10 and later
 work.
 

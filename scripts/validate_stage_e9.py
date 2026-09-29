@@ -11,7 +11,7 @@ import re
 import subprocess
 import sys
 import tempfile
-from typing import Any
+from typing import Any, Mapping
 
 import torch
 
@@ -211,6 +211,30 @@ def _write_contract(report: dict[str, Any], output: Path) -> None:
         handle.write(f"{hashlib.sha256(payload).hexdigest()}  {output.name}\n")
 
 
+def _load_validated_observations(
+    observations_path: Path,
+    *,
+    project_root: Path,
+    verify_live_device: bool,
+) -> Mapping[str, Any]:
+    """Fail closed on full observation semantics before evidence work begins."""
+
+    try:
+        observations = json.loads(observations_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise e9.BatchSizePilotError(
+            f"cannot read Stage E.9 observations for evidence: {exc}"
+        ) from exc
+    if not isinstance(observations, Mapping):
+        raise e9.BatchSizePilotError("Stage E.9 observations must be a mapping")
+    e9.validate_observations(
+        observations,
+        project_root=project_root,
+        verify_live_device=verify_live_device,
+    )
+    return observations
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
@@ -235,9 +259,10 @@ def main() -> int:
         else root / args.observations
     )
     output = args.output if args.output.is_absolute() else root / args.output
-    observations = json.loads(observations_path.read_text(encoding="utf-8"))
-    e9.validate_observations(
-        observations, project_root=root, verify_live_device=True
+    observations = _load_validated_observations(
+        observations_path,
+        project_root=root,
+        verify_live_device=True,
     )
     observations_physical_sha256 = _sha256(observations_path)
     frozen_hashes = e9.require_frozen_upstream(root)

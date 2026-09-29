@@ -29,7 +29,7 @@ from src.training import harness as e7
 from src.training import optimization_pilot as e8
 
 
-PILOT_VERSION: Final = "stage-e9-htgnn-batch-size-pilot-v1"
+PILOT_VERSION: Final = "stage-e9-htgnn-batch-size-pilot-v2"
 TASK: Final = "E2"
 SEED: Final = 2025
 LEARNING_RATE: Final = 3e-4
@@ -55,10 +55,75 @@ OBSERVATION_SOURCE_PATHS: Final = (
 )
 _EXECUTION_ID_PATTERN: Final = re.compile(r"^e9-\d{8}t\d{6}z$")
 _SHA256_PATTERN: Final = re.compile(r"^[0-9a-f]{64}$")
+COMPLETE_STATUS: Final = "COMPLETE"
+OOM_STATUS: Final = "CUDA_OOM"
+NONFINITE_LOSS_STATUS: Final = "NONFINITE_LOSS"
+NONFINITE_GRADIENT_STATUS: Final = "NONFINITE_GRADIENT"
+OPTIMIZER_FAILURE_STATUS: Final = "OPTIMIZER_FAILURE"
+SKIPPED_STATUS: Final = "SKIPPED_AFTER_SMALLER_OOM"
+_COMMON_CANDIDATE_FIELDS: Final = frozenset(
+    {
+        "batch_size",
+        "execution_id",
+        "config_identity_sha256",
+        "status",
+        "resource_eligible",
+        "failure_type",
+        "failure_message",
+        "failure_stage",
+        "warmup_steps_attempted",
+        "warmup_steps_completed",
+        "measured_steps_attempted",
+        "measured_steps_completed",
+        "step_results",
+        "losses_finite",
+        "gradients_finite",
+        "optimizer_steps_succeeded",
+        "latency_ms_samples",
+        "examples_per_second_samples",
+        "measured_loss_samples",
+        "total_vram_bytes",
+    }
+)
+_COMPLETE_CANDIDATE_FIELDS: Final = _COMMON_CANDIDATE_FIELDS | frozenset(
+    {
+        "parameter_count",
+        "first_32_source_indices_sha256",
+        "all_candidate_source_indices_sha256",
+        "timing_scope",
+        "cpu_d4_d6_e2_construction_timed",
+        "warmups_excluded_from_timing",
+        "latency_ms_median",
+        "latency_ms_p95_nearest_rank",
+        "median_examples_per_second",
+        "baseline_allocated_bytes",
+        "baseline_reserved_bytes",
+        "peak_allocated_bytes",
+        "peak_reserved_bytes",
+        "peak_allocated_delta_bytes",
+        "peak_reserved_delta_bytes",
+        "peak_reserved_vram_fraction",
+        "peak_reserved_vram_percent",
+        "headroom_threshold_fraction",
+    }
+)
 
 
 class BatchSizePilotError(RuntimeError):
     """Raised when Stage E.9 resource evidence violates its frozen contract."""
+
+
+class _CandidateStepFailure(RuntimeError):
+    """Internal classified failure carrying an exact candidate failure stage."""
+
+    def __init__(self, status: str, stage: str, cause: BaseException | str):
+        self.status = status
+        self.stage = stage
+        self.failure_type = (
+            type(cause).__name__ if isinstance(cause, BaseException) else status
+        )
+        self.failure_message = str(cause)
+        super().__init__(self.failure_message)
 
 
 def _sha256(path: Path) -> str:
@@ -152,29 +217,59 @@ def _training_step(
     criterion: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
-) -> tuple[float, bool, bool]:
+    step_fact: dict[str, Any],
+) -> float:
     """Execute one H2D -> forward -> loss -> backward -> optimizer step."""
 
-    moved = data.to(device)
-    targets = moved["sample"].y
-    optimizer.zero_grad(set_to_none=True)
-    logits = model(moved)
-    if isinstance(logits, tuple):
-        raise BatchSizePilotError("resource pilot must not collect attention")
-    loss = e7.compute_loss(TASK, criterion, logits, targets)
-    loss_finite = bool(torch.isfinite(loss))
-    if not loss_finite:
-        raise BatchSizePilotError("nonfinite resource-pilot loss")
-    loss.backward()
-    e7._finite_gradients(model)
-    gradients_finite = True
-    optimizer.step()
-    parameters_finite = _finite_parameters(model)
-    if not parameters_finite:
-        raise BatchSizePilotError("optimizer produced nonfinite parameters")
-    loss_value = float(loss.detach().cpu())
-    del logits, loss, targets, moved
-    return loss_value, gradients_finite, parameters_finite
+    stage = "host_to_device"
+    try:
+        moved = data.to(device)
+        stage = "forward"
+        targets = moved["sample"].y
+        optimizer.zero_grad(set_to_none=True)
+        logits = model(moved)
+        if isinstance(logits, tuple):
+            raise BatchSizePilotError("resource pilot must not collect attention")
+        stage = "loss"
+        loss = e7.compute_loss(TASK, criterion, logits, targets)
+        if not bool(torch.isfinite(loss)):
+            step_fact["loss_finite"] = False
+            raise _CandidateStepFailure(
+                NONFINITE_LOSS_STATUS, stage, "nonfinite resource-pilot loss"
+            )
+        step_fact["loss_finite"] = True
+        loss_value = float(loss.detach().cpu())
+        step_fact["loss_value"] = loss_value
+        stage = "backward"
+        loss.backward()
+        try:
+            e7._finite_gradients(model)
+        except e7.TrainingContractError as exc:
+            step_fact["gradients_finite"] = False
+            raise _CandidateStepFailure(
+                NONFINITE_GRADIENT_STATUS, stage, exc
+            ) from exc
+        step_fact["gradients_finite"] = True
+        stage = "optimizer_step"
+        try:
+            optimizer.step()
+        except torch.OutOfMemoryError:
+            raise
+        except Exception as exc:
+            raise _CandidateStepFailure(OPTIMIZER_FAILURE_STATUS, stage, exc) from exc
+        if not _finite_parameters(model):
+            raise _CandidateStepFailure(
+                OPTIMIZER_FAILURE_STATUS,
+                stage,
+                "optimizer produced nonfinite parameters",
+            )
+        step_fact["optimizer_step_succeeded"] = True
+        del logits, loss, targets, moved
+        return loss_value
+    except _CandidateStepFailure:
+        raise
+    except torch.OutOfMemoryError as exc:
+        raise _CandidateStepFailure(OOM_STATUS, stage, exc) from exc
 
 
 def _candidate_failure_record(
@@ -184,8 +279,16 @@ def _candidate_failure_record(
     status: str,
     failure_type: str,
     failure_message: str,
+    failure_stage: str,
     total_vram_bytes: int,
+    step_results: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, Any]:
+    raw_steps = [dict(step) for step in step_results]
+    warmups = [step for step in raw_steps if step.get("phase") == "warmup"]
+    measured = [step for step in raw_steps if step.get("phase") == "measured"]
+    completed_measured = [step for step in measured if step.get("completed") is True]
+    latency = [float(step["latency_ms"]) for step in completed_measured]
+    losses = [float(step["loss_value"]) for step in completed_measured]
     return {
         "batch_size": batch_size,
         "execution_id": execution_id,
@@ -194,11 +297,23 @@ def _candidate_failure_record(
         "resource_eligible": False,
         "failure_type": failure_type,
         "failure_message": failure_message,
-        "warmup_steps_completed": 0,
-        "measured_steps_completed": 0,
-        "losses_finite": False,
-        "gradients_finite": False,
-        "optimizer_steps_succeeded": False,
+        "failure_stage": failure_stage,
+        "warmup_steps_attempted": len(warmups),
+        "warmup_steps_completed": sum(step["completed"] is True for step in warmups),
+        "measured_steps_attempted": len(measured),
+        "measured_steps_completed": len(completed_measured),
+        "step_results": raw_steps,
+        "losses_finite": bool(raw_steps)
+        and all(step.get("loss_finite") is True for step in raw_steps),
+        "gradients_finite": bool(raw_steps)
+        and all(step.get("gradients_finite") is True for step in raw_steps),
+        "optimizer_steps_succeeded": bool(raw_steps)
+        and all(step.get("optimizer_step_succeeded") is True for step in raw_steps),
+        "latency_ms_samples": latency,
+        "examples_per_second_samples": [
+            batch_size * 1000.0 / value for value in latency
+        ],
+        "measured_loss_samples": losses,
         "total_vram_bytes": total_vram_bytes,
     }
 
@@ -227,36 +342,60 @@ def run_candidate(
     batches = iter_pilot_index_batches(len(dataset), batch_size)
     first_prefix: tuple[int, ...] | None = None
     full_order = hashlib.sha256()
-    warmup_completed = 0
-    measured_completed = 0
-    losses_finite = True
-    gradients_finite = True
-    optimizer_steps_succeeded = True
+    step_results: list[dict[str, Any]] = []
+    active_step: dict[str, Any] | None = None
     timings_ms: list[float] = []
     throughput_samples: list[float] = []
     losses: list[float] = []
 
     try:
         for step_index, indices in enumerate(batches):
+            phase = "warmup" if step_index < WARMUP_STEPS else "measured"
+            phase_index = (
+                step_index + 1
+                if phase == "warmup"
+                else step_index - WARMUP_STEPS + 1
+            )
+            active_step = {
+                "phase": phase,
+                "step_index": phase_index,
+                "completed": False,
+                "loss_value": None,
+                "loss_finite": None,
+                "gradients_finite": None,
+                "optimizer_step_succeeded": False,
+                "cuda_oom": False,
+                "failure_stage": None,
+                "latency_ms": None,
+            }
+            step_results.append(active_step)
             if first_prefix is None:
                 first_prefix = tuple(indices[: BATCH_SIZE_CANDIDATES[0]])
             for index in indices:
                 full_order.update(int(index).to_bytes(8, "little", signed=False))
-            logical = d6.build_logical_batch(dataset, indices)
-            cpu_data = e2.logical_batch_to_heterodata(logical)
+            try:
+                logical = d6.build_logical_batch(dataset, indices)
+                cpu_data = e2.logical_batch_to_heterodata(logical)
+            except torch.OutOfMemoryError as exc:
+                raise _CandidateStepFailure(
+                    OOM_STATUS, "batch_construction", exc
+                ) from exc
             if step_index < WARMUP_STEPS:
-                loss_value, gradients_ok, parameters_ok = _training_step(
+                _training_step(
                     data=cpu_data,
                     model=model,
                     criterion=criterion,
                     optimizer=optimizer,
                     device=device,
+                    step_fact=active_step,
                 )
-                torch.cuda.synchronize(device)
-                warmup_completed += 1
-                losses_finite = losses_finite and math.isfinite(loss_value)
-                gradients_finite = gradients_finite and gradients_ok
-                optimizer_steps_succeeded = optimizer_steps_succeeded and parameters_ok
+                try:
+                    torch.cuda.synchronize(device)
+                except torch.OutOfMemoryError as exc:
+                    raise _CandidateStepFailure(
+                        OOM_STATUS, "warmup_synchronize", exc
+                    ) from exc
+                active_step["completed"] = True
                 del cpu_data, logical
                 continue
 
@@ -268,31 +407,57 @@ def run_candidate(
                 baseline_allocated = int(torch.cuda.memory_allocated(device))
                 baseline_reserved = int(torch.cuda.memory_reserved(device))
 
-            torch.cuda.synchronize(device)
+            try:
+                torch.cuda.synchronize(device)
+            except torch.OutOfMemoryError as exc:
+                raise _CandidateStepFailure(
+                    OOM_STATUS, "measurement_start_synchronize", exc
+                ) from exc
             started = time.perf_counter()
-            loss_value, gradients_ok, parameters_ok = _training_step(
+            loss_value = _training_step(
                 data=cpu_data,
                 model=model,
                 criterion=criterion,
                 optimizer=optimizer,
                 device=device,
+                step_fact=active_step,
             )
-            torch.cuda.synchronize(device)
+            try:
+                torch.cuda.synchronize(device)
+            except torch.OutOfMemoryError as exc:
+                raise _CandidateStepFailure(
+                    OOM_STATUS, "measurement_end_synchronize", exc
+                ) from exc
             elapsed_ms = (time.perf_counter() - started) * 1000.0
             if elapsed_ms <= 0 or not math.isfinite(elapsed_ms):
                 raise BatchSizePilotError("measured CUDA latency is invalid")
+            active_step["latency_ms"] = elapsed_ms
+            active_step["completed"] = True
             timings_ms.append(elapsed_ms)
             throughput_samples.append(batch_size * 1000.0 / elapsed_ms)
             losses.append(loss_value)
-            measured_completed += 1
-            losses_finite = losses_finite and math.isfinite(loss_value)
-            gradients_finite = gradients_finite and gradients_ok
-            optimizer_steps_succeeded = optimizer_steps_succeeded and parameters_ok
             del cpu_data, logical
 
         peak_allocated = int(torch.cuda.max_memory_allocated(device))
         peak_reserved = int(torch.cuda.max_memory_reserved(device))
         peak_reserved_fraction = peak_reserved / total_vram_bytes
+        warmup_completed = sum(
+            step["completed"] is True
+            for step in step_results
+            if step["phase"] == "warmup"
+        )
+        measured_completed = sum(
+            step["completed"] is True
+            for step in step_results
+            if step["phase"] == "measured"
+        )
+        losses_finite = all(step["loss_finite"] is True for step in step_results)
+        gradients_finite = all(
+            step["gradients_finite"] is True for step in step_results
+        )
+        optimizer_steps_succeeded = all(
+            step["optimizer_step_succeeded"] is True for step in step_results
+        )
         eligible = bool(
             warmup_completed == WARMUP_STEPS
             and measured_completed == MEASURED_STEPS
@@ -309,10 +474,20 @@ def run_candidate(
             "batch_size": batch_size,
             "execution_id": execution_id,
             "config_identity_sha256": _config_identity_sha256(),
-            "status": "COMPLETE",
+            "status": COMPLETE_STATUS,
             "resource_eligible": eligible,
+            "failure_type": None,
+            "failure_message": None,
+            "failure_stage": None,
+            "warmup_steps_attempted": sum(
+                step["phase"] == "warmup" for step in step_results
+            ),
             "warmup_steps_completed": warmup_completed,
+            "measured_steps_attempted": sum(
+                step["phase"] == "measured" for step in step_results
+            ),
             "measured_steps_completed": measured_completed,
+            "step_results": step_results,
             "losses_finite": losses_finite,
             "gradients_finite": gradients_finite,
             "optimizer_steps_succeeded": optimizer_steps_succeeded,
@@ -339,14 +514,36 @@ def run_candidate(
             "peak_reserved_vram_percent": 100.0 * peak_reserved_fraction,
             "headroom_threshold_fraction": HEADROOM_THRESHOLD,
         }
-    except torch.OutOfMemoryError as exc:
+    except _CandidateStepFailure as exc:
+        if active_step is not None:
+            active_step["cuda_oom"] = exc.status == OOM_STATUS
+            active_step["failure_stage"] = exc.stage
         return _candidate_failure_record(
             batch_size,
             execution_id=execution_id,
-            status="CUDA_OOM",
+            status=exc.status,
+            failure_type=exc.failure_type,
+            failure_message=exc.failure_message,
+            failure_stage=exc.stage,
+            total_vram_bytes=total_vram_bytes,
+            step_results=step_results,
+        )
+    except torch.OutOfMemoryError as exc:
+        if active_step is None or active_step["completed"] is True:
+            raise BatchSizePilotError(
+                "CUDA OOM occurred outside an in-progress candidate step"
+            ) from exc
+        active_step["cuda_oom"] = True
+        active_step["failure_stage"] = "candidate_runtime"
+        return _candidate_failure_record(
+            batch_size,
+            execution_id=execution_id,
+            status=OOM_STATUS,
             failure_type=type(exc).__name__,
             failure_message=str(exc),
+            failure_stage="candidate_runtime",
             total_vram_bytes=total_vram_bytes,
+            step_results=step_results,
         )
     finally:
         del optimizer, criterion, model
@@ -470,6 +667,200 @@ def verify_production_compatibility(
 
 def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and _SHA256_PATTERN.fullmatch(value) is not None
+
+
+def _derive_candidate_execution(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Derive candidate status and summaries from its ordered raw step trace."""
+
+    fields = set(record)
+    if fields not in (_COMMON_CANDIDATE_FIELDS, _COMPLETE_CANDIDATE_FIELDS):
+        raise BatchSizePilotError("candidate fields do not match an exact schema")
+    raw_steps = record.get("step_results")
+    if not isinstance(raw_steps, list):
+        raise BatchSizePilotError("candidate raw execution trace is missing")
+    expected_positions = [
+        *(('warmup', index) for index in range(1, WARMUP_STEPS + 1)),
+        *(('measured', index) for index in range(1, MEASURED_STEPS + 1)),
+    ]
+    if len(raw_steps) > len(expected_positions):
+        raise BatchSizePilotError("candidate raw execution trace is too long")
+    required_step_fields = {
+        "phase",
+        "step_index",
+        "completed",
+        "loss_value",
+        "loss_finite",
+        "gradients_finite",
+        "optimizer_step_succeeded",
+        "cuda_oom",
+        "failure_stage",
+        "latency_ms",
+    }
+    normalized: list[Mapping[str, Any]] = []
+    for position, step in enumerate(raw_steps):
+        if not isinstance(step, Mapping) or set(step) != required_step_fields:
+            raise BatchSizePilotError("candidate raw step fields are invalid")
+        if (step.get("phase"), step.get("step_index")) != expected_positions[position]:
+            raise BatchSizePilotError("candidate raw step order is invalid")
+        if not isinstance(step.get("completed"), bool):
+            raise BatchSizePilotError("candidate raw step completion is invalid")
+        if step.get("loss_finite") is not None and not isinstance(
+            step.get("loss_finite"), bool
+        ):
+            raise BatchSizePilotError("candidate raw loss status is invalid")
+        if step.get("gradients_finite") is not None and not isinstance(
+            step.get("gradients_finite"), bool
+        ):
+            raise BatchSizePilotError("candidate raw gradient status is invalid")
+        if not isinstance(step.get("optimizer_step_succeeded"), bool):
+            raise BatchSizePilotError("candidate raw optimizer status is invalid")
+        if not isinstance(step.get("cuda_oom"), bool):
+            raise BatchSizePilotError("candidate raw CUDA OOM status is invalid")
+        loss_value = step.get("loss_value")
+        if step.get("loss_finite") is True:
+            if (
+                isinstance(loss_value, bool)
+                or not isinstance(loss_value, (int, float))
+                or not math.isfinite(float(loss_value))
+            ):
+                raise BatchSizePilotError("candidate raw finite loss value is invalid")
+        elif loss_value is not None:
+            raise BatchSizePilotError("candidate raw failed loss value must be absent")
+
+        latency = step.get("latency_ms")
+        if step["completed"]:
+            if (
+                step.get("loss_finite") is not True
+                or step.get("gradients_finite") is not True
+                or step.get("optimizer_step_succeeded") is not True
+                or step.get("cuda_oom") is not False
+                or step.get("failure_stage") is not None
+            ):
+                raise BatchSizePilotError(
+                    "candidate completed raw step has contradictory execution facts"
+                )
+            if step["phase"] == "measured":
+                if (
+                    isinstance(latency, bool)
+                    or not isinstance(latency, (int, float))
+                    or not math.isfinite(float(latency))
+                    or float(latency) <= 0
+                ):
+                    raise BatchSizePilotError(
+                        "candidate completed measured step lacks valid latency"
+                    )
+            elif latency is not None:
+                raise BatchSizePilotError("candidate warmup step must not store latency")
+        else:
+            if position != len(raw_steps) - 1:
+                raise BatchSizePilotError(
+                    "candidate raw execution continues after a failed step"
+                )
+            if latency is not None:
+                raise BatchSizePilotError("candidate failed step cannot store latency")
+            if not isinstance(step.get("failure_stage"), str) or not step["failure_stage"]:
+                raise BatchSizePilotError("candidate failed step lacks a failure stage")
+        normalized.append(step)
+
+    warmups = [step for step in normalized if step["phase"] == "warmup"]
+    measured = [step for step in normalized if step["phase"] == "measured"]
+    completed_measured = [step for step in measured if step["completed"]]
+    warmup_completed = sum(step["completed"] for step in warmups)
+    measured_completed = len(completed_measured)
+    latency_samples = [float(step["latency_ms"]) for step in completed_measured]
+    loss_samples = [float(step["loss_value"]) for step in completed_measured]
+    throughput_samples = [
+        int(record["batch_size"]) * 1000.0 / value for value in latency_samples
+    ]
+    losses_finite = bool(normalized) and all(
+        step["loss_finite"] is True for step in normalized
+    )
+    gradients_finite = bool(normalized) and all(
+        step["gradients_finite"] is True for step in normalized
+    )
+    optimizer_steps_succeeded = bool(normalized) and all(
+        step["optimizer_step_succeeded"] is True for step in normalized
+    )
+
+    if len(normalized) == TOTAL_STEPS and all(step["completed"] for step in normalized):
+        derived_status = COMPLETE_STATUS
+    elif normalized:
+        failed = normalized[-1]
+        if failed["completed"]:
+            raise BatchSizePilotError("candidate execution ended without a failed step")
+        if failed["cuda_oom"]:
+            derived_status = OOM_STATUS
+        elif failed["loss_finite"] is False:
+            derived_status = NONFINITE_LOSS_STATUS
+        elif failed["loss_finite"] is True and failed["gradients_finite"] is False:
+            derived_status = NONFINITE_GRADIENT_STATUS
+        elif (
+            failed["loss_finite"] is True
+            and failed["gradients_finite"] is True
+            and failed["optimizer_step_succeeded"] is False
+        ):
+            derived_status = OPTIMIZER_FAILURE_STATUS
+        else:
+            raise BatchSizePilotError("candidate failed raw step is unclassified")
+    else:
+        derived_status = SKIPPED_STATUS
+
+    expected_summaries = {
+        "warmup_steps_attempted": len(warmups),
+        "warmup_steps_completed": warmup_completed,
+        "measured_steps_attempted": len(measured),
+        "measured_steps_completed": measured_completed,
+        "losses_finite": losses_finite,
+        "gradients_finite": gradients_finite,
+        "optimizer_steps_succeeded": optimizer_steps_succeeded,
+        "latency_ms_samples": latency_samples,
+        "examples_per_second_samples": throughput_samples,
+        "measured_loss_samples": loss_samples,
+    }
+    if any(record.get(key) != value for key, value in expected_summaries.items()):
+        raise BatchSizePilotError(
+            "candidate stored execution summaries disagree with raw execution facts"
+        )
+    if record.get("status") != derived_status:
+        raise BatchSizePilotError("candidate status disagrees with raw execution facts")
+    if derived_status == COMPLETE_STATUS:
+        if fields != _COMPLETE_CANDIDATE_FIELDS:
+            raise BatchSizePilotError("completed candidate fields are incomplete")
+        if any(
+            record.get(key) is not None
+            for key in ("failure_type", "failure_message", "failure_stage")
+        ):
+            raise BatchSizePilotError("completed candidate contains failure metadata")
+    elif derived_status == SKIPPED_STATUS:
+        if fields != _COMMON_CANDIDATE_FIELDS:
+            raise BatchSizePilotError("skipped candidate fields are invalid")
+        if (
+            record.get("failure_type") != "SafetyStop"
+            or record.get("failure_stage") != "not_attempted"
+            or not isinstance(record.get("failure_message"), str)
+            or not record["failure_message"]
+        ):
+            raise BatchSizePilotError("skipped candidate metadata is invalid")
+    else:
+        if fields != _COMMON_CANDIDATE_FIELDS:
+            raise BatchSizePilotError("failed candidate fields are invalid")
+        if (
+            not isinstance(record.get("failure_type"), str)
+            or not record["failure_type"]
+            or not isinstance(record.get("failure_message"), str)
+            or not record["failure_message"]
+            or record.get("failure_stage") != normalized[-1]["failure_stage"]
+        ):
+            raise BatchSizePilotError("failed candidate metadata is invalid")
+    return {
+        "status": derived_status,
+        "latency_ms_samples": latency_samples,
+        "throughput_samples": throughput_samples,
+        "loss_samples": loss_samples,
+        "losses_finite": losses_finite,
+        "gradients_finite": gradients_finite,
+        "optimizer_steps_succeeded": optimizer_steps_succeeded,
+    }
 
 
 def validate_observations(
@@ -596,6 +987,7 @@ def validate_observations(
         raise BatchSizePilotError("candidate records are missing, duplicated, or reordered")
     config_identity = _config_identity_sha256()
     prefix_hashes: set[object] = set()
+    saw_oom = False
     for expected_batch, record in zip(BATCH_SIZE_CANDIDATES, records, strict=True):
         if not isinstance(record, Mapping):
             raise BatchSizePilotError("candidate record must be a mapping")
@@ -604,29 +996,33 @@ def validate_observations(
             or record.get("config_identity_sha256") != config_identity
         ):
             raise BatchSizePilotError("candidate execution/config identity is invalid")
-        status = record.get("status")
-        if status != "COMPLETE":
-            if status not in {"CUDA_OOM", "SKIPPED_AFTER_SMALLER_OOM"}:
-                raise BatchSizePilotError("candidate status is invalid")
+        execution = _derive_candidate_execution(record)
+        status = execution["status"]
+        if saw_oom and status != SKIPPED_STATUS:
+            raise BatchSizePilotError(
+                "candidate executed after a smaller candidate exhausted CUDA memory"
+            )
+        if status == SKIPPED_STATUS and not saw_oom:
+            raise BatchSizePilotError(
+                "candidate was skipped without a smaller CUDA OOM"
+            )
+        if status != COMPLETE_STATUS:
             if (
                 record.get("resource_eligible") is not False
-                or record.get("warmup_steps_completed") != 0
-                or record.get("measured_steps_completed") != 0
-                or record.get("losses_finite") is not False
-                or record.get("gradients_finite") is not False
-                or record.get("optimizer_steps_succeeded") is not False
                 or record.get("total_vram_bytes") != device["total_vram_bytes"]
             ):
                 raise BatchSizePilotError("failed candidate accounting is invalid")
+            if status == OOM_STATUS:
+                saw_oom = True
             continue
         prefix_hashes.add(record.get("first_32_source_indices_sha256"))
         if record.get("warmup_steps_completed") != WARMUP_STEPS:
             raise BatchSizePilotError("candidate warmup count is invalid")
         if record.get("measured_steps_completed") != MEASURED_STEPS:
             raise BatchSizePilotError("candidate measurement count is invalid")
-        timing_raw = record.get("latency_ms_samples")
-        throughput_raw = record.get("examples_per_second_samples")
-        losses_raw = record.get("measured_loss_samples")
+        timing_raw = execution["latency_ms_samples"]
+        throughput_raw = execution["throughput_samples"]
+        losses_raw = execution["loss_samples"]
         if not all(isinstance(values, list) for values in (timing_raw, throughput_raw, losses_raw)):
             raise BatchSizePilotError("candidate raw measurement arrays are missing")
         if not all(len(values) == MEASURED_STEPS for values in (timing_raw, throughput_raw, losses_raw)):
@@ -723,9 +1119,9 @@ def validate_observations(
         ):
             raise BatchSizePilotError("candidate execution provenance is invalid")
         derived_eligible = bool(
-            record.get("losses_finite") is True
-            and record.get("gradients_finite") is True
-            and record.get("optimizer_steps_succeeded") is True
+            execution["losses_finite"]
+            and execution["gradients_finite"]
+            and execution["optimizer_steps_succeeded"]
             and peak_fraction < HEADROOM_THRESHOLD
         )
         if record.get("resource_eligible") is not derived_eligible:
@@ -827,11 +1223,12 @@ def run_pilot(project_root: Path, *, executor: str = "Codex") -> dict[str, Any]:
                 _candidate_failure_record(
                     batch_size,
                     execution_id=execution_id,
-                    status="SKIPPED_AFTER_SMALLER_OOM",
+                    status=SKIPPED_STATUS,
                     failure_type="SafetyStop",
                     failure_message=(
                         "not attempted after a smaller approved candidate exhausted CUDA memory"
                     ),
+                    failure_stage="not_attempted",
                     total_vram_bytes=total_vram_bytes,
                 )
             )
@@ -844,7 +1241,7 @@ def run_pilot(project_root: Path, *, executor: str = "Codex") -> dict[str, Any]:
             execution_id=execution_id,
         )
         records.append(record)
-        smaller_oom = record["status"] == "CUDA_OOM"
+        smaller_oom = record["status"] == OOM_STATUS
     selection = select_batch_size(records)
     production_compatibility = verify_production_compatibility(
         dataset,

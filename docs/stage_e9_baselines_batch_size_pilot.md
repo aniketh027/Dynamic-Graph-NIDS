@@ -10,8 +10,13 @@ The original E.9 implementation commit
 **BLOCKED**. Its resource measurements reproduced, but the selected batch size
 256 could not enter the production training path, baseline checkpoint identity
 was not first-class, and critical observation fields were not validated
-fail-closed. The correction described here does not erase that history. E.9 is
-still unfrozen and requires an independent re-audit.
+fail-closed. Production-integration correction commit
+`5f945149859b9b7d2002e712525b7b34ed82e1be` fixed those defects, but a second
+independent audit remained **BLOCKED**: a rejected checkpoint could already
+have mutated the target model, and correlated edits could forge candidate
+status while retaining a successful raw measurement record. The fail-closed
+correction described here preserves both audit findings. E.9 is still unfrozen
+and requires another independent re-audit.
 
 ## Production training integration correction
 
@@ -37,6 +42,19 @@ selection, JSONL accounting, exclusive one-log-per-run ownership, and
 checkpoint/log alias rejection. The correction adds no second optimizer loop,
 checkpoint system, metric implementation, preprocessing path, split loader, or
 class-eligibility authority.
+
+Checkpoint loading is now transactional. Before touching the target, the one
+production loader validates the exact model-state keys, tensor shapes, dtypes,
+layouts, model contract, optimizer fields, parameter-group membership, and
+AdamW per-parameter state structure, including a disposable optimizer-load
+probe. Immediately before the first mutating load it snapshots the exact model
+and optimizer states. Any later exception restores both snapshots, including
+optimizer state and parameter-group configuration, before the original load
+failure is re-raised. Missing optimizer state, missing or unexpected model
+keys, wrong tensor shapes, malformed optimizer state, and task/family/
+architecture/input mismatches are all tested to leave both targets byte-for-
+byte tensor-equivalent to their pre-call state. Matching schema-v2 checkpoints
+for every task and family, plus valid schema-v1 HTGNN checkpoints, still load.
 
 ## Baseline contracts
 
@@ -84,17 +102,19 @@ canonical replay targets.
 
 | Batch | Median step (ms) | Nearest-rank p95 (ms) | Median windows/s | Peak reserved | Reserved / VRAM | Eligible |
 | ---: | ---: | ---: | ---: | ---: | ---: | :---: |
-| 32 | 17.149 | 21.856 | 1,867.347 | 27,262,976 B | 0.4234% | yes |
-| 64 | 19.577 | 23.229 | 3,270.384 | 52,428,800 B | 0.8143% | yes |
-| 128 | 23.383 | 31.736 | 5,474.137 | 48,234,496 B | 0.7491% | yes |
-| 256 | 24.037 | 30.276 | 10,650.330 | 71,303,168 B | 1.1074% | yes |
+| 32 | 30.151 | 33.256 | 1,061.324 | 27,262,976 B | 0.4234% | yes |
+| 64 | 28.954 | 35.154 | 2,210.558 | 52,428,800 B | 0.8143% | yes |
+| 128 | 20.558 | 27.211 | 6,226.861 | 48,234,496 B | 0.7491% | yes |
+| 256 | 22.073 | 28.143 | 11,598.067 | 71,303,168 B | 1.1074% | yes |
 
 All candidates completed with finite losses and gradients, successful optimizer
 steps, and absolute peak reserved memory strictly below the 80% threshold. The
-maximum full-precision median throughput was 10,650.330239 windows/s and the
-95% threshold was 10,117.813727 windows/s. Only batch 256 entered the tied set,
+maximum full-precision median throughput was 11,598.066542 windows/s and the
+95% threshold was 11,018.163215 windows/s. Only batch 256 entered the tied set,
 so the frozen smallest-in-tied-set rule selected HTGNN training batch size
-**256** without hard-coding that outcome.
+**256** without hard-coding that outcome. The fresh execution identity is
+`e9-20260929t155457z`; the exact observation-file physical SHA-256 is
+`6e9b484d0f0d4219d2141a2bcec9ae3b7b52a4114005319ccfc9f1bde6140d6d`.
 
 The post-selection production gate constructed the actual
 `TrainingConfig(batch_size=256)`, obtained a 256-example E2 training batch from
@@ -106,20 +126,39 @@ successful optimizer update without validation or test access.
 
 The production validator requires the exact 32/64/128/256 candidate sequence,
 the frozen task/seed/optimizer/loss/count configuration, current source hashes,
-the frozen E.9 contract identity, the audited device identity, exactly 20 raw
-timing and loss samples per completed candidate, and consistent CUDA-memory
-relationships. It recomputes per-sample throughput, median latency,
-nearest-rank p95, median windows/s, absolute reserved-memory percentage,
-resource eligibility, the 95% tied set, and the selected batch. The
-deterministic contract evidence binds the exact observation-file bytes by
-SHA-256; offline validation does not require CUDA, while an intentional live
-validation cross-checks the stored GPU name and VRAM.
+the frozen E.9 contract identity, and the audited device identity. Each
+candidate now includes a compact ordered raw trace for every attempted warmup
+or measured step: phase and index, completion, loss/gradient finite facts,
+optimizer-step success, CUDA-OOM fact and failure stage, loss value, and the
+measured latency where applicable. Legal states are complete, CUDA OOM,
+nonfinite loss, nonfinite gradient, optimizer failure, and the bounded skip
+after a smaller OOM. Attempted/completed counts, finite summaries, optimizer
+summary, timing/loss arrays, candidate status, and resource eligibility are
+derived from that trace and must match it exactly. Honest partial failures are
+valid but ineligible; contradictory failure or success stories are rejected.
+
+For completed candidates the validator still recomputes per-sample throughput,
+median latency, nearest-rank p95, median windows/s, absolute reserved-memory
+percentage, resource eligibility, the 95% tied set, and the selected batch.
+The deterministic evidence generator performs this full semantic validation
+before any binding work and binds the exact observation-file bytes by SHA-256.
+Offline validation does not require CUDA, while an intentional live validation
+cross-checks the stored GPU name and VRAM.
 
 Adversarial tests corrupt source identity, device identity, VRAM, raw timings,
 summary throughput, p95, memory values, finite status, eligibility, candidate
 identity/count/order, selected batch, task, seed, learning rate, step counts,
-execution/config identity, and observation-file binding. Each corruption is
-rejected by the production validator.
+execution/config identity, and observation-file binding. Correlated false-
+nonfinite, false-OOM, false-success, optimizer-failure, and raw-nonfinite
+stories are also rejected. A forged correlated observation cannot be rebound
+through the official deterministic evidence path, while an internally
+consistent partial CUDA-OOM fixture remains valid and ineligible.
+
+Implementation validation passed 121 focused E.9 tests, 44 focused E.7 tests,
+85 D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,083 complete-suite
+tests, with zero failures or skips. The deterministic evidence run also
+executes all 12 real baseline production artifact smokes and independently
+checks Stage C 33/33 and raw CSV 10/10 integrity.
 
 ## Scope and next boundary
 

@@ -4,11 +4,13 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 import pytest
 import torch
 
 from src.graph import adapter as d4
+from scripts import validate_stage_e9 as evidence
 from src.training import batch_size_pilot as e9
 
 
@@ -19,14 +21,50 @@ def _record(batch_size: int, *, eligible: bool = True) -> dict:
     latency = [float(index + 1) for index in range(e9.MEASURED_STEPS)]
     throughput = [batch_size * 1000.0 / value for value in latency]
     peak_reserved = 40 if eligible else int(0.85 * e9.EXPECTED_TOTAL_VRAM_BYTES)
+    steps = [
+        {
+            "phase": "warmup",
+            "step_index": index,
+            "completed": True,
+            "loss_value": 1.0,
+            "loss_finite": True,
+            "gradients_finite": True,
+            "optimizer_step_succeeded": True,
+            "cuda_oom": False,
+            "failure_stage": None,
+            "latency_ms": None,
+        }
+        for index in range(1, e9.WARMUP_STEPS + 1)
+    ]
+    steps.extend(
+        {
+            "phase": "measured",
+            "step_index": index,
+            "completed": True,
+            "loss_value": 1.0,
+            "loss_finite": True,
+            "gradients_finite": True,
+            "optimizer_step_succeeded": True,
+            "cuda_oom": False,
+            "failure_stage": None,
+            "latency_ms": value,
+        }
+        for index, value in enumerate(latency, start=1)
+    )
     return {
         "batch_size": batch_size,
         "execution_id": "e9-20260929t000000z",
         "config_identity_sha256": e9._config_identity_sha256(),
-        "status": "COMPLETE",
+        "status": e9.COMPLETE_STATUS,
         "resource_eligible": eligible,
+        "failure_type": None,
+        "failure_message": None,
+        "failure_stage": None,
+        "warmup_steps_attempted": e9.WARMUP_STEPS,
         "warmup_steps_completed": e9.WARMUP_STEPS,
+        "measured_steps_attempted": e9.MEASURED_STEPS,
         "measured_steps_completed": e9.MEASURED_STEPS,
+        "step_results": steps,
         "losses_finite": True,
         "gradients_finite": True,
         "optimizer_steps_succeeded": True,
@@ -120,6 +158,66 @@ def _good_report() -> dict:
     return _observations([_record(size) for size in e9.BATCH_SIZE_CANDIDATES])
 
 
+def _rebind_selection(report: dict) -> None:
+    selection = e9.select_batch_size(report["candidate_results"])
+    selected = selection["selected_batch_size"]
+    report["selection"] = selection
+    report["finalized"] = {"htgnn_training_batch_size": selected}
+    compatibility = report["production_compatibility"]
+    compatibility["batch_size"] = selected
+    compatibility["logits_shape"] = [selected, 15]
+    compatibility["train_examples"] = selected
+
+
+def _honest_oom_record(batch_size: int) -> dict:
+    complete = _record(batch_size)
+    steps = complete["step_results"][: e9.WARMUP_STEPS + 3]
+    failed = steps[-1]
+    failed.update(
+        {
+            "completed": False,
+            "loss_value": None,
+            "loss_finite": None,
+            "gradients_finite": None,
+            "optimizer_step_succeeded": False,
+            "cuda_oom": True,
+            "failure_stage": "forward",
+            "latency_ms": None,
+        }
+    )
+    completed_measured = [
+        step
+        for step in steps
+        if step["completed"] and step["phase"] == "measured"
+    ]
+    latency = [step["latency_ms"] for step in completed_measured]
+    losses = [step["loss_value"] for step in completed_measured]
+    return {
+        "batch_size": batch_size,
+        "execution_id": complete["execution_id"],
+        "config_identity_sha256": complete["config_identity_sha256"],
+        "status": e9.OOM_STATUS,
+        "resource_eligible": False,
+        "failure_type": "OutOfMemoryError",
+        "failure_message": "synthetic honest CUDA OOM",
+        "failure_stage": "forward",
+        "warmup_steps_attempted": e9.WARMUP_STEPS,
+        "warmup_steps_completed": e9.WARMUP_STEPS,
+        "measured_steps_attempted": 3,
+        "measured_steps_completed": 2,
+        "step_results": steps,
+        "losses_finite": False,
+        "gradients_finite": False,
+        "optimizer_steps_succeeded": False,
+        "latency_ms_samples": latency,
+        "examples_per_second_samples": [
+            batch_size * 1000.0 / value for value in latency
+        ],
+        "measured_loss_samples": losses,
+        "total_vram_bytes": e9.EXPECTED_TOTAL_VRAM_BYTES,
+    }
+
+
 def test_frozen_candidate_and_measurement_contract():
     contract = e9.pilot_contract()
     assert e9.BATCH_SIZE_CANDIDATES == (32, 64, 128, 256)
@@ -187,13 +285,13 @@ def test_known_good_observation_fixture_passes_real_validator():
     [
         (lambda r: r["device"].__setitem__("name", "wrong gpu"), "device"),
         (lambda r: r["device"].__setitem__("total_vram_bytes", 1), "device"),
-        (lambda r: r["candidate_results"][0]["latency_ms_samples"].__setitem__(0, 2.0), "throughput"),
+        (lambda r: r["candidate_results"][0]["latency_ms_samples"].__setitem__(0, 2.0), "summaries"),
         (lambda r: r["candidate_results"][0].__setitem__("median_examples_per_second", 1.0), "summary"),
         (lambda r: r["candidate_results"][0].__setitem__("latency_ms_p95_nearest_rank", 1.0), "summary"),
         (lambda r: r["candidate_results"][0].__setitem__("peak_reserved_bytes", 41), "relationships|percentage"),
         (lambda r: r["candidate_results"][0].__setitem__("peak_reserved_vram_fraction", 0.5), "percentage"),
         (lambda r: r["candidate_results"][0].__setitem__("peak_reserved_vram_percent", 0.5), "percentage"),
-        (lambda r: r["candidate_results"][0].__setitem__("losses_finite", False), "eligibility"),
+        (lambda r: r["candidate_results"][0].__setitem__("losses_finite", False), "summaries"),
         (lambda r: r["candidate_results"][0].__setitem__("resource_eligible", False), "eligibility|selection"),
         (lambda r: r["candidate_results"][0].__setitem__("batch_size", 33), "candidate"),
         (lambda r: r["candidate_results"].pop(), "coverage"),
@@ -201,7 +299,7 @@ def test_known_good_observation_fixture_passes_real_validator():
         (lambda r: r["contract"].__setitem__("seed", 2026), "contract"),
         (lambda r: r["contract"].__setitem__("learning_rate", 1e-3), "contract"),
         (lambda r: r["contract"].__setitem__("task", "E1"), "contract"),
-        (lambda r: r["candidate_results"][0].__setitem__("warmup_steps_completed", 4), "warmup"),
+        (lambda r: r["candidate_results"][0].__setitem__("warmup_steps_completed", 4), "summaries"),
         (lambda r: r.__setitem__("execution_id", "tampered"), "execution"),
         (lambda r: r["candidate_results"][0].__setitem__("config_identity_sha256", "d" * 64), "config"),
         (lambda r: r["contract_source_sha256"].__setitem__("PROJECT_HANDOFF.md@contract_commit", "d" * 64), "contract source"),
@@ -212,6 +310,166 @@ def test_adversarial_observation_mutations_fail_closed(mutation, message):
     mutation(corrupted)
     with pytest.raises(e9.BatchSizePilotError, match=message):
         e9.validate_observations(corrupted)
+
+
+def test_correlated_false_nonfinite_story_is_rejected_from_raw_trace():
+    forged = _good_report()
+    record = forged["candidate_results"][0]
+    record.update(
+        {
+            "status": e9.NONFINITE_LOSS_STATUS,
+            "resource_eligible": False,
+            "failure_type": "SyntheticNonfinite",
+            "failure_message": "forged summary",
+            "failure_stage": "loss",
+            "measured_steps_completed": 0,
+            "losses_finite": False,
+            "gradients_finite": False,
+            "optimizer_steps_succeeded": False,
+            "latency_ms_samples": [],
+            "examples_per_second_samples": [],
+            "measured_loss_samples": [],
+        }
+    )
+    _rebind_selection(forged)
+    with pytest.raises(e9.BatchSizePilotError, match="failed step|raw execution facts"):
+        e9.validate_observations(forged)
+
+
+def test_correlated_false_cuda_oom_story_is_rejected_from_raw_trace():
+    forged = _good_report()
+    record = forged["candidate_results"][0]
+    record.update(
+        {
+            "status": e9.OOM_STATUS,
+            "resource_eligible": False,
+            "failure_type": "OutOfMemoryError",
+            "failure_message": "forged OOM",
+            "failure_stage": "forward",
+            "warmup_steps_completed": 0,
+            "measured_steps_completed": 0,
+            "losses_finite": False,
+            "gradients_finite": False,
+            "optimizer_steps_succeeded": False,
+        }
+    )
+    _rebind_selection(forged)
+    with pytest.raises(e9.BatchSizePilotError, match="raw execution facts"):
+        e9.validate_observations(forged)
+
+
+def test_false_success_with_incomplete_raw_trace_is_rejected():
+    forged = _good_report()
+    forged["candidate_results"][0]["step_results"].pop()
+    with pytest.raises(e9.BatchSizePilotError, match="failed step|raw execution facts"):
+        e9.validate_observations(forged)
+
+
+def test_optimizer_failure_raw_fact_cannot_be_summarized_as_success():
+    forged = _good_report()
+    failed = forged["candidate_results"][0]["step_results"][-1]
+    failed.update(
+        {
+            "completed": False,
+            "optimizer_step_succeeded": False,
+            "failure_stage": "optimizer_step",
+            "latency_ms": None,
+        }
+    )
+    with pytest.raises(e9.BatchSizePilotError, match="raw execution facts"):
+        e9.validate_observations(forged)
+
+
+def test_raw_nonfinite_fact_cannot_be_summarized_as_success():
+    forged = _good_report()
+    failed = forged["candidate_results"][0]["step_results"][-1]
+    failed.update(
+        {
+            "completed": False,
+            "loss_value": None,
+            "loss_finite": False,
+            "gradients_finite": None,
+            "optimizer_step_succeeded": False,
+            "failure_stage": "loss",
+            "latency_ms": None,
+        }
+    )
+    with pytest.raises(e9.BatchSizePilotError, match="raw execution facts"):
+        e9.validate_observations(forged)
+
+
+def test_honest_partial_cuda_oom_candidate_is_valid_but_ineligible():
+    records = [_record(size) for size in e9.BATCH_SIZE_CANDIDATES[:-1]]
+    records.append(_honest_oom_record(e9.BATCH_SIZE_CANDIDATES[-1]))
+    report = _observations(records)
+    e9.validate_observations(report)
+    assert report["candidate_results"][-1]["resource_eligible"] is False
+    assert report["candidate_results"][-1]["status"] == e9.OOM_STATUS
+
+
+def test_evidence_generator_refuses_correlated_forgery_before_binding(
+    tmp_path: Path, monkeypatch
+):
+    forged = _good_report()
+    record = forged["candidate_results"][0]
+    record.update(
+        {
+            "status": e9.OOM_STATUS,
+            "resource_eligible": False,
+            "failure_type": "OutOfMemoryError",
+            "failure_message": "forged OOM",
+            "failure_stage": "forward",
+            "warmup_steps_completed": 0,
+            "measured_steps_completed": 0,
+            "losses_finite": False,
+            "gradients_finite": False,
+            "optimizer_steps_succeeded": False,
+        }
+    )
+    _rebind_selection(forged)
+    monkeypatch.setattr(
+        evidence.e9,
+        "observation_source_sha256",
+        lambda _root: dict(forged["e9_source_sha256"]),
+    )
+    monkeypatch.setattr(
+        evidence.e9,
+        "require_frozen_upstream",
+        lambda _root: dict(forged["frozen_upstream_source_sha256"]),
+    )
+    validate_observations = evidence.e9.validate_observations
+
+    def validate_without_live_device(report, *, project_root, verify_live_device):
+        assert verify_live_device is True
+        return validate_observations(
+            report,
+            project_root=project_root,
+            verify_live_device=False,
+        )
+
+    monkeypatch.setattr(
+        evidence.e9, "validate_observations", validate_without_live_device
+    )
+    observations = tmp_path / "forged.json"
+    output = tmp_path / "must-not-exist.json"
+    observations.write_text(json.dumps(forged, indent=2) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "validate_stage_e9.py",
+            "--project-root",
+            str(Path(".").resolve()),
+            "--observations",
+            str(observations),
+            "--output",
+            str(output),
+            "--run-tests",
+        ],
+    )
+    with pytest.raises(e9.BatchSizePilotError, match="raw execution facts"):
+        evidence.main()
+    assert not output.exists()
 
 
 def test_source_hash_corruption_fails_against_current_authority(monkeypatch):

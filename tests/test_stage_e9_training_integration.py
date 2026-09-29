@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -43,14 +44,46 @@ def _stats(task: str) -> e7.EpochStats:
     )
 
 
-def _save(path: Path, family: str, task: str) -> None:
+def _prime_optimizer(model: torch.nn.Module, optimizer: torch.optim.Optimizer) -> None:
+    for parameter in model.parameters():
+        parameter.grad = torch.full_like(parameter, 0.01)
+    optimizer.step()
+    optimizer.zero_grad(set_to_none=True)
+
+
+def _assert_nested_equal(left, right) -> None:
+    if isinstance(left, torch.Tensor):
+        assert isinstance(right, torch.Tensor)
+        assert left.dtype == right.dtype
+        assert left.device == right.device
+        assert torch.equal(left, right)
+    elif isinstance(left, dict):
+        assert isinstance(right, dict)
+        assert left.keys() == right.keys()
+        for key in left:
+            _assert_nested_equal(left[key], right[key])
+    elif isinstance(left, (list, tuple)):
+        assert type(left) is type(right)
+        assert len(left) == len(right)
+        for left_item, right_item in zip(left, right, strict=True):
+            _assert_nested_equal(left_item, right_item)
+    else:
+        assert left == right
+
+
+def _save(
+    path: Path, family: str, task: str, *, prime_optimizer: bool = False
+) -> None:
     config = _config(task)
     model = e7.create_model(task, family)
+    optimizer = e7.create_optimizer(model, config.learning_rate)
+    if prime_optimizer:
+        _prime_optimizer(model, optimizer)
     e7.save_checkpoint(
         path,
         config=config,
         model=model,
-        optimizer=e7.create_optimizer(model, config.learning_rate),
+        optimizer=optimizer,
         epoch=1,
         validation=_stats(task),
         frozen_source_hashes=e6.FROZEN_SOURCE_SHA256,
@@ -137,12 +170,16 @@ def test_matching_checkpoint_round_trip_binds_full_model_identity(
     tmp_path: Path, family: str, task: str
 ):
     checkpoint = tmp_path / f"{family}-{task}.pt"
-    _save(checkpoint, family, task)
+    _save(checkpoint, family, task, prime_optimizer=True)
+    payload = torch.load(checkpoint, weights_only=True)
     fresh = e7.create_model(task, family)
+    optimizer = e7.create_optimizer(fresh, 1e-4)
+    _prime_optimizer(fresh, optimizer)
     metadata = e7.load_checkpoint(
         checkpoint,
         model=fresh,
         expected_task=task,
+        optimizer=optimizer,
         expected_config=_config(task),
     )
     identity = e7.model_contract(fresh)
@@ -151,6 +188,107 @@ def test_matching_checkpoint_round_trip_binds_full_model_identity(
     assert metadata["model_contract_version"] == identity.architecture_version
     assert metadata["model_input_contract"] == identity.input_contract
     assert metadata["parameter_count"] == identity.parameter_count
+    _assert_nested_equal(fresh.state_dict(), payload["model_state_dict"])
+    _assert_nested_equal(optimizer.state_dict(), payload["optimizer_state_dict"])
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "missing_optimizer",
+        "missing_model_key",
+        "unexpected_model_key",
+        "wrong_model_shape",
+        "incompatible_optimizer_state",
+        "task_mismatch",
+        "family_mismatch",
+        "architecture_mismatch",
+        "input_contract_mismatch",
+    ],
+)
+def test_rejected_checkpoint_load_is_atomic_for_model_and_optimizer(
+    tmp_path: Path, case: str
+):
+    checkpoint = tmp_path / f"atomic-{case}.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2", prime_optimizer=True)
+    payload = torch.load(checkpoint, weights_only=True)
+    model_keys = list(payload["model_state_dict"])
+    if case == "missing_optimizer":
+        payload.pop("optimizer_state_dict")
+    elif case == "missing_model_key":
+        payload["model_state_dict"].pop(model_keys[0])
+    elif case == "unexpected_model_key":
+        payload["model_state_dict"]["unexpected.weight"] = torch.zeros(1)
+    elif case == "wrong_model_shape":
+        value = payload["model_state_dict"][model_keys[0]]
+        payload["model_state_dict"][model_keys[0]] = value.reshape(-1)[:1]
+    elif case == "incompatible_optimizer_state":
+        first_state = next(iter(payload["optimizer_state_dict"]["state"].values()))
+        first_state["exp_avg"] = torch.zeros(1)
+    elif case == "task_mismatch":
+        payload["metadata"]["task"] = "E1"
+    elif case == "family_mismatch":
+        payload["metadata"]["model_family"] = baselines.FLATTENED_FIVE_FLOW
+    elif case == "architecture_mismatch":
+        payload["metadata"]["model_contract_version"] = "forged"
+    elif case == "input_contract_mismatch":
+        payload["metadata"]["model_input_contract"] = "forged"
+    else:  # pragma: no cover - parametrization is closed above
+        raise AssertionError(case)
+    torch.save(payload, checkpoint)
+
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    target_optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, target_optimizer)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(target_optimizer.state_dict())
+    with pytest.raises(e7.TrainingContractError):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=target_optimizer,
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(target_optimizer.state_dict(), optimizer_before)
+
+
+def test_checkpoint_load_rolls_back_both_targets_on_post_preflight_failure(
+    tmp_path: Path, monkeypatch
+):
+    checkpoint = tmp_path / "rollback.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2", prime_optimizer=True)
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    target_optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, target_optimizer)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(target_optimizer.state_dict())
+    optimizer_type = type(target_optimizer)
+    original_load = optimizer_type.load_state_dict
+    calls = 0
+
+    def fail_only_on_target_load(self, state_dict):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            self.param_groups[0]["lr"] = 9.0
+            next(iter(self.param_groups[0]["params"])).data.add_(1.0)
+            raise RuntimeError("synthetic failure after target mutation")
+        return original_load(self, state_dict)
+
+    monkeypatch.setattr(optimizer_type, "load_state_dict", fail_only_on_target_load)
+    with pytest.raises(e7.TrainingContractError, match="target state was restored"):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=target_optimizer,
+            expected_config=_config("E2"),
+        )
+    assert calls == 3
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(target_optimizer.state_dict(), optimizer_before)
 
 
 def test_legacy_valid_htgnn_checkpoint_remains_loadable(tmp_path: Path):

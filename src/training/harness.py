@@ -8,6 +8,7 @@ hyperparameter search.
 
 from __future__ import annotations
 
+import copy
 from dataclasses import asdict, dataclass
 import hashlib
 import json
@@ -760,6 +761,142 @@ def save_checkpoint(
     temporary.replace(path)
 
 
+def _preflight_model_state_dict(
+    model: nn.Module, model_state: Mapping[str, Any]
+) -> None:
+    """Validate the complete model payload without touching the target model."""
+
+    expected = model.state_dict()
+    expected_keys = set(expected)
+    received_keys = set(model_state)
+    missing = sorted(repr(key) for key in expected_keys - received_keys)
+    unexpected = sorted(repr(key) for key in received_keys - expected_keys)
+    if missing or unexpected:
+        raise TrainingContractError(
+            "checkpoint model state_dict keys are incompatible: "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+    for name, target in expected.items():
+        value = model_state[name]
+        if not isinstance(value, torch.Tensor):
+            raise TrainingContractError(
+                f"checkpoint model tensor {name!r} is not a tensor"
+            )
+        if value.shape != target.shape:
+            raise TrainingContractError(
+                f"checkpoint model tensor {name!r} has shape {tuple(value.shape)}; "
+                f"expected {tuple(target.shape)}"
+            )
+        if value.dtype != target.dtype or value.layout != target.layout:
+            raise TrainingContractError(
+                f"checkpoint model tensor {name!r} has incompatible dtype/layout"
+            )
+        if value.device.type == "meta" or target.device.type == "meta":
+            raise TrainingContractError(
+                f"checkpoint model tensor {name!r} cannot use the meta device"
+            )
+
+
+def _preflight_optimizer_state_dict(
+    optimizer: Optimizer, optimizer_state: Mapping[str, Any]
+) -> None:
+    """Validate optimizer structure and per-parameter state on a disposable copy."""
+
+    if set(optimizer_state) != {"state", "param_groups"}:
+        raise TrainingContractError(
+            "checkpoint optimizer state_dict fields are incompatible"
+        )
+    saved_state = optimizer_state.get("state")
+    saved_groups = optimizer_state.get("param_groups")
+    current = optimizer.state_dict()
+    current_groups = current["param_groups"]
+    if not isinstance(saved_state, Mapping) or not isinstance(saved_groups, list):
+        raise TrainingContractError("checkpoint optimizer state_dict is malformed")
+    if len(saved_groups) != len(current_groups):
+        raise TrainingContractError(
+            "checkpoint optimizer parameter-group count is incompatible"
+        )
+
+    parameter_by_saved_id: dict[int, torch.Tensor] = {}
+    for saved_group, current_group, live_group in zip(
+        saved_groups, current_groups, optimizer.param_groups, strict=True
+    ):
+        if not isinstance(saved_group, Mapping):
+            raise TrainingContractError("checkpoint optimizer parameter group is malformed")
+        if set(saved_group) != set(current_group):
+            raise TrainingContractError(
+                "checkpoint optimizer parameter-group fields are incompatible"
+            )
+        saved_ids = saved_group.get("params")
+        current_ids = current_group.get("params")
+        live_parameters = live_group.get("params")
+        if not all(isinstance(values, list) for values in (saved_ids, current_ids, live_parameters)):
+            raise TrainingContractError(
+                "checkpoint optimizer parameter-group membership is malformed"
+            )
+        if len(saved_ids) != len(current_ids) or len(saved_ids) != len(live_parameters):
+            raise TrainingContractError(
+                "checkpoint optimizer parameter-group size is incompatible"
+            )
+        for saved_id, parameter in zip(saved_ids, live_parameters, strict=True):
+            if isinstance(saved_id, bool) or not isinstance(saved_id, int):
+                raise TrainingContractError(
+                    "checkpoint optimizer parameter identifier is invalid"
+                )
+            if saved_id in parameter_by_saved_id:
+                raise TrainingContractError(
+                    "checkpoint optimizer parameter membership is duplicated"
+                )
+            if not isinstance(parameter, torch.Tensor):
+                raise TrainingContractError(
+                    "target optimizer parameter membership is invalid"
+                )
+            parameter_by_saved_id[saved_id] = parameter
+
+    for saved_id, state in saved_state.items():
+        if saved_id not in parameter_by_saved_id or not isinstance(state, Mapping):
+            raise TrainingContractError(
+                "checkpoint optimizer per-parameter state is malformed"
+            )
+        if not state:
+            continue
+        parameter = parameter_by_saved_id[saved_id]
+        if isinstance(optimizer, AdamW):
+            group = next(
+                group for group in saved_groups if saved_id in group["params"]
+            )
+            required = {"step", "exp_avg", "exp_avg_sq"}
+            if group.get("amsgrad") is True:
+                required.add("max_exp_avg_sq")
+            if set(state) != required:
+                raise TrainingContractError(
+                    "checkpoint AdamW per-parameter state fields are incompatible"
+                )
+            step = state["step"]
+            if not isinstance(step, torch.Tensor) or step.numel() != 1:
+                raise TrainingContractError("checkpoint AdamW step state is invalid")
+            for field in required - {"step"}:
+                value = state[field]
+                if (
+                    not isinstance(value, torch.Tensor)
+                    or value.shape != parameter.shape
+                    or value.dtype != parameter.dtype
+                    or value.layout != parameter.layout
+                    or value.device.type == "meta"
+                ):
+                    raise TrainingContractError(
+                        f"checkpoint AdamW state {field!r} is incompatible"
+                    )
+
+    try:
+        probe = copy.deepcopy(optimizer)
+        probe.load_state_dict(copy.deepcopy(dict(optimizer_state)))
+    except Exception as exc:
+        raise TrainingContractError(
+            f"checkpoint optimizer state_dict is incompatible: {exc}"
+        ) from exc
+
+
 def load_checkpoint(
     path: Path,
     *,
@@ -841,16 +978,41 @@ def load_checkpoint(
     optimizer_state = payload.get("optimizer_state_dict")
     if not isinstance(model_state, Mapping):
         raise TrainingContractError("checkpoint model state_dict is missing")
+    _preflight_model_state_dict(model, model_state)
+    if optimizer is not None:
+        if not isinstance(optimizer_state, Mapping):
+            raise TrainingContractError("checkpoint optimizer state_dict is missing")
+        _preflight_optimizer_state_dict(optimizer, optimizer_state)
+
+    model_snapshot = copy.deepcopy(model.state_dict())
+    optimizer_snapshot = (
+        copy.deepcopy(optimizer.state_dict()) if optimizer is not None else None
+    )
     try:
         model.load_state_dict(model_state, strict=True)
         if optimizer is not None:
-            if not isinstance(optimizer_state, Mapping):
-                raise TrainingContractError("checkpoint optimizer state_dict is missing")
+            assert isinstance(optimizer_state, Mapping)
             optimizer.load_state_dict(optimizer_state)
-    except TrainingContractError:
-        raise
     except Exception as exc:
-        raise TrainingContractError(f"checkpoint state_dict is incompatible: {exc}") from exc
+        rollback_errors: list[str] = []
+        try:
+            model.load_state_dict(model_snapshot, strict=True)
+        except Exception as rollback_exc:  # pragma: no cover - catastrophic target failure
+            rollback_errors.append(f"model rollback failed: {rollback_exc}")
+        if optimizer is not None:
+            assert optimizer_snapshot is not None
+            try:
+                optimizer.load_state_dict(optimizer_snapshot)
+            except Exception as rollback_exc:  # pragma: no cover - catastrophic target failure
+                rollback_errors.append(f"optimizer rollback failed: {rollback_exc}")
+        if rollback_errors:
+            raise TrainingContractError(
+                "checkpoint load failed and transactional rollback was incomplete: "
+                + "; ".join(rollback_errors)
+            ) from exc
+        raise TrainingContractError(
+            f"checkpoint state_dict is incompatible; target state was restored: {exc}"
+        ) from exc
     return metadata
 
 
