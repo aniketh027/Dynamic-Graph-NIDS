@@ -364,7 +364,7 @@ reduced merely to avoid manual execution.
 
 E.10 remains unauthorized.
 
-## Stage E.9 Implementation, Three Blocked Audits, and Corrections
+## Stage E.9 Implementation, Four Blocked Audits, and Corrections
 
 The frozen E.9 contract was recorded in commit
 `76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f`. The first E.9 implementation
@@ -449,6 +449,27 @@ only after optimizer updates, and bounded real HTGNN plus all baseline task
 paths confirm complete AdamW state. Existing schema-v1 compatibility remains
 HTGNN-only and uses the same training-configuration and optimizer-state checks.
 
+Optimizer-state correction commit
+`dc85cbd39346207c572a7e3e7434dc51d65ebca4` was then independently audited.
+That fourth audit confirmed the metadata/group/state semantic checks, exact
+rollback, valid schema-v2 and schema-v1 round trips, observation fail-closed
+behavior, and batch-256 production compatibility, but remained **BLOCKED**
+because the loader accepted an optimizer belonging to a different identical
+model and a same-model optimizer with same-shaped parameters reordered. In the
+latter case, saved AdamW moments were installed on the wrong named parameters.
+
+The authorized model-binding correction derives the authoritative ordered
+trainable sequence from the supplied model's `named_parameters()` registration
+order. Before either save or load can trust optimizer ordinals, the frozen
+single AdamW group must contain those exact Python `Parameter` objects in that
+exact order, without omissions, foreign objects, duplicates, extras, reversal,
+or unsupported groups. Save validates before creating its output directory.
+Schema v2 remains version 2 but now requires the model-derived
+`optimizer_parameter_names_by_group` metadata; pre-correction v2 checkpoints
+without this proof fail closed. The narrow schema-v1 HTGNN path remains
+supported without that newer field, while any supplied live optimizer is still
+identity/order checked against the target HTGNN model before legacy validation.
+
 Candidate observations now contain a compact ordered raw trace for each
 attempted warmup and measured step. Completion, finite loss, finite gradients,
 optimizer success, CUDA OOM, failure stage, measured latency, candidate status,
@@ -461,16 +482,16 @@ evidence generator runs the full semantic validator before binding any input.
 The complete fail-closed bounded pilot reran on the NVIDIA GeForce RTX 4050
 Laptop GPU with 6,438,780,928 bytes of VRAM. All candidates 32, 64, 128, and
 256 completed and were resource-eligible. Their full-precision median
-throughputs were approximately 579.668, 1,147.166, 2,844.003, and
-3,934.513 windows/second. The 95% threshold was approximately 3,737.787
+throughputs were approximately 1,632.650, 2,307.514, 4,844.706, and
+10,190.858 windows/second. The 95% threshold was approximately 9,681.315
 windows/second; only batch 256 entered the tied set, so the fresh run again
 selected HTGNN production batch size **256** under the frozen rule. Its
-execution identity is `e9-20260930t163056z`, and the observation-file physical
+execution identity is `e9-20260930t174847z`, and the observation-file physical
 SHA-256 is
-`85d693fe3ed3eeb5f2f7715c31528e7ccfbbd8524f655ed2463f3a437390892d`.
+`a092efe258bdc54598f7dc2ca7c9e03771216d14c9fc7b4bd644b2bf30d4f3c2`.
 
-Validation passed 141 focused E.9 tests, 44 focused E.7 tests, 85
-D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,103 complete-suite
+Validation passed 151 focused E.9 tests, 44 focused E.7 tests, 85
+D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,113 complete-suite
 tests, all without failures or skips. The evidence path additionally runs 12
 real baseline checkpoint/JSONL smokes and verifies Stage C 33/33 and raw CSV
 10/10 integrity.

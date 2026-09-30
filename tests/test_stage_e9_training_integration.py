@@ -51,6 +51,24 @@ def _prime_optimizer(model: torch.nn.Module, optimizer: torch.optim.Optimizer) -
     optimizer.zero_grad(set_to_none=True)
 
 
+def _prime_live_optimizer(optimizer: torch.optim.Optimizer) -> None:
+    for group in optimizer.param_groups:
+        for parameter in group["params"]:
+            parameter.grad = torch.full_like(parameter, 0.02)
+    optimizer.step()
+    optimizer.zero_grad(set_to_none=True)
+
+
+def _live_optimizer_parameters(
+    optimizer: torch.optim.Optimizer,
+) -> tuple[torch.Tensor, ...]:
+    return tuple(
+        parameter.detach().clone()
+        for group in optimizer.param_groups
+        for parameter in group["params"]
+    )
+
+
 def _assert_nested_equal(left, right) -> None:
     if isinstance(left, torch.Tensor):
         assert isinstance(right, torch.Tensor)
@@ -188,8 +206,110 @@ def test_matching_checkpoint_round_trip_binds_full_model_identity(
     assert metadata["model_contract_version"] == identity.architecture_version
     assert metadata["model_input_contract"] == identity.input_contract
     assert metadata["parameter_count"] == identity.parameter_count
+    assert metadata["optimizer_parameter_names_by_group"] == [
+        [name for name, parameter in fresh.named_parameters() if parameter.requires_grad]
+    ]
     _assert_nested_equal(fresh.state_dict(), payload["model_state_dict"])
     _assert_nested_equal(optimizer.state_dict(), payload["optimizer_state_dict"])
+
+
+def _misbound_optimizer(model: torch.nn.Module, case: str) -> torch.optim.AdamW:
+    parameters = list(model.parameters())
+    foreign_model = e7.create_model("E2", baselines.FINAL_FLOW)
+    foreign_parameters = list(foreign_model.parameters())
+    same_shape_pair = next(
+        (left, right)
+        for left in range(len(parameters))
+        for right in range(left + 1, len(parameters))
+        if parameters[left].shape == parameters[right].shape
+    )
+    left, right = same_shape_pair
+
+    if case == "foreign_optimizer":
+        return e7.create_optimizer(foreign_model, 3e-4)
+    if case == "same_shape_reordered":
+        parameters[left], parameters[right] = parameters[right], parameters[left]
+    elif case == "omitted":
+        parameters.pop()
+    elif case == "foreign_substitution":
+        parameters[left] = foreign_parameters[left]
+    elif case == "duplicate":
+        parameters[right] = parameters[left]
+    elif case == "extra_foreign":
+        parameters.append(foreign_parameters[0])
+    elif case == "reversed":
+        parameters.reverse()
+    elif case == "multiple_groups":
+        midpoint = len(parameters) // 2
+        return torch.optim.AdamW(
+            [{"params": parameters[:midpoint]}, {"params": parameters[midpoint:]}],
+            lr=3e-4,
+            weight_decay=e7.WEIGHT_DECAY,
+        )
+    else:  # pragma: no cover - parametrization is closed below
+        raise AssertionError(case)
+    return torch.optim.AdamW(
+        parameters, lr=3e-4, weight_decay=e7.WEIGHT_DECAY
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "foreign_optimizer",
+        "same_shape_reordered",
+        "omitted",
+        "foreign_substitution",
+        "duplicate",
+        "extra_foreign",
+        "reversed",
+        "multiple_groups",
+    ],
+)
+def test_misbound_live_optimizer_is_rejected_by_load_and_save_without_side_effects(
+    tmp_path: Path, case: str
+):
+    checkpoint = tmp_path / f"legitimate-{case}.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2")
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    optimizer = _misbound_optimizer(target, case)
+    _prime_live_optimizer(optimizer)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(optimizer.state_dict())
+    live_parameters_before = _live_optimizer_parameters(optimizer)
+
+    with pytest.raises(e7.TrainingContractError, match="optimizer"):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=optimizer,
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(optimizer.state_dict(), optimizer_before)
+    _assert_nested_equal(
+        _live_optimizer_parameters(optimizer), live_parameters_before
+    )
+
+    rejected_output = tmp_path / f"rejected-save-{case}" / "checkpoint.pt"
+    with pytest.raises(e7.TrainingContractError, match="optimizer"):
+        e7.save_checkpoint(
+            rejected_output,
+            config=_config("E2"),
+            model=target,
+            optimizer=optimizer,
+            epoch=1,
+            validation=_stats("E2"),
+            frozen_source_hashes=e6.FROZEN_SOURCE_SHA256,
+        )
+    assert not rejected_output.exists()
+    assert not rejected_output.parent.exists()
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(optimizer.state_dict(), optimizer_before)
+    _assert_nested_equal(
+        _live_optimizer_parameters(optimizer), live_parameters_before
+    )
 
 
 @pytest.mark.parametrize(
@@ -438,15 +558,55 @@ def test_legacy_valid_htgnn_checkpoint_remains_loadable(tmp_path: Path):
     _save(checkpoint, e7.HTGNN_MODEL_FAMILY, "E2")
     payload = torch.load(checkpoint, weights_only=True)
     payload["metadata"]["schema_version"] = e7.LEGACY_HTGNN_CHECKPOINT_SCHEMA_VERSION
-    for key in ("model_family", "model_contract_version", "model_input_contract"):
+    for key in (
+        "model_family",
+        "model_contract_version",
+        "model_input_contract",
+        "optimizer_parameter_names_by_group",
+    ):
         payload["metadata"].pop(key)
     torch.save(payload, checkpoint)
+    target = e7.create_model("E2")
+    optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, optimizer)
     e7.load_checkpoint(
         checkpoint,
-        model=e7.create_model("E2"),
+        model=target,
         expected_task="E2",
+        optimizer=optimizer,
         expected_config=_config("E2"),
     )
+
+
+@pytest.mark.parametrize("case", ["missing", "reordered"])
+def test_schema_v2_checkpoint_with_invalid_parameter_name_mapping_is_rejected(
+    tmp_path: Path, case: str
+):
+    checkpoint = tmp_path / f"invalid-schema-v2-{case}.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2")
+    payload = torch.load(checkpoint, weights_only=True)
+    if case == "missing":
+        payload["metadata"].pop("optimizer_parameter_names_by_group")
+    else:
+        names = payload["metadata"]["optimizer_parameter_names_by_group"][0]
+        names[0], names[1] = names[1], names[0]
+    torch.save(payload, checkpoint)
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, optimizer)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(optimizer.state_dict())
+
+    with pytest.raises(e7.TrainingContractError, match="parameter-name mapping"):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=optimizer,
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(optimizer.state_dict(), optimizer_before)
 
 
 @pytest.mark.parametrize("family", baselines.BASELINE_KINDS)

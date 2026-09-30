@@ -696,10 +696,56 @@ def model_state_schema_sha256(model: nn.Module) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _optimizer_parameter_names_by_group(
+    model: nn.Module, optimizer: Optimizer
+) -> list[list[str]]:
+    """Bind the frozen optimizer to the model's trainable objects and order."""
+
+    if type(optimizer) is not AdamW:
+        raise TrainingContractError("optimizer must be the frozen AdamW type")
+    expected = [
+        (name, parameter)
+        for name, parameter in model.named_parameters()
+        if parameter.requires_grad
+    ]
+    if not expected:
+        raise TrainingContractError("model has no trainable optimizer parameters")
+    if len(optimizer.param_groups) != 1:
+        raise TrainingContractError(
+            "optimizer must have the single frozen production parameter group"
+        )
+    live_parameters = optimizer.param_groups[0].get("params")
+    if not isinstance(live_parameters, list):
+        raise TrainingContractError("optimizer live parameter membership is malformed")
+
+    live_ids = [id(parameter) for parameter in live_parameters]
+    if len(live_ids) != len(set(live_ids)):
+        raise TrainingContractError("optimizer contains duplicate live parameters")
+    expected_ids = [id(parameter) for _, parameter in expected]
+    if len(live_parameters) != len(expected):
+        raise TrainingContractError(
+            "optimizer omits or adds trainable model parameters"
+        )
+    if set(live_ids) != set(expected_ids):
+        raise TrainingContractError(
+            "optimizer contains missing or foreign model parameters"
+        )
+    for index, ((name, model_parameter), optimizer_parameter) in enumerate(
+        zip(expected, live_parameters, strict=True)
+    ):
+        if optimizer_parameter is not model_parameter:
+            raise TrainingContractError(
+                "optimizer live parameter order does not match the model: "
+                f"position {index} must be {name!r}"
+            )
+    return [[name for name, _ in expected]]
+
+
 def checkpoint_metadata(
     *,
     config: TrainingConfig,
     model: nn.Module,
+    optimizer: Optimizer,
     epoch: int,
     validation: EpochStats,
     frozen_source_hashes: Mapping[str, str],
@@ -707,6 +753,7 @@ def checkpoint_metadata(
     identity = model_contract(model)
     if identity.task != config.task:
         raise TrainingContractError("checkpoint model task does not match configuration")
+    optimizer_parameter_names = _optimizer_parameter_names_by_group(model, optimizer)
     return {
         "schema_version": CHECKPOINT_SCHEMA_VERSION,
         "harness_version": HARNESS_VERSION,
@@ -723,6 +770,7 @@ def checkpoint_metadata(
         "validation_loss": validation.loss,
         "selection_class_codes": list(validation.selection_class_codes),
         "training_config": config.checkpoint_dict(),
+        "optimizer_parameter_names_by_group": optimizer_parameter_names,
         "frozen_source_sha256": dict(frozen_source_hashes),
     }
 
@@ -739,16 +787,18 @@ def save_checkpoint(
 ) -> None:
     """Atomically save state dictionaries and plain contract metadata only."""
 
+    metadata = checkpoint_metadata(
+        config=config,
+        model=model,
+        optimizer=optimizer,
+        epoch=epoch,
+        validation=validation,
+        frozen_source_hashes=frozen_source_hashes,
+    )
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "metadata": checkpoint_metadata(
-            config=config,
-            model=model,
-            epoch=epoch,
-            validation=validation,
-            frozen_source_hashes=frozen_source_hashes,
-        ),
+        "metadata": metadata,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "torch_cpu_rng_state": torch.get_rng_state(),
@@ -1093,6 +1143,22 @@ def load_checkpoint(
     ) != expected_config.checkpoint_dict():
         raise TrainingContractError("checkpoint training configuration mismatch")
     checkpoint_learning_rate = _checkpoint_optimizer_learning_rate(metadata)
+    validation_optimizer = (
+        optimizer
+        if optimizer is not None
+        else create_optimizer(model, checkpoint_learning_rate)
+    )
+    optimizer_parameter_names = _optimizer_parameter_names_by_group(
+        model, validation_optimizer
+    )
+    if (
+        schema_version == CHECKPOINT_SCHEMA_VERSION
+        and metadata.get("optimizer_parameter_names_by_group")
+        != optimizer_parameter_names
+    ):
+        raise TrainingContractError(
+            "checkpoint optimizer parameter-name mapping is missing or incompatible"
+        )
     model_state = payload.get("model_state_dict")
     optimizer_state = payload.get("optimizer_state_dict")
     if not isinstance(model_state, Mapping):
@@ -1100,11 +1166,6 @@ def load_checkpoint(
     _preflight_model_state_dict(model, model_state)
     if not isinstance(optimizer_state, Mapping):
         raise TrainingContractError("checkpoint optimizer state_dict is missing")
-    validation_optimizer = (
-        optimizer
-        if optimizer is not None
-        else create_optimizer(model, checkpoint_learning_rate)
-    )
     _preflight_optimizer_state_dict(
         validation_optimizer,
         optimizer_state,

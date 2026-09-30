@@ -21,9 +21,13 @@ verified both transactionality and the observation correction, but remained
 **BLOCKED** because five semantically invalid AdamW payloads were still
 accepted: an optimizer LR contradicting checkpoint metadata, a non-frozen
 weight decay, incomplete parameter-state coverage, a nonfinite first moment,
-and a nonfinite step counter. The optimizer-state correction described here
-preserves every earlier fix. E.9 is still unfrozen and requires another
-independent re-audit.
+and a nonfinite step counter. Optimizer-state correction commit
+`dc85cbd39346207c572a7e3e7434dc51d65ebca4` closed those attacks, but the
+fourth independent audit remained **BLOCKED**: a foreign-model optimizer and
+an optimizer with two same-shaped parameters reordered were both accepted,
+allowing saved moments to bind to the wrong live `Parameter` objects. The
+model-binding correction described here preserves every earlier fix. E.9 is
+still unfrozen and requires another independent re-audit.
 
 ## Production training integration correction
 
@@ -82,6 +86,21 @@ trainable parameter. Legacy schema-v1 remains restricted to HTGNN and carries
 the same training-configuration and complete-state proof; no weaker baseline
 or metadata-free compatibility path was added.
 
+Checkpoint save and load now prove the live optimizer binding before trusting
+ordinal optimizer IDs. The authoritative sequence is the supplied model's
+trainable `named_parameters()` registration order. The frozen single AdamW
+group must contain those exact Python `Parameter` objects in that exact order,
+with no omission, foreign object, duplicate, extra object, reversal, or second
+group. Shape, dtype, value equality, and parameter count are not substitutes
+for identity. The official save path performs this check before creating the
+destination directory or serializing bytes. Schema-v2 metadata now records
+`optimizer_parameter_names_by_group`, derived only after live identity/order
+validation, and load requires it to match the current authoritative names and
+group structure. Pre-correction schema-v2 payloads without the mapping fail
+closed. The narrow schema-v1 path remains HTGNN-only: it has no name-mapping
+field, but any supplied live optimizer is still identity/order checked against
+the frozen HTGNN model before the existing legacy validation proceeds.
+
 ## Baseline contracts
 
 The final-flow MLP receives only temporal position five as `float32[B,78]`.
@@ -128,19 +147,19 @@ canonical replay targets.
 
 | Batch | Median step (ms) | Nearest-rank p95 (ms) | Median windows/s | Peak reserved | Reserved / VRAM | Eligible |
 | ---: | ---: | ---: | ---: | ---: | ---: | :---: |
-| 32 | 55.205 | 69.610 | 579.668 | 27,262,976 B | 0.4234% | yes |
-| 64 | 55.803 | 65.803 | 1,147.166 | 52,428,800 B | 0.8143% | yes |
-| 128 | 45.011 | 155.810 | 2,844.003 | 48,234,496 B | 0.7491% | yes |
-| 256 | 65.095 | 178.717 | 3,934.513 | 71,303,168 B | 1.1074% | yes |
+| 32 | 19.600 | 25.998 | 1,632.650 | 27,262,976 B | 0.4234% | yes |
+| 64 | 27.737 | 37.189 | 2,307.514 | 52,428,800 B | 0.8143% | yes |
+| 128 | 26.424 | 30.598 | 4,844.706 | 48,234,496 B | 0.7491% | yes |
+| 256 | 25.153 | 31.717 | 10,190.858 | 71,303,168 B | 1.1074% | yes |
 
 All candidates completed with finite losses and gradients, successful optimizer
 steps, and absolute peak reserved memory strictly below the 80% threshold. The
-maximum full-precision median throughput was 3,934.512947 windows/s and the
-95% threshold was 3,737.787300 windows/s. Only batch 256 entered the tied set,
+maximum full-precision median throughput was 10,190.858331 windows/s and the
+95% threshold was 9,681.315415 windows/s. Only batch 256 entered the tied set,
 so the frozen smallest-in-tied-set rule selected HTGNN training batch size
 **256** without hard-coding that outcome. The fresh execution identity is
-`e9-20260930t163056z`; the exact observation-file physical SHA-256 is
-`85d693fe3ed3eeb5f2f7715c31528e7ccfbbd8524f655ed2463f3a437390892d`.
+`e9-20260930t174847z`; the exact observation-file physical SHA-256 is
+`a092efe258bdc54598f7dc2ca7c9e03771216d14c9fc7b4bd644b2bf30d4f3c2`.
 
 The post-selection production gate constructed the actual
 `TrainingConfig(batch_size=256)`, obtained a 256-example E2 training batch from
@@ -180,8 +199,8 @@ stories are also rejected. A forged correlated observation cannot be rebound
 through the official deterministic evidence path, while an internally
 consistent partial CUDA-OOM fixture remains valid and ineligible.
 
-Implementation validation passed 141 focused E.9 tests, 44 focused E.7 tests,
-85 D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,103 complete-suite
+Implementation validation passed 151 focused E.9 tests, 44 focused E.7 tests,
+85 D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,113 complete-suite
 tests, with zero failures or skips. The deterministic evidence run also
 executes all 12 real baseline production artifact smokes and independently
 checks Stage C 33/33 and raw CSV 10/10 integrity.
