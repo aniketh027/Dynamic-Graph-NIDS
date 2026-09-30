@@ -1,8 +1,8 @@
-# Project Handoff — Stage E.8 Frozen; Stage E.9 Fail-Closed Correction Awaiting Re-Audit
+# Project Handoff — Stage E.9 Frozen; E.10 Awaiting Authorization
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, and the independently audited Stage E.8 bounded optimization pilot. Stage E.8 provides bounded train/validation learning-rate observations only: no heavy/full model training, finalized learning rate, locked-test evaluation, pruning, or project-level predictive-performance result exists yet. The Stage E.9 engineering contract is frozen below. Its first implementation and its production-integration correction were each independently audited and blocked. The authorized fail-closed correction has now made checkpoint loading transactional, strengthened raw execution invariants, and rerun the complete bounded pilot. E.9 remains unfrozen pending another independent read-only re-audit.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, the independently audited Stage E.8 bounded optimization pilot, and the independently audited Stage E.9 model-binding and bounded resource-pilot checkpoint. Stage E.9 freezes HTGNN training batch size 256 under its hardware-specific resource rule; it does not establish full-training throughput, predictive performance, a final learning rate, locked-test results, or pruning. E.10 remains unauthorized.
 
 ## Authority and Source Hierarchy
 
@@ -11,8 +11,8 @@ Use sources in this order when continuing the work:
 1. The current task's explicit requirements and stage boundary.
 2. `results/stage_e9/stage_e9_contract.json`,
    `results/stage_e9/htgnn_batch_size_pilot_observations.json`, and
-   `docs/stage_e9_baselines_batch_size_pilot.md` for the current, unfrozen
-   Stage E.9 correction evidence and its explicit limitations.
+   `docs/stage_e9_baselines_batch_size_pilot.md` for the frozen Stage E.9
+   checkpoint evidence and its explicit limitations.
 3. `results/stage_e8/htgnn_optimization_pilot_contract.json`,
    `results/stage_e8/htgnn_optimization_pilot_observations.json`, and
    `docs/stage_e8_optimization_pilot.md` for the frozen Stage E.8 bounded
@@ -364,7 +364,7 @@ reduced merely to avoid manual execution.
 
 E.10 remains unauthorized.
 
-## Stage E.9 Implementation, Four Blocked Audits, and Corrections
+## Frozen Stage E.9 Implementation, Four Blocked Audits, and Corrections
 
 The frozen E.9 contract was recorded in commit
 `76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f`. The first E.9 implementation
@@ -470,6 +470,19 @@ without this proof fail closed. The narrow schema-v1 HTGNN path remains
 supported without that newer field, while any supplied live optimizer is still
 identity/order checked against the target HTGNN model before legacy validation.
 
+Model-binding correction commit
+`eb7d075943cbd3f209934d1c962eb60c99f3f64e` then passed an independent
+read-only audit. Foreign, reordered, omitted, substituted, duplicated, extra,
+reversed, and regrouped optimizer parameters failed both save and load before
+valid state installation; rejected saves created no output artifact, and
+rejected loads preserved model parameters and buffers plus optimizer state,
+groups, settings, and live bindings exactly. A forced post-preflight failure
+also restored both targets exactly. Current schema-v2 checkpoints require the
+model-derived optimizer-name mapping; older schema-v2 checkpoints without it
+fail closed. Schema-v1 compatibility remains HTGNN-only with live binding and
+AdamW validation. All nine HTGNN/final-flow/flattened-family and E1/E2/E3
+combinations round-tripped exact model and optimizer state.
+
 Candidate observations now contain a compact ordered raw trace for each
 attempted warmup and measured step. Completion, finite loss, finite gradients,
 optimizer success, CUDA OOM, failure stage, measured latency, candidate status,
@@ -496,9 +509,16 @@ tests, all without failures or skips. The evidence path additionally runs 12
 real baseline checkpoint/JSONL smokes and verifies Stage C 33/33 and raw CSV
 10/10 integrity.
 
-The `3e-4` learning rate remains a resource-pilot-only engineering value. E.8
-did not finalize a learning rate. E.9 remains **unfrozen** pending an independent
-read-only re-audit. No E.9 checkpoint tag exists, and E.10 remains unauthorized.
+The independent audit verified canonical contract SHA-256
+`adef7d23584b204a02af0aed46e1e40178347d90a079dc74f557492dd5e35755`,
+physical contract SHA-256
+`bd55f28c1f96b063f8c53787646a6b71b0ed55f9a9c1d34a96a6d5ad7d46ab1b`,
+and observation-file SHA-256
+`a092efe258bdc54598f7dc2ca7c9e03771216d14c9fc7b4bd644b2bf30d4f3c2`.
+Stage E.9 is frozen at annotated checkpoint tag
+`v0.12-stage-e9-model-binding-resource-pilot`. The `3e-4` learning rate remains
+a resource-pilot-only engineering value; neither E.8 nor E.9 finalized a
+learning rate. E.10 remains unauthorized.
 
 ## Verified Dataset Facts
 
@@ -726,11 +746,9 @@ does not authorize E.6.
 
 ## Current Boundary and Exact Next Step
 
-Stop after the Stage E.9 fail-closed correction and fresh bounded execution.
-Do not launch full model training, a three-seed study,
-weighted-loss ablations, locked-test evaluation, pruning, or E.10 and later
-work.
+Stop at the frozen Stage E.9 checkpoint. Do not launch full model training, a
+three-seed study, weighted-loss ablations, locked-test evaluation, pruning, or
+E.10 and later work.
 
-The exact next safe boundary is an independent, read-only Stage E.9 correction
-re-audit. A checkpoint/tag may be created only after an independent PASS and
-separate explicit freeze authorization. E.10 remains unauthorized.
+The exact next safe implementation boundary is a separately authorized Stage
+E.10. No E.10 implementation or execution is authorized by this checkpoint.

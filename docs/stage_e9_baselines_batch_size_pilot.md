@@ -26,8 +26,10 @@ and a nonfinite step counter. Optimizer-state correction commit
 fourth independent audit remained **BLOCKED**: a foreign-model optimizer and
 an optimizer with two same-shaped parameters reordered were both accepted,
 allowing saved moments to bind to the wrong live `Parameter` objects. The
-model-binding correction described here preserves every earlier fix. E.9 is
-still unfrozen and requires another independent re-audit.
+model-binding correction in commit
+`eb7d075943cbd3f209934d1c962eb60c99f3f64e` preserves every earlier fix and
+passed an independent read-only audit. Stage E.9 is frozen at annotated tag
+`v0.12-stage-e9-model-binding-resource-pilot`.
 
 ## Production training integration correction
 
@@ -100,6 +102,15 @@ group structure. Pre-correction schema-v2 payloads without the mapping fail
 closed. The narrow schema-v1 path remains HTGNN-only: it has no name-mapping
 field, but any supplied live optimizer is still identity/order checked against
 the frozen HTGNN model before the existing legacy validation proceeds.
+
+The independent model-binding audit rejected foreign, reordered, omitted,
+substituted, duplicated, extra, reversed, and regrouped optimizer parameters
+on both save and load. Rejected saves created no checkpoint, temporary file,
+or output directory. Rejected loads preserved model parameters, buffers,
+optimizer state, parameter groups, semantic settings, and live parameter
+bindings exactly. A forced post-preflight failure restored model and optimizer
+state exactly. All nine supported family/task combinations round-tripped exact
+model and optimizer state.
 
 ## Baseline contracts
 
@@ -217,5 +228,12 @@ been finalized.
 Compact deterministic evidence is stored in
 `results/stage_e9/stage_e9_contract.json`; exact noisy observations remain in
 `results/stage_e9/htgnn_batch_size_pilot_observations.json` and are bound by
-the deterministic evidence hash. E.9 remains unfrozen pending independent
-re-audit. E.10 and later work remain unauthorized.
+the deterministic evidence hash. The independent pre-freeze audit verified
+canonical contract SHA-256
+`adef7d23584b204a02af0aed46e1e40178347d90a079dc74f557492dd5e35755`,
+physical contract SHA-256
+`bd55f28c1f96b063f8c53787646a6b71b0ed55f9a9c1d34a96a6d5ad7d46ab1b`,
+and observation-file SHA-256
+`a092efe258bdc54598f7dc2ca7c9e03771216d14c9fc7b4bd644b2bf30d4f3c2`.
+Stage E.9 is frozen; the next safe implementation boundary is a separately
+authorized Stage E.10. E.10 and later work remain unauthorized.
