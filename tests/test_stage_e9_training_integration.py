@@ -72,7 +72,7 @@ def _assert_nested_equal(left, right) -> None:
 
 
 def _save(
-    path: Path, family: str, task: str, *, prime_optimizer: bool = False
+    path: Path, family: str, task: str, *, prime_optimizer: bool = True
 ) -> None:
     config = _config(task)
     model = e7.create_model(task, family)
@@ -252,6 +252,148 @@ def test_rejected_checkpoint_load_is_atomic_for_model_and_optimizer(
         )
     _assert_nested_equal(target.state_dict(), model_before)
     _assert_nested_equal(target_optimizer.state_dict(), optimizer_before)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "lr_mismatch",
+        "weight_decay_mismatch",
+        "missing_parameter_state",
+        "nan_exp_avg",
+        "nan_step",
+        "inf_exp_avg",
+        "nan_exp_avg_sq",
+        "inf_exp_avg_sq",
+        "negative_exp_avg_sq",
+        "negative_step",
+        "fractional_step",
+        "malformed_step_shape",
+        "unknown_state_id",
+        "incompatible_parameter_mapping",
+        "missing_exp_avg",
+        "missing_exp_avg_sq",
+        "incompatible_betas",
+        "incompatible_eps",
+    ],
+)
+def test_semantically_invalid_adamw_checkpoint_is_rejected_atomically(
+    tmp_path: Path, case: str
+):
+    checkpoint = tmp_path / f"optimizer-{case}.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2")
+    payload = torch.load(checkpoint, weights_only=True)
+    optimizer_state = payload["optimizer_state_dict"]
+    group = optimizer_state["param_groups"][0]
+    state_id = group["params"][0]
+    state = optimizer_state["state"][state_id]
+
+    if case == "lr_mismatch":
+        group["lr"] = 9.0
+    elif case == "weight_decay_mismatch":
+        group["weight_decay"] = 0.5
+    elif case == "missing_parameter_state":
+        optimizer_state["state"].pop(state_id)
+    elif case == "nan_exp_avg":
+        state["exp_avg"].view(-1)[0] = torch.nan
+    elif case == "nan_step":
+        state["step"] = torch.tensor(float("nan"))
+    elif case == "inf_exp_avg":
+        state["exp_avg"].view(-1)[0] = torch.inf
+    elif case == "nan_exp_avg_sq":
+        state["exp_avg_sq"].view(-1)[0] = torch.nan
+    elif case == "inf_exp_avg_sq":
+        state["exp_avg_sq"].view(-1)[0] = torch.inf
+    elif case == "negative_exp_avg_sq":
+        state["exp_avg_sq"].view(-1)[0] = -1.0
+    elif case == "negative_step":
+        state["step"] = torch.tensor(-1.0)
+    elif case == "fractional_step":
+        state["step"] = torch.tensor(1.5)
+    elif case == "malformed_step_shape":
+        state["step"] = torch.tensor([1.0])
+    elif case == "unknown_state_id":
+        optimizer_state["state"][max(group["params"]) + 1] = copy.deepcopy(state)
+    elif case == "incompatible_parameter_mapping":
+        group["params"][0], group["params"][1] = (
+            group["params"][1],
+            group["params"][0],
+        )
+    elif case == "missing_exp_avg":
+        state.pop("exp_avg")
+    elif case == "missing_exp_avg_sq":
+        state.pop("exp_avg_sq")
+    elif case == "incompatible_betas":
+        group["betas"] = (0.8, 0.999)
+    elif case == "incompatible_eps":
+        group["eps"] = 1e-6
+    else:  # pragma: no cover - parametrization is closed above
+        raise AssertionError(case)
+    torch.save(payload, checkpoint)
+
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    target_optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, target_optimizer)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(target_optimizer.state_dict())
+    param_groups_before = copy.deepcopy(optimizer_before["param_groups"])
+
+    with pytest.raises(e7.TrainingContractError):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=target_optimizer,
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(target_optimizer.state_dict(), optimizer_before)
+    _assert_nested_equal(
+        target_optimizer.state_dict()["param_groups"], param_groups_before
+    )
+
+
+def test_non_authoritative_target_optimizer_semantics_are_rejected_unchanged(
+    tmp_path: Path,
+):
+    checkpoint = tmp_path / "invalid-target-optimizer.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2")
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    target_optimizer = e7.create_optimizer(target, 1e-4)
+    _prime_optimizer(target, target_optimizer)
+    target_optimizer.param_groups[0]["betas"] = (0.8, 0.999)
+    model_before = copy.deepcopy(target.state_dict())
+    optimizer_before = copy.deepcopy(target_optimizer.state_dict())
+
+    with pytest.raises(e7.TrainingContractError, match="production optimizer"):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            optimizer=target_optimizer,
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
+    _assert_nested_equal(target_optimizer.state_dict(), optimizer_before)
+
+
+def test_model_only_checkpoint_load_still_validates_optimizer_semantics(tmp_path: Path):
+    checkpoint = tmp_path / "model-only-invalid-optimizer.pt"
+    _save(checkpoint, baselines.FINAL_FLOW, "E2")
+    payload = torch.load(checkpoint, weights_only=True)
+    payload["optimizer_state_dict"]["param_groups"][0]["lr"] = 9.0
+    torch.save(payload, checkpoint)
+    target = e7.create_model("E2", baselines.FINAL_FLOW)
+    model_before = copy.deepcopy(target.state_dict())
+
+    with pytest.raises(e7.TrainingContractError, match="learning rate"):
+        e7.load_checkpoint(
+            checkpoint,
+            model=target,
+            expected_task="E2",
+            expected_config=_config("E2"),
+        )
+    _assert_nested_equal(target.state_dict(), model_before)
 
 
 def test_checkpoint_load_rolls_back_both_targets_on_post_preflight_failure(

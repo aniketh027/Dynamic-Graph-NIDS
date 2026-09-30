@@ -1,10 +1,10 @@
 {
   "stage": "E.9",
   "pilot_version": "stage-e9-htgnn-batch-size-pilot-v2",
-  "execution_id": "e9-20260929t155457z",
-  "executed_at_utc": "2026-09-29T15:54:57.678041+00:00",
+  "execution_id": "e9-20260930t163056z",
+  "executed_at_utc": "2026-09-30T16:30:56.860254+00:00",
   "executor": "Codex",
-  "elapsed_seconds": 6.530421800000113,
+  "elapsed_seconds": 15.544893000000002,
   "contract_commit": "76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f",
   "contract_source_sha256": {
     "PROJECT_HANDOFF.md@contract_commit": "ca0e9ba0d91d8997f7550a618f9cf3b670016b8bba719e70d5da5f293719fa54"
@@ -36,19 +36,19 @@
   "e9_source_sha256": {
     "src/training/batch_size_pilot.py": "d8f6017e876fae1c448b937a9795979d1f7cf73bbfac86d1d04fbadaca2fb322",
     "scripts/run_stage_e9_batch_size_pilot.py": "e809fde5a2e5f78e57ebe7fb4cf9d107104d07c4eff4c503f8cadec56d16cf10",
-    "src/training/harness.py": "c764eb70fac62d8b2cafe4275a42a994e100e1f46da733408612363d6b3d0a7d",
-    "src/training/optimization_pilot.py": "54f14bd1a094dd2c8db212b5e95da8beb8e92f27fc4ba8e2aa0e761cad798987",
+    "src/training/harness.py": "b6c41d996cf6e79408cdb34bded3c316ae0a704bf9ca98655787c5c22d016448",
+    "src/training/optimization_pilot.py": "e92a245eef056d6294e94e57092df03cb2de016ad5be5af8ceb43661b9ea54eb",
     "src/training/baselines.py": "b37bceff9d78cc4e5244b34431759fe7f718ed822e7be1215cc180d3d033d04b",
     "src/training/baseline_integration.py": "b6ef1fb1c4ceda1040040050c81e167b9845edc08dc53c889536bd5ca78abd6d"
   },
   "frozen_upstream_source_sha256": {
     "src/preprocessing/splitting.py": "11c11605e59015fb32b9fc4634363ba2979918ac9de9025088ea70da2e084445",
-    "src/training/harness.py": "c764eb70fac62d8b2cafe4275a42a994e100e1f46da733408612363d6b3d0a7d",
+    "src/training/harness.py": "b6c41d996cf6e79408cdb34bded3c316ae0a704bf9ca98655787c5c22d016448",
     "src/training/validation.py": "4e1e116dfad6adc1514bba6a242619bea2404c2abc51847a030ce8bf12b67c9f",
     "src/training/__init__.py": "d699309aa3e24338d7926d6bd2018367f16b1ea837eb53ba612a42b6ca671e7a",
     "scripts/train_htgnn.py": "5421759cdbfcac33e384638f723308b053c4346f99150b83465c7565f30fff8d",
     "tests/test_preprocessing_splitting.py": "142a3d76b2ef6a64e920d849d4dc0b1ea946728caf1a6ffe84753da3eaac9aeb",
-    "tests/test_training_harness.py": "2f3e273a863b18e1da766cf45c284e0910e7c98b85df40cbd0f4beab08030373"
+    "tests/test_training_harness.py": "611bc31fc204ef7e004f2887963e20a17e87639d5beebaade5b865017cb020e8"
   },
   "device": {
     "type": "cuda",
@@ -60,7 +60,7 @@
   "candidate_results": [
     {
       "batch_size": 32,
-      "execution_id": "e9-20260929t155457z",
+      "execution_id": "e9-20260930t163056z",
       "config_identity_sha256": "972bacfdb2fe0e8b9133c8265a4f6017fc6354f9e08a1757d02359b4b54623b7",
       "status": "COMPLETE",
       "resource_eligible": true,
@@ -142,7 +142,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 32.90329999981623
+          "latency_ms": 56.507499999952415
         },
         {
           "phase": "measured",
@@ -154,7 +154,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 32.475699999849894
+          "latency_ms": 41.10310000010031
         },
         {
           "phase": "measured",
@@ -166,7 +166,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.65760000006412
+          "latency_ms": 51.611899999898014
         },
         {
           "phase": "measured",
@@ -178,7 +178,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.791299999942567
+          "latency_ms": 54.14410000003045
         },
         {
           "phase": "measured",
@@ -190,7 +190,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 31.74269999999524
+          "latency_ms": 59.00079999992158
         },
         {
           "phase": "measured",
@@ -202,7 +202,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 32.92190000001938
+          "latency_ms": 58.24730000017553
         },
         {
           "phase": "measured",
@@ -214,31 +214,31 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.38799999992625
+          "latency_ms": 60.35640000004605
         },
         {
           "phase": "measured",
           "step_index": 8,
           "completed": true,
-          "loss_value": 2.66562557220459,
+          "loss_value": 2.6656253337860107,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 30.08590000035838
+          "latency_ms": 51.18050000010044
         },
         {
           "phase": "measured",
           "step_index": 9,
           "completed": true,
-          "loss_value": 2.6297881603240967,
+          "loss_value": 2.629788398742676,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 33.2564000000275
+          "latency_ms": 59.7023000000263
         },
         {
           "phase": "measured",
@@ -250,19 +250,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.7077000001118
+          "latency_ms": 57.715199999847755
         },
         {
           "phase": "measured",
           "step_index": 11,
           "completed": true,
-          "loss_value": 2.6115939617156982,
+          "loss_value": 2.6115942001342773,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.674099999832833
+          "latency_ms": 69.61030000002211
         },
         {
           "phase": "measured",
@@ -274,7 +274,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 30.251500000304077
+          "latency_ms": 52.5543999999627
         },
         {
           "phase": "measured",
@@ -286,19 +286,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 28.702699999939796
+          "latency_ms": 73.37759999995797
         },
         {
           "phase": "measured",
           "step_index": 14,
           "completed": true,
-          "loss_value": 2.564413547515869,
+          "loss_value": 2.5644137859344482,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 33.04019999995944
+          "latency_ms": 53.75309999999445
         },
         {
           "phase": "measured",
@@ -310,7 +310,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 30.216399999972055
+          "latency_ms": 55.45469999992747
         },
         {
           "phase": "measured",
@@ -322,19 +322,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 33.838299999843
+          "latency_ms": 50.441300000102274
         },
         {
           "phase": "measured",
           "step_index": 17,
           "completed": true,
-          "loss_value": 2.509675979614258,
+          "loss_value": 2.509676218032837,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.779299999972864
+          "latency_ms": 55.914700000130324
         },
         {
           "phase": "measured",
@@ -346,7 +346,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 31.552599999940867
+          "latency_ms": 54.955600000084814
         },
         {
           "phase": "measured",
@@ -358,7 +358,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.669999999990978
+          "latency_ms": 54.412100000035934
         },
         {
           "phase": "measured",
@@ -370,7 +370,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 26.967600000261882
+          "latency_ms": 51.901599999837345
         }
       ],
       "losses_finite": true,
@@ -383,52 +383,52 @@
       "cpu_d4_d6_e2_construction_timed": false,
       "warmups_excluded_from_timing": true,
       "latency_ms_samples": [
-        32.90329999981623,
-        32.475699999849894,
-        29.65760000006412,
-        29.791299999942567,
-        31.74269999999524,
-        32.92190000001938,
-        29.38799999992625,
-        30.08590000035838,
-        33.2564000000275,
-        25.7077000001118,
-        25.674099999832833,
-        30.251500000304077,
-        28.702699999939796,
-        33.04019999995944,
-        30.216399999972055,
-        33.838299999843,
-        29.779299999972864,
-        31.552599999940867,
-        25.669999999990978,
-        26.967600000261882
+        56.507499999952415,
+        41.10310000010031,
+        51.611899999898014,
+        54.14410000003045,
+        59.00079999992158,
+        58.24730000017553,
+        60.35640000004605,
+        51.18050000010044,
+        59.7023000000263,
+        57.715199999847755,
+        69.61030000002211,
+        52.5543999999627,
+        73.37759999995797,
+        53.75309999999445,
+        55.45469999992747,
+        50.441300000102274,
+        55.914700000130324,
+        54.955600000084814,
+        54.412100000035934,
+        51.901599999837345
       ],
-      "latency_ms_median": 30.151150000165217,
-      "latency_ms_p95_nearest_rank": 33.2564000000275,
+      "latency_ms_median": 55.20515000000614,
+      "latency_ms_p95_nearest_rank": 69.61030000002211,
       "examples_per_second_samples": [
-        972.5468266155287,
-        985.3521248240348,
-        1078.981441516873,
-        1074.1390943014133,
-        1008.1058007039351,
-        971.9973634565795,
-        1088.879814893164,
-        1063.621164718982,
-        962.2208056185739,
-        1244.7632421360463,
-        1246.3922786079495,
-        1057.7987868263838,
-        1114.8776944352664,
-        968.5171397279461,
-        1059.0275479550705,
-        945.6739848085888,
-        1074.5719341968804,
-        1014.1794970956425,
-        1246.5913517729352,
-        1186.6091161130114
+        566.2965093134,
+        778.5300865365849,
+        620.0120514854759,
+        591.0154569007889,
+        542.365527247809,
+        549.3816880765901,
+        530.1840401345273,
+        625.238127801354,
+        535.9927506978107,
+        554.4466622325559,
+        459.70208431783567,
+        608.8928805204267,
+        436.10039031009916,
+        595.3145027915284,
+        577.0475721632586,
+        634.4007787256696,
+        572.3003074312375,
+        582.2882472386912,
+        588.1044841125204,
+        616.5513201924466
       ],
-      "median_examples_per_second": 1061.3243563370263,
+      "median_examples_per_second": 579.6679097009749,
       "measured_loss_samples": [
         2.7771317958831787,
         2.788158893585205,
@@ -437,16 +437,16 @@
         2.73000168800354,
         2.7071375846862793,
         2.6709585189819336,
-        2.66562557220459,
-        2.6297881603240967,
+        2.6656253337860107,
+        2.629788398742676,
         2.6188039779663086,
-        2.6115939617156982,
+        2.6115942001342773,
         2.5854406356811523,
         2.5419607162475586,
-        2.564413547515869,
+        2.5644137859344482,
         2.5446600914001465,
         2.533477306365967,
-        2.509675979614258,
+        2.509676218032837,
         2.4635579586029053,
         2.4988293647766113,
         2.427819013595581
@@ -464,7 +464,7 @@
     },
     {
       "batch_size": 64,
-      "execution_id": "e9-20260929t155457z",
+      "execution_id": "e9-20260930t163056z",
       "config_identity_sha256": "972bacfdb2fe0e8b9133c8265a4f6017fc6354f9e08a1757d02359b4b54623b7",
       "status": "COMPLETE",
       "resource_eligible": true,
@@ -528,7 +528,7 @@
           "phase": "warmup",
           "step_index": 5,
           "completed": true,
-          "loss_value": 2.8048267364501953,
+          "loss_value": 2.8048269748687744,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
@@ -540,13 +540,13 @@
           "phase": "measured",
           "step_index": 1,
           "completed": true,
-          "loss_value": 2.7922918796539307,
+          "loss_value": 2.7922916412353516,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 27.771900000061578
+          "latency_ms": 56.681799999978466
         },
         {
           "phase": "measured",
@@ -558,7 +558,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.777900000321097
+          "latency_ms": 57.92429999996784
         },
         {
           "phase": "measured",
@@ -570,7 +570,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 24.65249999977459
+          "latency_ms": 46.8518000000131
         },
         {
           "phase": "measured",
@@ -582,7 +582,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.19689999998809
+          "latency_ms": 39.59579999991547
         },
         {
           "phase": "measured",
@@ -594,7 +594,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 13.589600000159408
+          "latency_ms": 50.273000000061074
         },
         {
           "phase": "measured",
@@ -606,7 +606,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 19.69790000021021
+          "latency_ms": 54.3443000001389
         },
         {
           "phase": "measured",
@@ -618,19 +618,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 16.560199999730685
+          "latency_ms": 51.598799999965195
         },
         {
           "phase": "measured",
           "step_index": 8,
           "completed": true,
-          "loss_value": 2.65704607963562,
+          "loss_value": 2.657045841217041,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 35.427700000127516
+          "latency_ms": 62.18730000000505
         },
         {
           "phase": "measured",
@@ -642,7 +642,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 30.1726000002418
+          "latency_ms": 63.44829999989088
         },
         {
           "phase": "measured",
@@ -654,7 +654,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 35.1541999998517
+          "latency_ms": 56.65509999994356
         },
         {
           "phase": "measured",
@@ -666,7 +666,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 32.5393999996777
+          "latency_ms": 51.901100000122824
         },
         {
           "phase": "measured",
@@ -678,19 +678,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 34.92950000008932
+          "latency_ms": 53.05639999983214
         },
         {
           "phase": "measured",
           "step_index": 13,
           "completed": true,
-          "loss_value": 2.5504772663116455,
+          "loss_value": 2.5504770278930664,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 24.564100000134204
+          "latency_ms": 56.76710000011553
         },
         {
           "phase": "measured",
@@ -702,7 +702,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.203300000001036
+          "latency_ms": 57.990099999869926
         },
         {
           "phase": "measured",
@@ -714,7 +714,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 30.359200000020792
+          "latency_ms": 61.628599999949074
         },
         {
           "phase": "measured",
@@ -726,7 +726,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.7497000000767
+          "latency_ms": 53.00760000000082
         },
         {
           "phase": "measured",
@@ -738,7 +738,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 31.032500000037544
+          "latency_ms": 52.038400000128604
         },
         {
           "phase": "measured",
@@ -750,7 +750,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 29.408999999759544
+          "latency_ms": 54.95029999997314
         },
         {
           "phase": "measured",
@@ -762,7 +762,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 32.3646000001645
+          "latency_ms": 90.0346000000809
         },
         {
           "phase": "measured",
@@ -774,7 +774,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 28.711099999782164
+          "latency_ms": 65.80250000001797
         }
       ],
       "losses_finite": true,
@@ -787,66 +787,66 @@
       "cpu_d4_d6_e2_construction_timed": false,
       "warmups_excluded_from_timing": true,
       "latency_ms_samples": [
-        27.771900000061578,
-        25.777900000321097,
-        24.65249999977459,
-        29.19689999998809,
-        13.589600000159408,
-        19.69790000021021,
-        16.560199999730685,
-        35.427700000127516,
-        30.1726000002418,
-        35.1541999998517,
-        32.5393999996777,
-        34.92950000008932,
-        24.564100000134204,
-        22.203300000001036,
-        30.359200000020792,
-        22.7497000000767,
-        31.032500000037544,
-        29.408999999759544,
-        32.3646000001645,
-        28.711099999782164
+        56.681799999978466,
+        57.92429999996784,
+        46.8518000000131,
+        39.59579999991547,
+        50.273000000061074,
+        54.3443000001389,
+        51.598799999965195,
+        62.18730000000505,
+        63.44829999989088,
+        56.65509999994356,
+        51.901100000122824,
+        53.05639999983214,
+        56.76710000011553,
+        57.990099999869926,
+        61.628599999949074,
+        53.00760000000082,
+        52.038400000128604,
+        54.95029999997314,
+        90.0346000000809,
+        65.80250000001797
       ],
-      "latency_ms_median": 28.953999999885127,
-      "latency_ms_p95_nearest_rank": 35.1541999998517,
+      "latency_ms_median": 55.80269999995835,
+      "latency_ms_p95_nearest_rank": 65.80250000001797,
       "examples_per_second_samples": [
-        2304.48762957731,
-        2482.7468490141864,
-        2596.0855897205224,
-        2192.013535684477,
-        4709.4837227916405,
-        3249.077312775322,
-        3864.687624608448,
-        1806.4960468720703,
-        2121.1297667250124,
-        1820.5506027806064,
-        1966.8463462950735,
-        1832.2621279960017,
-        2605.4282468989436,
-        2882.454409929921,
-        2108.0924398520438,
-        2813.223910635491,
-        2062.353983724243,
-        2176.2045632467366,
-        1977.4692101763874,
-        2229.1030298555465
+        1129.110225857759,
+        1104.890348265504,
+        1366.009416927036,
+        1616.33304542746,
+        1273.0491516305422,
+        1177.676407642318,
+        1240.33892261144,
+        1029.1490384691858,
+        1008.6952684328827,
+        1129.6423446444144,
+        1233.1145197278775,
+        1206.2635233487852,
+        1127.4135899115815,
+        1103.63665522466,
+        1038.4788880495887,
+        1207.3740369305347,
+        1229.861025701056,
+        1164.688818805926,
+        710.8378334544997,
+        972.6074237298358
       ],
-      "median_examples_per_second": 2210.558282770012,
+      "median_examples_per_second": 1147.1655817251703,
       "measured_loss_samples": [
-        2.7922918796539307,
+        2.7922916412353516,
         2.749255657196045,
         2.756409168243408,
         2.715604305267334,
         2.7216899394989014,
         2.6828317642211914,
         2.664186954498291,
-        2.65704607963562,
+        2.657045841217041,
         2.6361963748931885,
         2.6079111099243164,
         2.623929500579834,
         2.552318572998047,
-        2.5504772663116455,
+        2.5504770278930664,
         2.551726818084717,
         2.523026466369629,
         2.5116591453552246,
@@ -868,7 +868,7 @@
     },
     {
       "batch_size": 128,
-      "execution_id": "e9-20260929t155457z",
+      "execution_id": "e9-20260930t163056z",
       "config_identity_sha256": "972bacfdb2fe0e8b9133c8265a4f6017fc6354f9e08a1757d02359b4b54623b7",
       "status": "COMPLETE",
       "resource_eligible": true,
@@ -920,7 +920,7 @@
           "phase": "warmup",
           "step_index": 4,
           "completed": true,
-          "loss_value": 2.8220977783203125,
+          "loss_value": 2.8220980167388916,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
@@ -950,7 +950,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 27.210700000068755
+          "latency_ms": 59.96509999999944
         },
         {
           "phase": "measured",
@@ -962,7 +962,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.374700000156736
+          "latency_ms": 43.332299999974566
         },
         {
           "phase": "measured",
@@ -974,7 +974,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.262200000113808
+          "latency_ms": 40.03699999998389
         },
         {
           "phase": "measured",
@@ -986,7 +986,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 16.14900000004127
+          "latency_ms": 155.81040000006396
         },
         {
           "phase": "measured",
@@ -998,7 +998,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 18.394100000023172
+          "latency_ms": 44.601599999850805
         },
         {
           "phase": "measured",
@@ -1010,7 +1010,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 18.75209999980143
+          "latency_ms": 43.21110000000772
         },
         {
           "phase": "measured",
@@ -1022,7 +1022,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 21.86440000014045
+          "latency_ms": 134.9305999999615
         },
         {
           "phase": "measured",
@@ -1034,7 +1034,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 38.44550000030722
+          "latency_ms": 39.86750000012762
         },
         {
           "phase": "measured",
@@ -1046,7 +1046,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.663800000074843
+          "latency_ms": 146.4622999999392
         },
         {
           "phase": "measured",
@@ -1058,7 +1058,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 27.190999999675114
+          "latency_ms": 40.93820000002779
         },
         {
           "phase": "measured",
@@ -1070,7 +1070,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 26.174100000389444
+          "latency_ms": 154.49360000002343
         },
         {
           "phase": "measured",
@@ -1082,7 +1082,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 20.741799999996147
+          "latency_ms": 40.56609999997818
         },
         {
           "phase": "measured",
@@ -1094,7 +1094,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 18.318599999929575
+          "latency_ms": 122.08129999999073
         },
         {
           "phase": "measured",
@@ -1106,7 +1106,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 19.986400000107096
+          "latency_ms": 43.91089999990072
         },
         {
           "phase": "measured",
@@ -1118,19 +1118,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 20.373700000163808
+          "latency_ms": 138.06010000007518
         },
         {
           "phase": "measured",
           "step_index": 16,
           "completed": true,
-          "loss_value": 2.503641366958618,
+          "loss_value": 2.503641128540039,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 19.8725000000195
+          "latency_ms": 37.835699999959616
         },
         {
           "phase": "measured",
@@ -1142,7 +1142,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 21.29750000040076
+          "latency_ms": 187.3192000000472
         },
         {
           "phase": "measured",
@@ -1154,7 +1154,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 19.356299999799376
+          "latency_ms": 45.41979999999057
         },
         {
           "phase": "measured",
@@ -1166,7 +1166,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 18.550600000253326
+          "latency_ms": 133.47479999993084
         },
         {
           "phase": "measured",
@@ -1178,7 +1178,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 17.12950000001001
+          "latency_ms": 44.57290000004832
         }
       ],
       "losses_finite": true,
@@ -1191,52 +1191,52 @@
       "cpu_d4_d6_e2_construction_timed": false,
       "warmups_excluded_from_timing": true,
       "latency_ms_samples": [
-        27.210700000068755,
-        25.374700000156736,
-        22.262200000113808,
-        16.14900000004127,
-        18.394100000023172,
-        18.75209999980143,
-        21.86440000014045,
-        38.44550000030722,
-        25.663800000074843,
-        27.190999999675114,
-        26.174100000389444,
-        20.741799999996147,
-        18.318599999929575,
-        19.986400000107096,
-        20.373700000163808,
-        19.8725000000195,
-        21.29750000040076,
-        19.356299999799376,
-        18.550600000253326,
-        17.12950000001001
+        59.96509999999944,
+        43.332299999974566,
+        40.03699999998389,
+        155.81040000006396,
+        44.601599999850805,
+        43.21110000000772,
+        134.9305999999615,
+        39.86750000012762,
+        146.4622999999392,
+        40.93820000002779,
+        154.49360000002343,
+        40.56609999997818,
+        122.08129999999073,
+        43.91089999990072,
+        138.06010000007518,
+        37.835699999959616,
+        187.3192000000472,
+        45.41979999999057,
+        133.47479999993084,
+        44.57290000004832
       ],
-      "latency_ms_median": 20.557750000079977,
-      "latency_ms_p95_nearest_rank": 27.210700000068755,
+      "latency_ms_median": 45.01069999992069,
+      "latency_ms_p95_nearest_rank": 155.81040000006396,
       "examples_per_second_samples": [
-        4704.031869804032,
-        5044.394613501218,
-        5749.6563681642265,
-        7926.187380003275,
-        6958.753078423992,
-        6825.902165696398,
-        5854.265381129954,
-        3329.3883549174066,
-        4987.570040275669,
-        4707.439961808296,
-        4890.330517499951,
-        6171.113403852307,
-        6987.43353752427,
-        6404.354961339417,
-        6282.609442515148,
-        6441.061768769627,
-        6010.095081469252,
-        6612.834064430015,
-        6900.046359592253,
-        7472.488980993327
+        2134.5749444260277,
+        2953.9165933974223,
+        3197.042735470977,
+        821.5112726746574,
+        2869.8522026211654,
+        2962.201841655897,
+        948.6358172277936,
+        3210.6352291864364,
+        873.9450356853138,
+        3126.66409368055,
+        828.5132846925736,
+        3155.3439941248694,
+        1048.481626588263,
+        2914.993771484743,
+        927.1324589793162,
+        3383.048285088861,
+        683.3255747406979,
+        2818.154197068824,
+        958.9825195472578,
+        2871.700068872818
       ],
-      "median_examples_per_second": 6226.861423183727,
+      "median_examples_per_second": 2844.003199844995,
       "measured_loss_samples": [
         2.7855000495910645,
         2.7608582973480225,
@@ -1253,7 +1253,7 @@
         2.5639100074768066,
         2.5511810779571533,
         2.530320167541504,
-        2.503641366958618,
+        2.503641128540039,
         2.4964137077331543,
         2.471283435821533,
         2.457125663757324,
@@ -1272,7 +1272,7 @@
     },
     {
       "batch_size": 256,
-      "execution_id": "e9-20260929t155457z",
+      "execution_id": "e9-20260930t163056z",
       "config_identity_sha256": "972bacfdb2fe0e8b9133c8265a4f6017fc6354f9e08a1757d02359b4b54623b7",
       "status": "COMPLETE",
       "resource_eligible": true,
@@ -1354,7 +1354,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 23.7886999998409
+          "latency_ms": 72.76460000002771
         },
         {
           "phase": "measured",
@@ -1366,7 +1366,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.689899999932095
+          "latency_ms": 58.70819999995547
         },
         {
           "phase": "measured",
@@ -1378,7 +1378,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 18.20080000015878
+          "latency_ms": 54.55810000012207
         },
         {
           "phase": "measured",
@@ -1390,7 +1390,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 16.69399999991583
+          "latency_ms": 178.71730000001662
         },
         {
           "phase": "measured",
@@ -1402,7 +1402,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 16.933399999743415
+          "latency_ms": 53.24380000001838
         },
         {
           "phase": "measured",
@@ -1414,7 +1414,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 16.74330000014379
+          "latency_ms": 132.2531999999228
         },
         {
           "phase": "measured",
@@ -1426,7 +1426,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 24.882000000161497
+          "latency_ms": 63.71310000008634
         },
         {
           "phase": "measured",
@@ -1438,7 +1438,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.279899999830377
+          "latency_ms": 132.8361999999288
         },
         {
           "phase": "measured",
@@ -1450,19 +1450,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 28.143399999862595
+          "latency_ms": 59.143500000118365
         },
         {
           "phase": "measured",
           "step_index": 10,
           "completed": true,
-          "loss_value": 2.617642641067505,
+          "loss_value": 2.617642879486084,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.02450000004319
+          "latency_ms": 56.950800000095114
         },
         {
           "phase": "measured",
@@ -1474,7 +1474,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 19.522300000062387
+          "latency_ms": 200.3349999999955
         },
         {
           "phase": "measured",
@@ -1486,7 +1486,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 24.101900000005116
+          "latency_ms": 53.64340000005541
         },
         {
           "phase": "measured",
@@ -1498,7 +1498,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 28.6724000002323
+          "latency_ms": 135.93280000009145
         },
         {
           "phase": "measured",
@@ -1510,7 +1510,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 21.144900000308553
+          "latency_ms": 55.80659999986892
         },
         {
           "phase": "measured",
@@ -1522,7 +1522,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 20.113900000069407
+          "latency_ms": 128.39980000012474
         },
         {
           "phase": "measured",
@@ -1534,7 +1534,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.12099999997008
+          "latency_ms": 62.384800000018004
         },
         {
           "phase": "measured",
@@ -1546,7 +1546,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 26.358199999776843
+          "latency_ms": 62.44209999999839
         },
         {
           "phase": "measured",
@@ -1558,19 +1558,19 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 25.95179999980246
+          "latency_ms": 149.53970000010486
         },
         {
           "phase": "measured",
           "step_index": 19,
           "completed": true,
-          "loss_value": 2.4442365169525146,
+          "loss_value": 2.4442367553710938,
           "loss_finite": true,
           "gradients_finite": true,
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 22.00570000013613
+          "latency_ms": 68.07189999994989
         },
         {
           "phase": "measured",
@@ -1582,7 +1582,7 @@
           "optimizer_step_succeeded": true,
           "cuda_oom": false,
           "failure_stage": null,
-          "latency_ms": 20.943199999692297
+          "latency_ms": 66.475999999966
         }
       ],
       "losses_finite": true,
@@ -1595,52 +1595,52 @@
       "cpu_d4_d6_e2_construction_timed": false,
       "warmups_excluded_from_timing": true,
       "latency_ms_samples": [
-        23.7886999998409,
-        22.689899999932095,
-        18.20080000015878,
-        16.69399999991583,
-        16.933399999743415,
-        16.74330000014379,
-        24.882000000161497,
-        22.279899999830377,
-        28.143399999862595,
-        22.02450000004319,
-        19.522300000062387,
-        24.101900000005116,
-        28.6724000002323,
-        21.144900000308553,
-        20.113900000069407,
-        22.12099999997008,
-        26.358199999776843,
-        25.95179999980246,
-        22.00570000013613,
-        20.943199999692297
+        72.76460000002771,
+        58.70819999995547,
+        54.55810000012207,
+        178.71730000001662,
+        53.24380000001838,
+        132.2531999999228,
+        63.71310000008634,
+        132.8361999999288,
+        59.143500000118365,
+        56.950800000095114,
+        200.3349999999955,
+        53.64340000005541,
+        135.93280000009145,
+        55.80659999986892,
+        128.39980000012474,
+        62.384800000018004,
+        62.44209999999839,
+        149.53970000010486,
+        68.07189999994989,
+        66.475999999966
       ],
-      "latency_ms_median": 22.072750000006636,
-      "latency_ms_p95_nearest_rank": 28.143399999862595,
+      "latency_ms_median": 65.09455000002617,
+      "latency_ms_p95_nearest_rank": 178.71730000001662,
       "examples_per_second_samples": [
-        10761.411930946715,
-        11282.553030236631,
-        14065.31581017135,
-        15334.850844692148,
-        15118.05071656484,
-        15289.697968608427,
-        10288.562012633165,
-        11490.177245048182,
-        9096.271239482432,
-        11623.419373856295,
-        13113.208996848829,
-        10621.569253873995,
-        8928.446868693445,
-        12106.938315918465,
-        12727.51679182638,
-        11572.713710969045,
-        9712.347580721269,
-        9864.44100224064,
-        11633.349541183255,
-        12223.537950445072
+        3518.194286780969,
+        4360.549292947053,
+        4692.24551440441,
+        1432.4298766822026,
+        4808.071550113095,
+        1935.6809513883175,
+        4018.0119943881728,
+        1927.1855111794619,
+        4328.455367022372,
+        4495.108058176048,
+        1277.8595851948276,
+        4772.255300740363,
+        1883.2835047893354,
+        4587.271039636912,
+        1993.7725759678076,
+        4103.5636885896265,
+        4099.798052916327,
+        1711.9199784393074,
+        3760.7294639959873,
+        3851.0138997552635
       ],
-      "median_examples_per_second": 11598.066542412671,
+      "median_examples_per_second": 3934.5129470717184,
       "measured_loss_samples": [
         2.773585796356201,
         2.7630116939544678,
@@ -1651,7 +1651,7 @@
         2.6685094833374023,
         2.6492204666137695,
         2.6358723640441895,
-        2.617642641067505,
+        2.617642879486084,
         2.6000208854675293,
         2.580949068069458,
         2.5588629245758057,
@@ -1660,7 +1660,7 @@
         2.50702166557312,
         2.4938783645629883,
         2.477182149887085,
-        2.4442365169525146,
+        2.4442367553710938,
         2.446901559829712
       ],
       "baseline_allocated_bytes": 17186816,
@@ -1676,8 +1676,8 @@
     }
   ],
   "selection": {
-    "maximum_median_examples_per_second": 11598.066542412671,
-    "throughput_tie_threshold_examples_per_second": 11018.163215292037,
+    "maximum_median_examples_per_second": 3934.5129470717184,
+    "throughput_tie_threshold_examples_per_second": 3737.787299718132,
     "throughput_tied_batch_sizes": [
       256
     ],

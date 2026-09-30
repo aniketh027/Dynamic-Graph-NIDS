@@ -399,6 +399,10 @@ def test_checkpoint_round_trip_uses_state_dicts(tmp_path):
     run_config = config("E1")
     model = e7.create_model("E1")
     optimizer = e7.create_optimizer(model, run_config.learning_rate)
+    for parameter in model.parameters():
+        parameter.grad = torch.full_like(parameter, 0.01)
+    optimizer.step()
+    optimizer.zero_grad(set_to_none=True)
     path = tmp_path / "checkpoint.pt"
     e7.save_checkpoint(
         path,

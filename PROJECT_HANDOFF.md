@@ -364,7 +364,7 @@ reduced merely to avoid manual execution.
 
 E.10 remains unauthorized.
 
-## Stage E.9 Implementation, Two Blocked Audits, and Corrections
+## Stage E.9 Implementation, Three Blocked Audits, and Corrections
 
 The frozen E.9 contract was recorded in commit
 `76d1bf81f2e18e3d0b99755a2d87bff9d96f3f0f`. The first E.9 implementation
@@ -425,6 +425,30 @@ configuration, and re-raises the original failure. Adversarial tests prove
 model and nested optimizer state equality after every required rejection and
 also force a post-preflight optimizer failure to exercise rollback.
 
+Fail-closed correction commit
+`43f4582063e32e68bde411dc1c46c19c52afe7a8` was then independently audited.
+That third audit verified checkpoint transactionality, exact rollback,
+schema-v1 HTGNN safety, baseline integration, and the raw-observation state
+machine, but remained **BLOCKED** because the loader accepted five semantically
+invalid AdamW payloads: optimizer LR `9.0` contradicting metadata LR `3e-4`,
+weight decay `0.5` contradicting frozen `1e-4`, one missing parameter-state
+entry, `NaN` in `exp_avg`, and `NaN` in a step counter.
+
+The authorized optimizer-state correction keeps schema v2 and the single
+production loader. Every load, including model-only evaluation, now binds the
+serialized LR to checkpoint `training_config`, binds weight decay and all
+present semantic AdamW group fields to a freshly constructed frozen optimizer,
+and requires the exact serialized parameter mapping and complete state coverage
+for every grouped trainable parameter. Under frozen `amsgrad=False`, each state
+contains exactly scalar float32 `step`, `exp_avg`, and `exp_avg_sq`; step must
+be finite, nonnegative, and integral, both moments must be finite and match the
+parameter shape/dtype/layout, and the second moment must be nonnegative.
+Unknown, missing, extra, nonfinite, negative-second-moment, or malformed state
+is rejected before mutation. The production save lifecycle reaches checkpoints
+only after optimizer updates, and bounded real HTGNN plus all baseline task
+paths confirm complete AdamW state. Existing schema-v1 compatibility remains
+HTGNN-only and uses the same training-configuration and optimizer-state checks.
+
 Candidate observations now contain a compact ordered raw trace for each
 attempted warmup and measured step. Completion, finite loss, finite gradients,
 optimizer success, CUDA OOM, failure stage, measured latency, candidate status,
@@ -437,16 +461,16 @@ evidence generator runs the full semantic validator before binding any input.
 The complete fail-closed bounded pilot reran on the NVIDIA GeForce RTX 4050
 Laptop GPU with 6,438,780,928 bytes of VRAM. All candidates 32, 64, 128, and
 256 completed and were resource-eligible. Their full-precision median
-throughputs were approximately 1,061.324, 2,210.558, 6,226.861, and
-11,598.067 windows/second. The 95% threshold was approximately 11,018.163
+throughputs were approximately 579.668, 1,147.166, 2,844.003, and
+3,934.513 windows/second. The 95% threshold was approximately 3,737.787
 windows/second; only batch 256 entered the tied set, so the fresh run again
 selected HTGNN production batch size **256** under the frozen rule. Its
-execution identity is `e9-20260929t155457z`, and the observation-file physical
+execution identity is `e9-20260930t163056z`, and the observation-file physical
 SHA-256 is
-`6e9b484d0f0d4219d2141a2bcec9ae3b7b52a4114005319ccfc9f1bde6140d6d`.
+`85d693fe3ed3eeb5f2f7715c31528e7ccfbbd8524f655ed2463f3a437390892d`.
 
-Validation passed 121 focused E.9 tests, 44 focused E.7 tests, 85
-D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,083 complete-suite
+Validation passed 141 focused E.9 tests, 44 focused E.7 tests, 85
+D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,103 complete-suite
 tests, all without failures or skips. The evidence path additionally runs 12
 real baseline checkpoint/JSONL smokes and verifies Stage C 33/33 and raw CSV
 10/10 integrity.

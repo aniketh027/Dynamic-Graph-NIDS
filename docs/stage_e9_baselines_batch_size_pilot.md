@@ -15,8 +15,15 @@ fail-closed. Production-integration correction commit
 independent audit remained **BLOCKED**: a rejected checkpoint could already
 have mutated the target model, and correlated edits could forge candidate
 status while retaining a successful raw measurement record. The fail-closed
-correction described here preserves both audit findings. E.9 is still unfrozen
-and requires another independent re-audit.
+correction was recorded in
+`43f4582063e32e68bde411dc1c46c19c52afe7a8`. A third independent audit
+verified both transactionality and the observation correction, but remained
+**BLOCKED** because five semantically invalid AdamW payloads were still
+accepted: an optimizer LR contradicting checkpoint metadata, a non-frozen
+weight decay, incomplete parameter-state coverage, a nonfinite first moment,
+and a nonfinite step counter. The optimizer-state correction described here
+preserves every earlier fix. E.9 is still unfrozen and requires another
+independent re-audit.
 
 ## Production training integration correction
 
@@ -55,6 +62,25 @@ keys, wrong tensor shapes, malformed optimizer state, and task/family/
 architecture/input mismatches are all tested to leave both targets byte-for-
 byte tensor-equivalent to their pre-call state. Matching schema-v2 checkpoints
 for every task and family, plus valid schema-v1 HTGNN checkpoints, still load.
+
+Optimizer preflight now treats AdamW state as a semantic contract, including
+model-only reloads. The single serialized group LR must equal the checkpoint
+`training_config` LR exactly, and its weight decay must equal the frozen
+`1e-4`. The other PyTorch 2.14 group fields are bound to a freshly constructed
+production AdamW instance: `betas`, `eps`, `amsgrad`, `maximize`, `foreach`,
+`capturable`, `differentiable`, `fused`, and `decoupled_weight_decay`. Parameter
+IDs must preserve the production mapping, and every grouped parameter must
+have exactly one state entry with exactly `step`, `exp_avg`, and `exp_avg_sq`
+under the frozen `amsgrad=False` configuration. Step is the authoritative
+scalar float32 representation and must be finite, nonnegative, and integral.
+Both moments must match parameter shape/dtype/layout and be finite;
+`exp_avg_sq` must also be nonnegative. Unknown, incomplete, extra, malformed,
+or nonfinite state fails before target mutation. The production lifecycle saves
+best checkpoints only after a train epoch has performed optimizer updates, and
+bounded real HTGNN and baseline paths confirm complete state for every
+trainable parameter. Legacy schema-v1 remains restricted to HTGNN and carries
+the same training-configuration and complete-state proof; no weaker baseline
+or metadata-free compatibility path was added.
 
 ## Baseline contracts
 
@@ -102,19 +128,19 @@ canonical replay targets.
 
 | Batch | Median step (ms) | Nearest-rank p95 (ms) | Median windows/s | Peak reserved | Reserved / VRAM | Eligible |
 | ---: | ---: | ---: | ---: | ---: | ---: | :---: |
-| 32 | 30.151 | 33.256 | 1,061.324 | 27,262,976 B | 0.4234% | yes |
-| 64 | 28.954 | 35.154 | 2,210.558 | 52,428,800 B | 0.8143% | yes |
-| 128 | 20.558 | 27.211 | 6,226.861 | 48,234,496 B | 0.7491% | yes |
-| 256 | 22.073 | 28.143 | 11,598.067 | 71,303,168 B | 1.1074% | yes |
+| 32 | 55.205 | 69.610 | 579.668 | 27,262,976 B | 0.4234% | yes |
+| 64 | 55.803 | 65.803 | 1,147.166 | 52,428,800 B | 0.8143% | yes |
+| 128 | 45.011 | 155.810 | 2,844.003 | 48,234,496 B | 0.7491% | yes |
+| 256 | 65.095 | 178.717 | 3,934.513 | 71,303,168 B | 1.1074% | yes |
 
 All candidates completed with finite losses and gradients, successful optimizer
 steps, and absolute peak reserved memory strictly below the 80% threshold. The
-maximum full-precision median throughput was 11,598.066542 windows/s and the
-95% threshold was 11,018.163215 windows/s. Only batch 256 entered the tied set,
+maximum full-precision median throughput was 3,934.512947 windows/s and the
+95% threshold was 3,737.787300 windows/s. Only batch 256 entered the tied set,
 so the frozen smallest-in-tied-set rule selected HTGNN training batch size
 **256** without hard-coding that outcome. The fresh execution identity is
-`e9-20260929t155457z`; the exact observation-file physical SHA-256 is
-`6e9b484d0f0d4219d2141a2bcec9ae3b7b52a4114005319ccfc9f1bde6140d6d`.
+`e9-20260930t163056z`; the exact observation-file physical SHA-256 is
+`85d693fe3ed3eeb5f2f7715c31528e7ccfbbd8524f655ed2463f3a437390892d`.
 
 The post-selection production gate constructed the actual
 `TrainingConfig(batch_size=256)`, obtained a 256-example E2 training batch from
@@ -154,8 +180,8 @@ stories are also rejected. A forged correlated observation cannot be rebound
 through the official deterministic evidence path, while an internally
 consistent partial CUDA-OOM fixture remains valid and ineligible.
 
-Implementation validation passed 121 focused E.9 tests, 44 focused E.7 tests,
-85 D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,083 complete-suite
+Implementation validation passed 141 focused E.9 tests, 44 focused E.7 tests,
+85 D6/full-split tests, 267 frozen E.2-E.8 regressions, and 1,103 complete-suite
 tests, with zero failures or skips. The deterministic evidence run also
 executes all 12 real baseline production artifact smokes and independently
 checks Stage C 33/33 and raw CSV 10/10 integrity.

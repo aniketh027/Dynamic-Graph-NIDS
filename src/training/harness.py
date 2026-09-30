@@ -797,10 +797,39 @@ def _preflight_model_state_dict(
             )
 
 
+def _checkpoint_optimizer_learning_rate(metadata: Mapping[str, Any]) -> float:
+    """Return the metadata-bound LR after validating the frozen AdamW contract."""
+
+    training_config = metadata.get("training_config")
+    if not isinstance(training_config, Mapping):
+        raise TrainingContractError("checkpoint training configuration is missing")
+    learning_rate = training_config.get("learning_rate")
+    weight_decay = training_config.get("weight_decay")
+    if (
+        isinstance(learning_rate, bool)
+        or not isinstance(learning_rate, (int, float))
+        or not math.isfinite(float(learning_rate))
+        or float(learning_rate) not in LEARNING_RATE_CANDIDATES
+        or training_config.get("optimizer") != "AdamW"
+        or isinstance(weight_decay, bool)
+        or not isinstance(weight_decay, (int, float))
+        or not math.isfinite(float(weight_decay))
+        or float(weight_decay) != WEIGHT_DECAY
+        or training_config.get("scheduler") is not None
+    ):
+        raise TrainingContractError(
+            "checkpoint training configuration violates the frozen AdamW contract"
+        )
+    return float(learning_rate)
+
+
 def _preflight_optimizer_state_dict(
-    optimizer: Optimizer, optimizer_state: Mapping[str, Any]
+    optimizer: Optimizer,
+    optimizer_state: Mapping[str, Any],
+    *,
+    checkpoint_learning_rate: float,
 ) -> None:
-    """Validate optimizer structure and per-parameter state on a disposable copy."""
+    """Validate complete frozen-AdamW semantics on a disposable copy."""
 
     if set(optimizer_state) != {"state", "param_groups"}:
         raise TrainingContractError(
@@ -812,6 +841,18 @@ def _preflight_optimizer_state_dict(
     current_groups = current["param_groups"]
     if not isinstance(saved_state, Mapping) or not isinstance(saved_groups, list):
         raise TrainingContractError("checkpoint optimizer state_dict is malformed")
+    if type(optimizer) is not AdamW:
+        raise TrainingContractError("target optimizer must be the frozen AdamW type")
+    if len(current_groups) != 1:
+        raise TrainingContractError(
+            "target optimizer must have the single frozen production parameter group"
+        )
+    authoritative_optimizer = AdamW(
+        list(optimizer.param_groups[0]["params"]),
+        lr=checkpoint_learning_rate,
+        weight_decay=WEIGHT_DECAY,
+    )
+    authoritative_group = authoritative_optimizer.state_dict()["param_groups"][0]
     if len(saved_groups) != len(current_groups):
         raise TrainingContractError(
             "checkpoint optimizer parameter-group count is incompatible"
@@ -827,6 +868,46 @@ def _preflight_optimizer_state_dict(
             raise TrainingContractError(
                 "checkpoint optimizer parameter-group fields are incompatible"
             )
+        saved_learning_rate = saved_group.get("lr")
+        saved_weight_decay = saved_group.get("weight_decay")
+        if (
+            isinstance(saved_learning_rate, bool)
+            or not isinstance(saved_learning_rate, (int, float))
+            or not math.isfinite(float(saved_learning_rate))
+            or float(saved_learning_rate) != checkpoint_learning_rate
+        ):
+            raise TrainingContractError(
+                "checkpoint optimizer learning rate contradicts checkpoint metadata"
+            )
+        if (
+            isinstance(saved_weight_decay, bool)
+            or not isinstance(saved_weight_decay, (int, float))
+            or not math.isfinite(float(saved_weight_decay))
+            or float(saved_weight_decay) != WEIGHT_DECAY
+            or current_group.get("weight_decay") != WEIGHT_DECAY
+        ):
+            raise TrainingContractError(
+                "checkpoint or target optimizer weight decay violates the frozen contract"
+            )
+        current_learning_rate = current_group.get("lr")
+        if (
+            isinstance(current_learning_rate, bool)
+            or not isinstance(current_learning_rate, (int, float))
+            or not math.isfinite(float(current_learning_rate))
+            or float(current_learning_rate) not in LEARNING_RATE_CANDIDATES
+        ):
+            raise TrainingContractError(
+                "target optimizer learning rate violates the frozen contract"
+            )
+        for field in set(saved_group) - {"params", "lr", "weight_decay"}:
+            if (
+                saved_group[field] != authoritative_group[field]
+                or current_group[field] != authoritative_group[field]
+            ):
+                raise TrainingContractError(
+                    f"checkpoint optimizer parameter-group field {field!r} "
+                    "violates the frozen production optimizer contract"
+                )
         saved_ids = saved_group.get("params")
         current_ids = current_group.get("params")
         live_parameters = live_group.get("params")
@@ -837,6 +918,10 @@ def _preflight_optimizer_state_dict(
         if len(saved_ids) != len(current_ids) or len(saved_ids) != len(live_parameters):
             raise TrainingContractError(
                 "checkpoint optimizer parameter-group size is incompatible"
+            )
+        if saved_ids != current_ids:
+            raise TrainingContractError(
+                "checkpoint optimizer serialized parameter mapping is incompatible"
             )
         for saved_id, parameter in zip(saved_ids, live_parameters, strict=True):
             if isinstance(saved_id, bool) or not isinstance(saved_id, int):
@@ -853,40 +938,73 @@ def _preflight_optimizer_state_dict(
                 )
             parameter_by_saved_id[saved_id] = parameter
 
+    saved_state_ids = set(saved_state)
+    for saved_id in saved_state_ids:
+        if isinstance(saved_id, bool) or not isinstance(saved_id, int):
+            raise TrainingContractError(
+                "checkpoint optimizer state parameter identifier is invalid"
+            )
+    expected_state_ids = set(parameter_by_saved_id)
+    if saved_state_ids != expected_state_ids:
+        missing = sorted(expected_state_ids - saved_state_ids)
+        unexpected = sorted(saved_state_ids - expected_state_ids)
+        raise TrainingContractError(
+            "checkpoint AdamW parameter-state coverage is incomplete or incompatible: "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+
     for saved_id, state in saved_state.items():
         if saved_id not in parameter_by_saved_id or not isinstance(state, Mapping):
             raise TrainingContractError(
                 "checkpoint optimizer per-parameter state is malformed"
             )
-        if not state:
-            continue
         parameter = parameter_by_saved_id[saved_id]
-        if isinstance(optimizer, AdamW):
-            group = next(
-                group for group in saved_groups if saved_id in group["params"]
+        group = next(group for group in saved_groups if saved_id in group["params"])
+        required = {"step", "exp_avg", "exp_avg_sq"}
+        if group.get("amsgrad") is True:
+            required.add("max_exp_avg_sq")
+        if set(state) != required:
+            raise TrainingContractError(
+                "checkpoint AdamW per-parameter state fields are incompatible"
             )
-            required = {"step", "exp_avg", "exp_avg_sq"}
-            if group.get("amsgrad") is True:
-                required.add("max_exp_avg_sq")
-            if set(state) != required:
+        step = state["step"]
+        if (
+            not isinstance(step, torch.Tensor)
+            or step.shape != torch.Size([])
+            or step.dtype != torch.float32
+            or step.layout != torch.strided
+            or step.device.type == "meta"
+        ):
+            raise TrainingContractError("checkpoint AdamW step state is invalid")
+        step_value = float(step.item())
+        if (
+            not math.isfinite(step_value)
+            or step_value < 0
+            or not step_value.is_integer()
+        ):
+            raise TrainingContractError("checkpoint AdamW step value is invalid")
+        for field in required - {"step"}:
+            value = state[field]
+            if (
+                not isinstance(value, torch.Tensor)
+                or value.shape != parameter.shape
+                or value.dtype != parameter.dtype
+                or value.layout != parameter.layout
+                or value.device.type == "meta"
+            ):
                 raise TrainingContractError(
-                    "checkpoint AdamW per-parameter state fields are incompatible"
+                    f"checkpoint AdamW state {field!r} is incompatible"
                 )
-            step = state["step"]
-            if not isinstance(step, torch.Tensor) or step.numel() != 1:
-                raise TrainingContractError("checkpoint AdamW step state is invalid")
-            for field in required - {"step"}:
-                value = state[field]
-                if (
-                    not isinstance(value, torch.Tensor)
-                    or value.shape != parameter.shape
-                    or value.dtype != parameter.dtype
-                    or value.layout != parameter.layout
-                    or value.device.type == "meta"
-                ):
-                    raise TrainingContractError(
-                        f"checkpoint AdamW state {field!r} is incompatible"
-                    )
+            if not bool(torch.isfinite(value).all().item()):
+                raise TrainingContractError(
+                    f"checkpoint AdamW state {field!r} contains nonfinite values"
+                )
+            if field in {"exp_avg_sq", "max_exp_avg_sq"} and bool(
+                (value < 0).any().item()
+            ):
+                raise TrainingContractError(
+                    f"checkpoint AdamW state {field!r} contains negative values"
+                )
 
     try:
         probe = copy.deepcopy(optimizer)
@@ -974,15 +1092,24 @@ def load_checkpoint(
         "training_config"
     ) != expected_config.checkpoint_dict():
         raise TrainingContractError("checkpoint training configuration mismatch")
+    checkpoint_learning_rate = _checkpoint_optimizer_learning_rate(metadata)
     model_state = payload.get("model_state_dict")
     optimizer_state = payload.get("optimizer_state_dict")
     if not isinstance(model_state, Mapping):
         raise TrainingContractError("checkpoint model state_dict is missing")
     _preflight_model_state_dict(model, model_state)
-    if optimizer is not None:
-        if not isinstance(optimizer_state, Mapping):
-            raise TrainingContractError("checkpoint optimizer state_dict is missing")
-        _preflight_optimizer_state_dict(optimizer, optimizer_state)
+    if not isinstance(optimizer_state, Mapping):
+        raise TrainingContractError("checkpoint optimizer state_dict is missing")
+    validation_optimizer = (
+        optimizer
+        if optimizer is not None
+        else create_optimizer(model, checkpoint_learning_rate)
+    )
+    _preflight_optimizer_state_dict(
+        validation_optimizer,
+        optimizer_state,
+        checkpoint_learning_rate=checkpoint_learning_rate,
+    )
 
     model_snapshot = copy.deepcopy(model.state_dict())
     optimizer_snapshot = (

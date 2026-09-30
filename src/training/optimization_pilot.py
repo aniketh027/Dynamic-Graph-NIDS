@@ -48,7 +48,7 @@ CORRECTED_E7_SOURCE_SHA256: Final = {
         "11c11605e59015fb32b9fc4634363ba2979918ac9de9025088ea70da2e084445"
     ),
     "src/training/harness.py": (
-        "c764eb70fac62d8b2cafe4275a42a994e100e1f46da733408612363d6b3d0a7d"
+        "b6c41d996cf6e79408cdb34bded3c316ae0a704bf9ca98655787c5c22d016448"
     ),
     "src/training/validation.py": (
         "4e1e116dfad6adc1514bba6a242619bea2404c2abc51847a030ce8bf12b67c9f"
@@ -63,7 +63,7 @@ CORRECTED_E7_SOURCE_SHA256: Final = {
         "142a3d76b2ef6a64e920d849d4dc0b1ea946728caf1a6ffe84753da3eaac9aeb"
     ),
     "tests/test_training_harness.py": (
-        "2f3e273a863b18e1da766cf45c284e0910e7c98b85df40cbd0f4beab08030373"
+        "611bc31fc204ef7e004f2887963e20a17e87639d5beebaade5b865017cb020e8"
     ),
 }
 _RUN_ID_PATTERN: Final = re.compile(r"^[a-z0-9][a-z0-9._-]{7,95}$")
