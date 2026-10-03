@@ -8,6 +8,18 @@ Stage C preprocessing, Stage D graph inputs, and Stages E.1–E.9 are frozen. St
 
 The bounded training and resource pilots establish implementation feasibility, not final predictive performance. The committed checkpoint does not establish full-study results, locked-test evaluation, or pruning.
 
+## Documentation Guide
+
+| Topic | Reference |
+| --- | --- |
+| Verified checkpoint and next authorized boundary | [Project handoff](PROJECT_HANDOFF.md) |
+| Dataset placement and local storage | [Raw-data setup](data/raw/README.md) |
+| Frozen graph-input contracts | [Stage D verification](docs/STAGE_D_VERIFICATION.md) |
+| PyG conversion and provenance validation | [E.2 adapter](docs/stage_e2_heterodata_adapter.md) and [provenance cache](docs/stage_e2_provenance_cache.md) |
+| Temporal encoder, graph encoder, and classifier | [E.3](docs/stage_e3_feature_encoder.md), [E.4](docs/stage_e4_hierarchical_encoder.md), and [E.5](docs/stage_e5_htgnn_classifier.md) |
+| Training and bounded optimization contracts | [E.7 harness](docs/stage_e7_training_harness.md) and [E.8 pilot](docs/stage_e8_optimization_pilot.md) |
+| Baselines and batch-size resource pilot | [E.9 contract](docs/stage_e9_baselines_batch_size_pilot.md) |
+
 ## Project Pipeline
 
 | Pipeline stage | Status |
