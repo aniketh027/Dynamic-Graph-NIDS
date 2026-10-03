@@ -1,12 +1,24 @@
 # Dynamic Graph Optimization and Automated Feature Extraction for Efficient Intrusion Detection in Network Systems
 
-This student research project investigates an intrusion-detection pipeline that combines automated feature extraction, heterogeneous temporal graphs, graph neural networks, and attention-guided graph optimization. The repository currently contains the verified data/preprocessing foundation and framework-independent Stage D graph-input layer; it does not yet contain a graph-framework object or trained detection model.
+This student research project investigates an intrusion-detection pipeline that combines automated feature extraction, heterogeneous temporal graphs, graph neural networks, and attention-guided graph optimization. The committed checkpoint includes the data/preprocessing foundation, graph-input layer, HTGNN implementation, training harness, and graph-free baselines through Stage E.9.
 
 ## Current Status
 
-Stage C preprocessing and the Stage D graph-input layer are independently verified and frozen. Stage D defines the approved `78 feature -> 8 category -> 1 sample` hierarchy (87 nodes and 86 directed edges) through D1-D8. The next project activity is **model/framework design** against that frozen contract.
+Stage C preprocessing, Stage D graph inputs, and Stages E.1–E.9 are frozen. Stage D defines the approved `78 feature -> 8 category -> 1 sample` hierarchy (87 nodes and 86 directed edges). See [`PROJECT_HANDOFF.md`](PROJECT_HANDOFF.md) for the verified checkpoint, evidence, and authorization boundary.
 
-No PyG/HeteroData construction, HTGNN, GATv2, temporal encoder, pruning, model-training, or performance result is claimed in this checkpoint.
+The bounded training and resource pilots establish implementation feasibility, not final predictive performance. The committed checkpoint does not establish full-study results, locked-test evaluation, or pruning.
+
+## Documentation Guide
+
+| Topic | Reference |
+| --- | --- |
+| Verified checkpoint and next authorized boundary | [Project handoff](PROJECT_HANDOFF.md) |
+| Dataset placement and local storage | [Raw-data setup](data/raw/README.md) |
+| Frozen graph-input contracts | [Stage D verification](docs/STAGE_D_VERIFICATION.md) |
+| PyG conversion and provenance validation | [E.2 adapter](docs/stage_e2_heterodata_adapter.md) and [provenance cache](docs/stage_e2_provenance_cache.md) |
+| Temporal encoder, graph encoder, and classifier | [E.3](docs/stage_e3_feature_encoder.md), [E.4](docs/stage_e4_hierarchical_encoder.md), and [E.5](docs/stage_e5_htgnn_classifier.md) |
+| Training and bounded optimization contracts | [E.7 harness](docs/stage_e7_training_harness.md) and [E.8 pilot](docs/stage_e8_optimization_pilot.md) |
+| Baselines and batch-size resource pilot | [E.9 contract](docs/stage_e9_baselines_batch_size_pilot.md) |
 
 ## Project Pipeline
 
@@ -15,8 +27,8 @@ No PyG/HeteroData construction, HTGNN, GATv2, temporal encoder, pruning, model-t
 | CSE-CIC-IDS2018 dataset inspection and Stage B profiling | Completed |
 | Canonical cleaning, T=5 windows, E1/E2/E3 splits, train-only preprocessing | Completed, independently verified, frozen |
 | Framework-independent Stage D graph-input schema, adapters, batching, and full-split integration | Completed, independently verified, frozen |
-| Graph-framework and model design | Planned; design review is next |
-| HTGNN / GATv2 detection | Planned |
+| PyG adapter, causal temporal encoder, and HTGNN / GATv2 model | Implemented and frozen through E.5 |
+| Training harness, bounded pilots, and graph-free baselines | Implemented and frozen through E.9 |
 | Attention-guided graph optimization and pruning | Planned |
 | Model evaluation | Planned |
 
@@ -67,12 +79,14 @@ These windows are not guaranteed to represent individual network conversations. 
 ## Evaluation Configurations
 
 - **E1 — strict global capture-order multiclass diagnostic:** global 70/10/20 split, with no shuffle or stratification. It is diagnostic only and is not the primary multiclass performance evaluation.
-- **E2 — primary multiclass supervised experiment:** group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, then recombine partitions. E2 is not globally chronological. A class is reportable only when train ≥ 100, validation ≥ 30, and test ≥ 30.
+- **E2 — primary multiclass supervised experiment:** group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, then recombine partitions. E2 is not globally chronological. Validation-selection eligibility requires train ≥ 100 and validation ≥ 30. Final locked-test reporting additionally requires test ≥ 30.
 - **E3 — primary strict global capture-order binary experiment:** the E1 global 70/10/20 ordering with `Benign → 0` and every attack label `→ 1`.
 
 All preprocessing transforms are fitted on the applicable training partition only. E2 has its own E2-train fit; E1 and E3 share state because their feature membership and split boundaries are identical.
 
-## Validation
+E2 validation macro F1, early stopping, checkpoint selection, and learning-rate ranking use only the train/validation eligibility rule. Test support must not influence those decisions; it belongs to the separately locked final reporting rule.
+
+## Stage C/D Validation Evidence
 
 - **691 tests passed; 0 failed.** Stage D contributes 231 passing tests, including 44 D8 tests.
 - Two corrected full-corpus runs produced identical relative sets of 33 canonical artifacts.
@@ -96,9 +110,10 @@ results/temporal_analysis/     compact T=5 and T-sweep reports
 scripts/                       inspection, profiling, preprocessing, validation CLIs
 src/analysis/                  temporal continuity and robustness analysis
 src/preprocessing/             frozen Stage C implementation
-src/graph/                     frozen framework-independent Stage D graph-input layer
+src/graph/                     frozen graph-input layer, PyG adapter, and HTGNN components
+src/training/                  training harness, baselines, and bounded pilots
 src/utils/                     logging and reproducibility helpers
-tests/                         setup, profiling, analysis, and Stage C tests
+tests/                         preprocessing, graph, model, and training-contract tests
 PROJECT_HANDOFF.md             verified milestone handoff and next boundary
 ```
 
@@ -155,10 +170,10 @@ For a bounded pipeline smoke run, use `python scripts/run_preprocessing.py --deb
 2. T=5 windows are not guaranteed to represent individual conversations.
 3. Repeated temporal/network states occur across evaluation partitions. Split indices do not overlap, but results must not be described as performance exclusively on previously unseen states.
 4. E2 preserves chronology within each class, not one global timeline.
-5. T=5 predictive value remains unmeasured because no model has been trained.
+5. Bounded pilots do not establish the predictive value of T=5 or final model performance.
 6. Performance claims in the original project report are not verified results.
-7. No PyG/HeteroData object, temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning has yet been implemented.
+7. Attention-guided inference-time pruning and locked-test evaluation are not established by the committed checkpoint.
 
 ## Next Stage
 
-The exact next step is **model/framework design** against the frozen Stage D graph-input contract. Stage C algorithms and Stage D D1-D8 contracts, counts, and evidence remain frozen during that review.
+The committed handoff places the next implementation boundary at separately authorized **Stage E.10**. Consult that handoff and the current task's explicit authorization before proceeding; a documentation change does not authorize training, evaluation, or pruning.
