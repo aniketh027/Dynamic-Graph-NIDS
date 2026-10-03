@@ -67,10 +67,12 @@ These windows are not guaranteed to represent individual network conversations. 
 ## Evaluation Configurations
 
 - **E1 — strict global capture-order multiclass diagnostic:** global 70/10/20 split, with no shuffle or stratification. It is diagnostic only and is not the primary multiclass performance evaluation.
-- **E2 — primary multiclass supervised experiment:** group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, then recombine partitions. E2 is not globally chronological. A class is reportable only when train ≥ 100, validation ≥ 30, and test ≥ 30.
+- **E2 — primary multiclass supervised experiment:** group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, then recombine partitions. E2 is not globally chronological. Validation-selection eligibility requires train ≥ 100 and validation ≥ 30. Final locked-test reporting additionally requires test ≥ 30.
 - **E3 — primary strict global capture-order binary experiment:** the E1 global 70/10/20 ordering with `Benign → 0` and every attack label `→ 1`.
 
 All preprocessing transforms are fitted on the applicable training partition only. E2 has its own E2-train fit; E1 and E3 share state because their feature membership and split boundaries are identical.
+
+E2 validation macro F1, early stopping, checkpoint selection, and learning-rate ranking use only the train/validation eligibility rule. Test support must not influence those decisions; it belongs to the separately locked final reporting rule.
 
 ## Stage C/D Validation Evidence
 
