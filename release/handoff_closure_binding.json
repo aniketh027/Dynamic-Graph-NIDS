@@ -1,0 +1,12 @@
+{
+  "closure_handoff_sha256": "cdbdf14742b9f7a7a7b982305d97e2b39d53aa652672c8a6f03ba657d44df230",
+  "execution_authorized": false,
+  "execution_handoff_fixture": "tests/fixtures/reconciled_execution_handoff.md",
+  "git_release_authorized": false,
+  "historical_e9_handoff_sha256": "0eb4f09d989a8c641736be9637f7677cdccf3e675d73425bbd0e7cf22a5df9f6",
+  "reconciled_execution_handoff_sha256": "58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5",
+  "reconciliation_attestation_sha256": "af4b21ea289932dfad648c6affd13a4cc9f91944bcc8d4eca7a94397d3422895",
+  "scope": "Release fixture and closure documentation only; frozen execution authority remains unchanged.",
+  "snapshot_recovery": "Recovered from the pre-closure handoff read; exact physical hash matches the independently pinned reconciliation attestation.",
+  "version": "release-handoff-closure-binding-v1"
+}

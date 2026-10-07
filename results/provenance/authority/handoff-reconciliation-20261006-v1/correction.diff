@@ -1,0 +1,487 @@
+--- before/docs/stage_e12b_final_comparison.md
+
++++ after/docs/stage_e12b_final_comparison.md
+
+@@ -2,8 +2,10 @@
+
+ 
+ The owner authorized a separate E.12A freeze attestation and E.12B implementation
+ and synthetic/allowed-validation testing. Real E.12B execution remains unauthorized.
+-The authoritative checkout is `C:\Project\ComputerNetworks`. The earlier explicit
+-stale-handoff exception remains applicable; `PROJECT_HANDOFF.md` stays unchanged.
++The authoritative checkout is `C:\Project\ComputerNetworks`. The separately
++reconciled live `PROJECT_HANDOFF.md` stays byte-identical during this correction.
++E.12B binds its exact current bytes and the original E.9 historical pin through
++the separate authority attestation described below.
+ No Git release, checkpoint tag, history rewrite or upstream evidence mutation is
+ part of this implementation. No real test arrays may be opened during development.
+ 
+@@ -195,7 +197,72 @@
+
+ 
+ No real predictive or benchmark results exist from implementation testing.
+ Completion remains pending independent review. The next safe boundary is an
+-independent implementation/protocol review followed by a separately explicit
+-owner execution command. The unchanged handoff's historical literal boundary
+-remains separately authorized E.10; the owner's explicit exception authorizes
+-this E.12B implementation only.
++independent E.12B implementation/protocol pre-execution audit, followed only
++after approval by separately explicit owner authorization of one-time execution.
++The reconciled handoff records completed E.10/recovered E.11, artifact-frozen
++E.12A, and implemented/tested but unexecuted E.12B. Its recorded four-file digest
++and inherited-blocker description predate this separately authorized correction;
++the correction's separate evidence records the replacement digest without
++rewriting that pinned handoff.
++
++## Separate historical-to-live authority reconciliation
++
++The original E.12B preparation called frozen E.12A `prepare`, whose E.9
++source-hash loop compared `e9_source_sha256["PROJECT_HANDOFF.md"]` with the live
++handoff. That conflated a historical documentation binding with current dynamic
++project authority. The historical pin remains
++`0eb4f09d989a8c641736be9637f7677cdccf3e675d73425bbd0e7cf22a5df9f6`.
++Git object `2fa823943ba318fe32b2867bc8e2b1f799d78ac1:PROJECT_HANDOFF.md`
++reproduces those exact bytes. The separately authorized reconciled live pin is
++`58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5`.
++
++The separate namespace is
++`results/provenance/authority/handoff-reconciliation-20261006-v1/`.
++`attestation.json` has physical SHA-256
++`af4b21ea289932dfad648c6affd13a4cc9f91944bcc8d4eca7a94397d3422895`
++and canonical content SHA-256
++`4e338a1582834aea9a66a77a6ba2de4517ee28c6c61654701f1405ae01549d4b`.
++The physical digest is independently pinned in E.12B source and matched by its
++sidecar. The attestation binds both handoff hashes, the historical E.9 commit,
++original E.9 contract physical/canonical digests, reconciliation reason, UTC
++timestamp/run ID, exact owner request bytes, applicable authority-instruction
++digests, and compact E.9/E.10/E.11/E.12A review evidence. The current handoff
++supersedes the historical handoff only as the live authority/status record.
++It grants no experimental/source exception, execution approval or Git release.
++
++`verify_authority_reconciliation(root)` verifies the independently pinned
++attestation bytes, canonical content and serialization, sidecar, explicit
++old/new/scope/commit bindings, owner evidence and authority/review hashes.
++It verifies the original E.9 contract and unchanged historical handoff pin,
++reads the original handoff with read-only `git cat-file blob`, verifies the
++current live handoff, and still compares every other frozen E.9/upstream source
++against its original live pin. There is no fallback accepting an old live
++handoff, missing attestation, newer file, or arbitrary later edit.
++
++Because E.12A source is frozen, E.12B's `_prepare_upstream` retains the compact
++E.12A preflight contract locally, using the existing E.9/E.10 APIs. It substitutes
++only the authenticated historical/live handoff comparison, then retains E.10
++record membership, execution-source pins, semantic E.9 observation verification,
++upstream evidence, environment, Stage C, split metadata and train/validation
++integrity checks. It adds the authority attestation and both hashes to the
++returned preparation record, which the existing manifest/revalidation lifecycle
++binds. No loader, graph topology, split, policy or selection implementation is
++duplicated. E.10/E.11/E.12A preparation code remains unchanged and can still
++reject the reconciled live handoff in their historical execution paths.
++
++The four-file E.12B bundle has changed; the historical digest
++`0fd1177ef4128a7384f5ef4c5b8cecdf0e1469e0448499d6f5df9d279e930002`
++must not be reused in an owner command. The new digest is recorded in the
++separate correction report after final source/test/document edits. The existing
++owner interface checks that digest before reserving any execution namespace.
++
++Restart independent review in the authoritative checkout by reading the
++unchanged handoff, this correction, the authority attestation and owner request,
++and the frozen E.12A attestation. Reproduce the authority validator inside
++`file_guard(root)`; inspect the exact scoped diff and the old/new four-file
++digests. Run `python -B -m pytest -q tests/test_stage_e12b.py -p no:cacheprovider`
++in the approved `.venv`, followed by the allowed synthetic upstream regressions
++listed in the correction report. Do not execute E.12B, read real test arrays,
++rerun E.11, train, select another pruning mask, or grant owner execution approval
++as part of this implementation correction. The full project suite includes
++real-data/training tests and is outside this request's allowed verification scope.
+--- before/src/pruning/stage_e12b.py
+
++++ after/src/pruning/stage_e12b.py
+
+@@ -16,6 +16,7 @@
+
+ from pathlib import Path
+ import re
+ import statistics
++import subprocess
+ import sys
+ import tempfile
+ import time
+@@ -57,6 +58,13 @@
+
+                 55, 56, 58, 59, 60, 61, 62, 63, 65, 66, 67, 68, 69, 74, 75, 76, 77)
+ SOURCE_PATHS = ("src/pruning/stage_e12b.py", "scripts/run_stage_e12b.py",
+                 "tests/test_stage_e12b.py", "docs/stage_e12b_final_comparison.md")
++AUTHORITY_PATH = "results/provenance/authority/handoff-reconciliation-20261006-v1/attestation.json"
++AUTHORITY_SHA256 = "af4b21ea289932dfad648c6affd13a4cc9f91944bcc8d4eca7a94397d3422895"
++E9_FROZEN_COMMIT = "2fa823943ba318fe32b2867bc8e2b1f799d78ac1"
++E9_CONTRACT_PATH = "results/stage_e9/stage_e9_contract.json"
++E9_CONTRACT_SHA256 = "e569712855d068b97e5d5b1717faf7602e1a083b1016654b8b47ed003f0d2254"
++HISTORICAL_HANDOFF_SHA256 = "0eb4f09d989a8c641736be9637f7677cdccf3e675d73425bbd0e7cf22a5df9f6"
++CURRENT_HANDOFF_SHA256 = "58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5"
+ BENCHMARK_PLAN = MappingProxyType({"split": "validation", "batch_size": 256,
+                   "sequential_batch_starts": (0, 256, 512, 768),
+                   "warmups_per_path_per_batch": 5, "pairs_per_batch": 20,
+@@ -97,6 +105,77 @@
+
+     value = a._read(path)
+     _canonical(value, key)
+     return value
++
++
++def verify_authority_reconciliation(root: Path) -> dict[str, Any]:
++    """Bind historical E.9 bytes and the sole authorized live handoff revision.
++
++    The separately pinned attestation grants no experimental/source exception.
++    Git cat-file reads the historical object without changing refs or the index.
++    No caller-supplied hash, future-handoff fallback or global bypass exists.
++    """
++    root = Path(root).resolve()
++    try:
++        attestation = _bound_json(root, AUTHORITY_PATH, AUTHORITY_SHA256, "attestation_sha256")
++        if (root / AUTHORITY_PATH).read_bytes() != a.d2.canonical_json_bytes(attestation):
++            raise ComparisonError("authority attestation serialization changed")
++        if (root / AUTHORITY_PATH).with_suffix(".sha256").read_text(encoding="ascii").strip() != AUTHORITY_SHA256:
++            raise ComparisonError("authority attestation sidecar mismatch")
++        required = {
++            "version": "project-handoff-authority-reconciliation-v1",
++            "run_id": "handoff-reconciliation-20261006-v1",
++            "scope": ["PROJECT_HANDOFF.md"], "e9_frozen_commit": E9_FROZEN_COMMIT,
++            "e9_contract_path": E9_CONTRACT_PATH, "e9_contract_physical_sha256": E9_CONTRACT_SHA256,
++            "historical_handoff_sha256": HISTORICAL_HANDOFF_SHA256,
++            "current_handoff_sha256": CURRENT_HANDOFF_SHA256,
++            "historical_handoff_git_object": f"{E9_FROZEN_COMMIT}:PROJECT_HANDOFF.md",
++            "reason": "handoff status/documentation reconciliation after completed E.10/E.11/E.12A evidence",
++            "supersession": "current handoff supersedes the historical handoff ONLY as the live authority/status record",
++        }
++        if any(attestation.get(k) != v for k, v in required.items()):
++            raise ComparisonError("authority reconciliation scope/hash binding mismatch")
++        for key in ("no_frozen_e9_experimental_artifact_changed", "independent_review_required"):
++            if attestation.get(key) is not True:
++                raise ComparisonError("authority reconciliation safeguards missing")
++        for key in ("e12b_execution_authorized", "git_release_authorized"):
++            if attestation.get(key) is not False:
++                raise ComparisonError("authority reconciliation cannot grant execution/release approval")
++        if not isinstance(attestation.get("reconciled_at_utc"), str):
++            raise ComparisonError("authority reconciliation timestamp missing")
++        authorization = attestation["owner_authorization"]
++        if (authorization.get("actor") != "current project owner"
++                or authorization.get("basis") != "explicit attached request in the current chat"
++                or authorization.get("authorized_scope") != "PROJECT_HANDOFF.md authority reconciliation and E.12B provenance correction only"
++                or authorization.get("evidence_path") != Path(AUTHORITY_PATH).with_name("owner_authorization.txt").as_posix()):
++            raise ComparisonError("authority reconciliation owner scope mismatch")
++        if a.e10._sha256(root / authorization["evidence_path"]) != authorization["evidence_physical_sha256"]:
++            raise ComparisonError("authority reconciliation owner evidence changed")
++        for field in ("authority_policy_physical_sha256", "review_evidence_physical_sha256"):
++            for relative, expected in attestation[field].items():
++                if a.e10._sha256(root / relative) != expected:
++                    raise ComparisonError(f"authority reconciliation evidence changed: {relative}")
++        historical = _bound_json(root, E9_CONTRACT_PATH, E9_CONTRACT_SHA256, "report_sha256")
++        if (historical["report_sha256"] != attestation["e9_contract_canonical_sha256"]
++                or historical["e9_source_sha256"].get("PROJECT_HANDOFF.md") != HISTORICAL_HANDOFF_SHA256):
++            raise ComparisonError("original E.9 historical handoff pin changed")
++        old_bytes = subprocess.check_output(
++            ["git", "cat-file", "blob", attestation["historical_handoff_git_object"]],
++            cwd=root, timeout=10, stderr=subprocess.PIPE)
++        if hashlib.sha256(old_bytes).hexdigest() != HISTORICAL_HANDOFF_SHA256:
++            raise ComparisonError("historical E.9 handoff object mismatch")
++        if a.e10._sha256(root / "PROJECT_HANDOFF.md") != CURRENT_HANDOFF_SHA256:
++            raise ComparisonError("live authority handoff changed")
++        for relative, expected in {**historical["frozen_upstream_source_sha256"], **historical["e9_source_sha256"]}.items():
++            if relative == "PROJECT_HANDOFF.md":
++                # The original pin is verified above against its historical bytes.
++                # Only this one path has a separately authenticated live revision.
++                if expected != HISTORICAL_HANDOFF_SHA256:
++                    raise ComparisonError("original E.9 historical handoff pin changed")
++            elif a.e10._sha256(root / relative) != expected:
++                raise ComparisonError(f"frozen upstream source changed: {relative}")
++        return attestation
++    except (OSError, KeyError, TypeError, ValueError, subprocess.SubprocessError) as exc:
++        raise ComparisonError(f"authority reconciliation validation failed: {exc}") from exc
+ 
+ 
+ def verify_freeze(root: Path) -> dict[str, Any]:
+@@ -290,12 +369,74 @@
+
+     return digest.hexdigest()
+ 
+ 
++def _prepare_upstream(root: Path) -> dict[str, Any]:
++    """E.12B replay of frozen E.12A compact preflight with authority binding.
++
++    E.12A source cannot change after freeze. Keep its checks and return contract,
++    reuse its E.9/E.10 APIs, and substitute only the historical/live handoff
++    comparison. This creates no loader, split, topology or selection authority.
++    """
++    authority = verify_authority_reconciliation(root)
++    paths = a.e10.report_paths(root, STUDY)
++    if a.e10._sha256(paths.final_report) != a.E10_REPORT_SHA256 or paths.final_report_sha256.read_text().split()[0] != a.E10_REPORT_SHA256:
++        raise a.PruningError("pinned E.10 report changed")
++    report = a._read(paths.final_report)
++    unhashed = dict(report)
++    if unhashed.pop("report_sha256", None) != a.d2.canonical_sha256(unhashed) or report["overall_status"] != "PASS":
++        raise a.PruningError("E.10 report canonical/content validation failed")
++    for path, expected in (("src/training/full_training.py", a.e10.provenance_policy.CORRECTED_RUNTIME_SHA256),
++                           ("scripts/run_stage_e10_full_training.py", a.e10.provenance_policy.APPROVED_RUNNER_SHA256)):
++        if a.e10._sha256(root / path) != expected:
++            raise a.PruningError("reviewed E.10 execution source changed")
++    completed = a.e10.load_completed_results(root, STUDY, a.e10.enumerate_lr_selection_candidates()) + a.e10.load_completed_results(
++        root, STUDY, a.e10.enumerate_final_seed_candidates_from_plan(root, STUDY))
++    if len(completed) != 45 or report["completed_runs"] != completed:
++        raise a.PruningError("E.10 completed-record reconciliation failed")
++    records = [r for r in report["final_validation_selected_checkpoints"]
++               if r["configuration"]["model_family"] == "htgnn" and r["configuration"]["task"] == "E2"]
++    if tuple(r["configuration"]["seed"] for r in records) != a.SEEDS or any(r not in completed for r in records):
++        raise a.PruningError("final E2 checkpoint membership mismatch")
++    frozen_e9 = a.e10._validate_frozen_e9_evidence(root)
++    if frozen_e9["report_sha256"] != authority["e9_contract_canonical_sha256"]:
++        raise ComparisonError("frozen E.9 evidence differs from authority attestation")
++    manifest = a._read(a.e10.candidate_paths(root, STUDY, a.e10.FullTrainingCandidate(**{
++        k: records[0]["configuration"][k] for k in ("model_family", "task", "learning_rate", "seed", "phase")})).manifest)
++    if a.e10._evidence_hashes(root) != manifest["upstream_evidence_sha256"]:
++        raise a.PruningError("frozen upstream evidence changed")
++    current_env = a.e10.environment_identity()
++    for key in ("python", "python_implementation", "torch", "torch_geometric", "cuda_runtime"):
++        if key not in manifest["environment_identity"] or current_env.get(key) != manifest["environment_identity"][key]:
++            raise a.PruningError(f"execution environment changed: {key}")
++    stage_c_path = root / "results/stage_c_full_validation.json"
++    if a.e10._sha256(stage_c_path) != a.STAGE_C_REPORT_SHA256:
++        raise a.PruningError("frozen Stage C report changed")
++    stage_c = a._read(stage_c_path)
++    if stage_c.get("status") != "PASS":
++        raise a.PruningError("frozen Stage C integrity evidence is not PASS")
++    hashes = {}
++    for name in ("X_train.npy", "y_train.npy", "X_val.npy", "y_val.npy", "split_metadata.json"):
++        relative = f"exp2/{name}"
++        path = root / "data/processed/preprocessed" / relative
++        expected = stage_c["artefact_sha256"][relative]
++        if name == "split_metadata.json" and expected != manifest["stage_c_provenance"]["split_artifact_sha256"][relative]:
++            raise a.PruningError("split metadata differs from E.10 provenance")
++        if a.e10._sha256(path) != expected:
++            raise a.PruningError("E2 train/validation artifact integrity mismatch")
++        hashes[path.relative_to(root).as_posix()] = expected
++    if verify_authority_reconciliation(root) != authority:
++        raise ComparisonError("authority reconciliation changed during upstream preflight")
++    return {"records": records, "input_sha256": hashes, "environment": current_env,
++            "e10_report_physical_sha256": a.E10_REPORT_SHA256,
++            "authority_reconciliation": {"path": AUTHORITY_PATH, "physical_sha256": AUTHORITY_SHA256,
++                                       "canonical_sha256": authority["attestation_sha256"],
++                                       "historical_handoff_sha256": HISTORICAL_HANDOFF_SHA256,
++                                       "current_handoff_sha256": CURRENT_HANDOFF_SHA256}}
+ def prepare(root: Path) -> dict[str, Any]:
+     """Authenticate compact evidence/models and validation inputs; no test arrays."""
+     root = Path(root).resolve()
+     with file_guard(root):
+         freeze = verify_freeze(root)
+-        upstream = a.prepare(root)
++        upstream = _prepare_upstream(root)
+         report = _bound_json(root, E11_REPORT_PATH, E11_REPORT_SHA256, "report_sha256")
+         if (report.get("overall_status") != "PASS" or report.get("evaluated_checkpoints") != 27
+                 or len(report["results"]) != 27 or report.get("original_marker_preserved") is not True):
+--- before/tests/test_stage_e12b.py
+
++++ after/tests/test_stage_e12b.py
+
+@@ -413,6 +413,201 @@
+
+     with pytest.raises(b.ComparisonError, match="changed"): b.verify_freeze(tmp_path)
+ 
+ 
++def _authority_fixture(root, monkeypatch):
++    """Copy compact provenance only; no predictive arrays/checkpoints or Git writes."""
++    source = Path(b.__file__).resolve().parents[2]
++    attestation = b.a._read(source / b.AUTHORITY_PATH)
++    historical = b.a._read(source / b.E9_CONTRACT_PATH)
++    paths = {b.AUTHORITY_PATH, str(Path(b.AUTHORITY_PATH).with_suffix(".sha256")),
++             "PROJECT_HANDOFF.md", attestation["owner_authorization"]["evidence_path"],
++             *attestation["authority_policy_physical_sha256"],
++             *attestation["review_evidence_physical_sha256"],
++             *historical["frozen_upstream_source_sha256"], *historical["e9_source_sha256"]}
++    for relative in paths:
++        target = root / relative
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_bytes((source / relative).read_bytes())
++    old_bytes = b.subprocess.check_output(
++        ["git", "cat-file", "blob", f"{b.E9_FROZEN_COMMIT}:PROJECT_HANDOFF.md"], cwd=source)
++    def historical_blob(command, *, cwd, timeout, stderr):
++        assert command == ["git", "cat-file", "blob", f"{b.E9_FROZEN_COMMIT}:PROJECT_HANDOFF.md"]
++        assert cwd == root.resolve() and timeout == 10
++        return old_bytes
++    monkeypatch.setattr(b.subprocess, "check_output", historical_blob)
++    return attestation, historical
++
++
++def _rewrite_authority(root, monkeypatch, attestation):
++    # Rebind fixture physical/canonical hashes to exercise semantic checks too.
++    attestation.pop("attestation_sha256", None)
++    attestation["attestation_sha256"] = b.a.d2.canonical_sha256(attestation)
++    path = root / b.AUTHORITY_PATH
++    path.write_bytes(b.a.d2.canonical_json_bytes(attestation))
++    physical = hashlib.sha256(path.read_bytes()).hexdigest()
++    path.with_suffix(".sha256").write_text(physical)
++    monkeypatch.setattr(b, "AUTHORITY_SHA256", physical)
++
++
++def test_authority_exact_old_to_new_binding_is_read_only_and_test_locked(tmp_path, monkeypatch):
++    attestation, historical = _authority_fixture(tmp_path, monkeypatch)
++    before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
++    monkeypatch.setattr(b.a, "run_phase_a", lambda *a, **k: pytest.fail("pruning selection executed"))
++    monkeypatch.setattr(b, "run_owner", lambda *a, **k: pytest.fail("E.12B executed"))
++    with b.file_guard(tmp_path) as access:
++        result = b.verify_authority_reconciliation(tmp_path)
++        assert result == attestation
++        assert historical["e9_source_sha256"]["PROJECT_HANDOFF.md"] == b.HISTORICAL_HANDOFF_SHA256
++        assert hashlib.sha256((tmp_path / "PROJECT_HANDOFF.md").read_bytes()).hexdigest() == b.CURRENT_HANDOFF_SHA256
++        assert not access.test_enabled and access.opened_test == set() and access.attempts == []
++        with pytest.raises(b.ComparisonError, match="reservation"): b._test_access(tmp_path)
++    assert {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()} == before
++    assert not (tmp_path / "logs/stage_e12b").exists()
++    assert not (tmp_path / "results/stage_e12b").exists()
++
++
++@pytest.mark.parametrize("fault", ("old_hash", "current_hash", "commit", "scope", "owner", "execution", "release"))
++def test_authority_rejects_semantic_forgery_even_with_rebound_attestation_hash(tmp_path, monkeypatch, fault):
++    f, _ = _authority_fixture(tmp_path, monkeypatch)
++    if fault == "old_hash": f["historical_handoff_sha256"] = "f" * 64
++    elif fault == "current_hash": f["current_handoff_sha256"] = "f" * 64
++    elif fault == "commit": f["e9_frozen_commit"] = "f" * 40
++    elif fault == "scope": f["scope"].append("src/training/baselines.py")
++    elif fault == "owner": f["owner_authorization"]["authorized_scope"] = "any later source change"
++    elif fault == "execution": f["e12b_execution_authorized"] = True
++    else: f["git_release_authorized"] = True
++    _rewrite_authority(tmp_path, monkeypatch, f)
++    with b.file_guard(tmp_path), pytest.raises(b.ComparisonError): b.verify_authority_reconciliation(tmp_path)
++
++
++@pytest.mark.parametrize("fault", ("missing", "corrupt", "malformed", "sidecar", "live_handoff", "owner_evidence", "historical_blob", "e9_evidence", "unrelated_source", "agents", "release_skill", "review_evidence"))
++def test_authority_rejects_missing_corrupt_or_unrelated_changes(tmp_path, monkeypatch, fault):
++    f, _ = _authority_fixture(tmp_path, monkeypatch)
++    attestation = tmp_path / b.AUTHORITY_PATH
++    if fault == "missing": attestation.unlink()
++    elif fault == "corrupt": attestation.write_bytes(attestation.read_bytes() + b" ")
++    elif fault == "malformed":
++        attestation.write_text("{")
++        monkeypatch.setattr(b, "AUTHORITY_SHA256", hashlib.sha256(attestation.read_bytes()).hexdigest())
++    elif fault == "sidecar": attestation.with_suffix(".sha256").write_text("f" * 64)
++    elif fault == "live_handoff": (tmp_path / "PROJECT_HANDOFF.md").write_bytes(b"arbitrary future edit")
++    elif fault == "owner_evidence": (tmp_path / f["owner_authorization"]["evidence_path"]).write_text("forged")
++    elif fault == "historical_blob": monkeypatch.setattr(b.subprocess, "check_output", lambda *a, **k: b"wrong historical bytes")
++    elif fault == "e9_evidence": (tmp_path / b.E9_CONTRACT_PATH).write_bytes(b"changed")
++    elif fault == "unrelated_source": (tmp_path / "src/training/baselines.py").write_bytes(b"changed")
++    elif fault == "agents": (tmp_path / "AGENTS.md").write_bytes(b"changed")
++    elif fault == "release_skill": (tmp_path / ".agents/skills/nids-release-audit/SKILL.md").write_bytes(b"changed")
++    else: (tmp_path / b.E11_REPORT_PATH).write_bytes(b"changed")
++    with b.file_guard(tmp_path), pytest.raises(b.ComparisonError): b.verify_authority_reconciliation(tmp_path)
++
++
++def test_original_e9_handoff_pin_cannot_be_replaced_even_with_rebound_evidence(tmp_path, monkeypatch):
++    f, e9 = _authority_fixture(tmp_path, monkeypatch)
++    e9["e9_source_sha256"]["PROJECT_HANDOFF.md"] = b.CURRENT_HANDOFF_SHA256
++    e9.pop("report_sha256")
++    e9["report_sha256"] = b.a.d2.canonical_sha256(e9)
++    path = tmp_path / b.E9_CONTRACT_PATH
++    path.write_bytes(b.a.d2.canonical_json_bytes(e9))
++    physical = hashlib.sha256(path.read_bytes()).hexdigest()
++    path.with_suffix(".sha256").write_text(physical)
++    monkeypatch.setattr(b, "E9_CONTRACT_SHA256", physical)
++    f["e9_contract_physical_sha256"] = physical
++    f["e9_contract_canonical_sha256"] = e9["report_sha256"]
++    for relative in (b.E9_CONTRACT_PATH, Path(b.E9_CONTRACT_PATH).with_suffix(".sha256").as_posix()):
++        f["review_evidence_physical_sha256"][relative] = hashlib.sha256((tmp_path / relative).read_bytes()).hexdigest()
++    _rewrite_authority(tmp_path, monkeypatch, f)
++    with b.file_guard(tmp_path), pytest.raises(b.ComparisonError, match="original E.9 historical handoff pin"):
++        b.verify_authority_reconciliation(tmp_path)
++
++
++def test_reconciled_authority_never_unlocks_even_synthetic_test_arrays(tmp_path, monkeypatch):
++    _authority_fixture(tmp_path, monkeypatch)
++    for directory in b.a.d4.EXPERIMENT_DIRS.values():
++        for name in ("X_test.npy", "y_test.npy"):
++            path = tmp_path / "data/processed/preprocessed" / directory / name
++            path.parent.mkdir(parents=True, exist_ok=True)
++            path.write_bytes(b"synthetic sentinel; must never open")
++    with b.file_guard(tmp_path) as access:
++        b.verify_authority_reconciliation(tmp_path)
++        for directory in b.a.d4.EXPERIMENT_DIRS.values():
++            for name in ("X_test.npy", "y_test.npy"):
++                with pytest.raises(b.ComparisonError, match="locked"):
++                    np.load(tmp_path / "data/processed/preprocessed" / directory / name, mmap_mode="r")
++        assert access.opened_test == set() and len(access.attempts) == 6
++        assert not access.test_enabled and access.ledger_sha256 is None
++
++
++def test_e12b_upstream_reuses_all_frozen_checks_with_only_authority_substitution(tmp_path, monkeypatch):
++    from test_stage_e12_pruning import preparation_fixture
++    preparation_fixture(tmp_path, monkeypatch)
++    frozen = b.a.prepare(tmp_path)
++    monkeypatch.setattr(b, "verify_authority_reconciliation", lambda root: {
++        "attestation_sha256": "synthetic-authority", "e9_contract_canonical_sha256": "synthetic-e9"})
++    monkeypatch.setattr(b.a.e10, "_validate_frozen_e9_evidence", lambda root: {"report_sha256": "synthetic-e9"})
++    with b.file_guard(tmp_path) as access:
++        result = b._prepare_upstream(tmp_path)
++    binding = result.pop("authority_reconciliation")
++    assert result == frozen and len(result["input_sha256"]) == 5
++    assert binding["historical_handoff_sha256"] == b.HISTORICAL_HANDOFF_SHA256
++    assert binding["current_handoff_sha256"] == b.CURRENT_HANDOFF_SHA256
++    assert not access.opened_test and not access.attempts
++
++
++@pytest.mark.parametrize("fault", ("report", "environment", "train_array", "split", "upstream_evidence", "e9_binding", "runtime_source"))
++def test_e12b_upstream_retains_nonhandoff_rejections(tmp_path, monkeypatch, fault):
++    from test_stage_e12_pruning import preparation_fixture
++    environment, paths = preparation_fixture(tmp_path, monkeypatch)
++    monkeypatch.setattr(b, "verify_authority_reconciliation", lambda root: {
++        "attestation_sha256": "synthetic-authority", "e9_contract_canonical_sha256": "synthetic-e9"})
++    monkeypatch.setattr(b.a.e10, "_validate_frozen_e9_evidence", lambda root: {"report_sha256": "synthetic-e9"})
++    if fault == "report": paths.final_report.write_bytes(b"changed")
++    elif fault == "environment": environment["torch"] = "changed"
++    elif fault == "train_array": (tmp_path / "data/processed/preprocessed/exp2/X_train.npy").write_bytes(b"changed")
++    elif fault == "split": (tmp_path / "data/processed/preprocessed/exp2/split_metadata.json").write_bytes(b"changed")
++    elif fault == "upstream_evidence": monkeypatch.setattr(b.a.e10, "_evidence_hashes", lambda root: {"unknown": "f" * 64})
++    elif fault == "e9_binding": monkeypatch.setattr(b.a.e10, "_validate_frozen_e9_evidence", lambda root: {"report_sha256": "wrong"})
++    else:
++        original = b.a.e10._sha256
++        monkeypatch.setattr(b.a.e10, "_sha256", lambda p: "f" * 64 if p.name == "full_training.py" else original(p))
++    with b.file_guard(tmp_path), pytest.raises((b.ComparisonError, b.a.PruningError)):
++        b._prepare_upstream(tmp_path)
++
++
++def test_missing_authority_blocks_e12b_prepare_before_any_loader_or_execution(tmp_path, monkeypatch):
++    monkeypatch.setattr(b, "verify_freeze", lambda root: {})
++    monkeypatch.setattr(b.a.e10, "load_completed_results", lambda *a, **k: pytest.fail("records loaded before authority check"))
++    monkeypatch.setattr(b, "load_bound_model", lambda *a, **k: pytest.fail("model loaded before authority check"))
++    with b.file_guard(tmp_path) as access, pytest.raises(b.ComparisonError, match="authority reconciliation"):
++        b.prepare(tmp_path)
++    assert not access.opened_test and not access.test_enabled
++    assert not (tmp_path / "logs/stage_e12b").exists()
++
++
++def test_authority_is_rechecked_after_upstream_preflight(tmp_path, monkeypatch):
++    from test_stage_e12_pruning import preparation_fixture
++    preparation_fixture(tmp_path, monkeypatch)
++    calls = []
++    def verify(root):
++        calls.append(root)
++        if len(calls) == 2:
++            raise b.ComparisonError("live authority handoff changed")
++        return {"attestation_sha256": "synthetic-authority", "e9_contract_canonical_sha256": "synthetic-e9"}
++    monkeypatch.setattr(b, "verify_authority_reconciliation", verify)
++    monkeypatch.setattr(b.a.e10, "_validate_frozen_e9_evidence", lambda root: {"report_sha256": "synthetic-e9"})
++    with b.file_guard(tmp_path), pytest.raises(b.ComparisonError, match="live authority handoff changed"):
++        b._prepare_upstream(tmp_path)
++    assert len(calls) == 2
++
++
++def test_old_owner_implementation_bundle_is_rejected_before_reservation(tmp_path, monkeypatch):
++    monkeypatch.setattr(b, "prepare", lambda root: {"implementation_sha256": "new-reviewed-bundle"})
++    with pytest.raises(b.ComparisonError, match="implementation source bundle changed"):
++        b.run_owner(tmp_path, run_id="e12b-20261006-v1", device="cpu",
++                    policy_sha256=b.POLICY_SHA256, freeze_sha256=b.FREEZE_SHA256,
++                    implementation_sha256="0fd1177ef4128a7384f5ef4c5b8cecdf0e1469e0448499d6f5df9d279e930002",
++                    owner_confirmed_one_time_pruned_test_execution=True)
++    assert not list(tmp_path.iterdir())
++
++
+ @pytest.mark.parametrize("task", b.TASKS)
+ @pytest.mark.parametrize("bad_order", (False, True))
+ def test_synthetic_pruned_streaming_partial_batches_and_e11_metric_parity(tmp_path, monkeypatch, task, bad_order):

@@ -1,164 +1,57 @@
 # Dynamic Graph Optimization and Automated Feature Extraction for Efficient Intrusion Detection in Network Systems
 
-This student research project investigates an intrusion-detection pipeline that combines automated feature extraction, heterogeneous temporal graphs, graph neural networks, and attention-guided graph optimization. The repository currently contains the verified data/preprocessing foundation and framework-independent Stage D graph-input layer; it does not yet contain a graph-framework object or trained detection model.
+This research repository implements a CSE-CIC-IDS2018 intrusion-detection pipeline: train-fitted preprocessing, five-flow temporal inputs, a heterogeneous temporal graph neural network (HTGNN), and attention-guided graph pruning at inference time.
 
-## Current Status
+The approved experimental scope through E.12B is complete. E.10 training/validation, reviewed E.11 recovery, frozen E.12A policy selection, and E.12B comparison are recorded in the working-tree evidence. The historical Git checkpoint remains E.9. The next safe boundary is a fresh independent final release audit; further experiments and test-set reuse require separate authorization. [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) records the current authority and [final experimental results](docs/final_experimental_results.md) contains measured results, limitations, and exact evidence identities.
 
-Stage C preprocessing and the Stage D graph-input layer are independently verified and frozen. Stage D defines the approved `78 feature -> 8 category -> 1 sample` hierarchy (87 nodes and 86 directed edges) through D1-D8. The next project activity is **model/framework design** against that frozen contract.
+## Implemented pipeline
 
-No PyG/HeteroData construction, HTGNN, GATv2, temporal encoder, pruning, model-training, or performance result is claimed in this checkpoint.
+1. **Preprocessing and temporal input.** Canonical cleaning produces windows of five consecutive clean flow records (`T=5`) in deterministic capture order. Each input has 78 features, excluding Timestamp and Label; the fifth/final flow supplies the target. A window need not represent one conversation. Preprocessing is fitted only on the applicable training partition, with experiment-specific membership and provenance retained.
+2. **Heterogeneous graph.** The frozen full graph is `78 feature -> 8 category -> 1 sample`: 87 type-local nodes and 86 directed structural edges. Lazy graph input and bounded batching feed the PyTorch Geometric `HeteroData` adapter. Each feature node carries its five ordered values.
+3. **Causal temporal encoding.** A shared two-layer causal Conv1d encoder uses left padding and takes the fifth/final temporal representation. It combines that representation with learned feature identity before graph aggregation.
+4. **GATv2-based HTGNN.** Bipartite GATv2 blocks aggregate feature nodes into category nodes, then category nodes into the sample node. The sample embedding feeds the task-specific classification head. Final-flow and flattened-five-flow MLPs provide graph-free baselines.
+5. **Inference-time pruning.** E.12A ranks features using evaluation-mode attention from E2 training examples, then selects a per-category mask using E2 validation only. The frozen 61-feature graph retains all eight category nodes and the sample node: 70 nodes and 69 edges. E.12B transfers the same mask to E1/E2/E3 and compares pruned inference with persisted unpruned results. Pruning changes graph computation; it uses no retraining, fine-tuning, parameter pruning, or parameter-count reduction.
 
-## Project Pipeline
+Implementation is in [preprocessing](src/preprocessing/), [graph adapters and encoders](src/graph/), [training](src/training/), [evaluation](src/evaluation/), and [pruning](src/pruning/). Historical stage documents remain evidence of their original preparation/execution boundary; the current handoff supersedes their stale status statements without rewriting provenance-bound bytes.
 
-| Pipeline stage | Status |
-| --- | --- |
-| CSE-CIC-IDS2018 dataset inspection and Stage B profiling | Completed |
-| Canonical cleaning, T=5 windows, E1/E2/E3 splits, train-only preprocessing | Completed, independently verified, frozen |
-| Framework-independent Stage D graph-input schema, adapters, batching, and full-split integration | Completed, independently verified, frozen |
-| Graph-framework and model design | Planned; design review is next |
-| HTGNN / GATv2 detection | Planned |
-| Attention-guided graph optimization and pruning | Planned |
-| Model evaluation | Planned |
+## Experiment roles
 
-In sequence: dataset → preprocessing → feature engineering → heterogeneous temporal graph → HTGNN / GATv2 → detection → attention-guided graph optimization/pruning → evaluation.
+| Experiment | Membership and task | Reporting role |
+| --- | --- | --- |
+| E1 | Strict global capture-order 70/10/20 split; multiclass | Diagnostic; restricted class support limits interpretation |
+| E2 | Final-flow class groups split 70/10/20 chronologically within each class, then recombined; multiclass | Primary supervised multiclass experiment; not one global timeline |
+| E3 | E1 global capture-order membership; Benign = 0, attacks = 1 | Strict chronological binary generalization experiment |
 
-## Dataset
+E2 validation selection uses training and validation support only. Final test reporting additionally uses the declared test-support eligibility rule. E1/E3 share preprocessing state because their feature membership and boundaries match; E2 has its own train fit. Their reporting roles remain separate.
 
-The project uses **CSE-CIC-IDS2018**. The dataset is not redistributed by this repository. Obtain it from its authorized source and place these 10 CSV files under `data/raw/csv/`:
+Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
 
-```text
-02-14-2018.csv
-02-15-2018.csv
-02-16-2018.csv
-02-20-2018.csv
-02-21-2018.csv
-02-22-2018.csv
-02-23-2018.csv
-02-28-2018.csv
-03-01-2018.csv
-03-02-2018.csv
-```
+## Data and environment
 
-The optional Parquet comparison copy belongs under `data/raw/parquet/`. Both raw-data directories are ignored by Git. See [`data/raw/README.md`](data/raw/README.md) for setup details.
+Raw CSE-CIC-IDS2018 data, generated predictive arrays, checkpoints, and runtime logs are external to Git. See [raw-data setup](data/raw/README.md) for the ten expected CSVs and [release provenance](docs/release_provenance.md) for the exact external evidence archive and per-file integrity contract. No dataset or checkpoint download is supplied here.
 
-## Verified Dataset Facts
+The verified modelling environment is the isolated `.venv`, with CPython 3.13 on Windows. Use [requirements-gnn-lock.txt](requirements-gnn-lock.txt) and the recorded setup commands/build provenance in [the Stage E.1 environment report](results/stage_e1/environment-report.json). The earlier base-only `requirements.txt` is insufficient for the completed graph model. Environment recreation must follow the recorded lock and platform requirements.
 
-| Measurement | Verified value |
-| --- | ---: |
-| Raw rows | 16,233,002 |
-| Embedded headers removed | 59 |
-| Usable rows | 16,232,943 |
-| Conflicting rows | 423,390 |
-| Conflicting groups | 22,373 |
-| Canonical exact duplicates excluded | 213,316 |
-| Temporal duplicates retained | 3,651,448 |
-| Clean rows | 15,596,237 |
-| T=5 windows | 3,119,247 |
-| Trailing rows | 2 |
+## Safe verification
 
-The model-input convention is exactly 78 features. `Timestamp` and `Label` are metadata/target fields, not model-input features.
-
-## Temporal Representation
-
-Stage C constructs a **contiguous capture-order temporal window** from five consecutive clean flow records (`T=5`). Files are ordered by source-file capture date, then by synthetic `Original_Index`. `Original_Index` is assigned before embedded-header filtering. The label of the fifth/final flow is the window target.
-
-These windows are not guaranteed to represent individual network conversations. `T=5` is a reasonable engineering choice, not a mathematically optimal value, and its predictive value has not yet been measured.
-
-## Evaluation Configurations
-
-- **E1 — strict global capture-order multiclass diagnostic:** global 70/10/20 split, with no shuffle or stratification. It is diagnostic only and is not the primary multiclass performance evaluation.
-- **E2 — primary multiclass supervised experiment:** group windows by final-flow class, preserve chronology within each class, split each class 70/10/20, then recombine partitions. E2 is not globally chronological. A class is reportable only when train ≥ 100, validation ≥ 30, and test ≥ 30.
-- **E3 — primary strict global capture-order binary experiment:** the E1 global 70/10/20 ordering with `Benign → 0` and every attack label `→ 1`.
-
-All preprocessing transforms are fitted on the applicable training partition only. E2 has its own E2-train fit; E1 and E3 share state because their feature membership and split boundaries are identical.
-
-## Validation
-
-- **691 tests passed; 0 failed.** Stage D contributes 231 passing tests, including 44 D8 tests.
-- Two corrected full-corpus runs produced identical relative sets of 33 canonical artifacts.
-- All 33 corresponding SHA-256 values were identical; missing = 0, extra = 0, differing = 0.
-- All 10 raw CSV files remained byte-identical.
-- Stage C passed independent adversarial re-audit and is frozen.
-- Stage D D1-D8 passed independent adversarial release audit; see [`docs/STAGE_D_VERIFICATION.md`](docs/STAGE_D_VERIFICATION.md).
-
-Compact machine-readable evidence is retained in [`results/stage_c_full_validation.json`](results/stage_c_full_validation.json). Multi-gigabyte arrays are deliberately not stored in Git.
-
-## Project Structure
-
-```text
-configs/                       portable run configuration
-data/raw/                      local-only CIC-IDS2018 input and setup guide
-data/processed/                local-only generated Stage C artifacts
-docs/                          verification and freeze documentation
-results/data_profile/          compact Stage B reports and metadata
-results/inspection/            compact inspection report
-results/temporal_analysis/     compact T=5 and T-sweep reports
-scripts/                       inspection, profiling, preprocessing, validation CLIs
-src/analysis/                  temporal continuity and robustness analysis
-src/preprocessing/             frozen Stage C implementation
-src/graph/                     frozen framework-independent Stage D graph-input layer
-src/utils/                     logging and reproducibility helpers
-tests/                         setup, profiling, analysis, and Stage C tests
-PROJECT_HANDOFF.md             verified milestone handoff and next boundary
-```
-
-`extracted_report.txt` and `graph optimization papers (1).docx` preserve the original project write-up and literature material. Their performance statements are background material, not verified experimental results.
-
-## Installation / Environment
-
-The project targets Python 3.10–3.13 and was verified on Python 3.13. Create an environment from the project root:
+The complete test suite includes real-data integration and training paths. For the reviewed release subset, use the isolated environment and exclude the exact real CUDA resource/training test:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -B -m pytest -q -p no:cacheprovider `
+  tests/test_stage_e10_full_training.py `
+  tests/test_stage_e11_test_evaluation.py `
+  tests/test_stage_e11_failure_recovery.py `
+  tests/test_stage_e12_pruning.py `
+  tests/test_stage_e12b.py `
+  tests/test_stage_e9_batch_size_pilot.py `
+  tests/test_release_authority.py `
+  -k "not test_run_candidate_short_real_cuda_timing_and_memory_path"
 ```
 
-Alternatively:
+This subset uses synthetic/temp fixtures and compact provenance. Release verification also runs under a guard that rejects real-checkout writes, real predictive-array opens, backward calls, training, and optimizer steps. A generic `not slow` filter does not establish safety. The separate release fixture authenticates the historical execution handoff and current closure handoff; it leaves frozen execution preflight pins unchanged.
 
-```powershell
-conda env create -f environment.yml
-conda activate nids-graph
-```
+## Interpretation and release boundary
 
-`requirements-gnn.txt` documents the later modelling stack and is not required for Stage C.
+Capture order is a deterministic proxy rather than guaranteed physical chronology because source timestamps lack AM/PM. Repeated temporal/network states can occur across partitions even though split indices do not overlap. E2 preserves chronology within each class, and its results must not be presented as strict global chronological evaluation. The experiment does not establish an optimal window length or universal deployment efficiency.
 
-## Running Tests
-
-From the repository root:
-
-```powershell
-python -m pytest
-```
-
-Real-corpus tests expect the 10 CSV files under `data/raw/csv/`.
-
-## Stage C Reproduction
-
-Full-corpus reproduction is disk- and time-intensive. It generates arrays locally and does not require downloading generated arrays from GitHub.
-
-```powershell
-python scripts/run_preprocessing.py
-python scripts/run_preprocessing.py --config configs/run2_repro.yaml
-python scripts/validate_stage_c.py `
-  --output-dir data/processed/preprocessed `
-  --compare-dir data/processed/preprocessed_run2 `
-  --raw-dir data/raw/csv `
-  --report results/stage_c_full_validation.json
-```
-
-For a bounded pipeline smoke run, use `python scripts/run_preprocessing.py --debug`. Generated output directories remain Git-ignored.
-
-## Limitations
-
-1. Capture order is a deterministic proxy, not guaranteed physical chronology, because dataset timestamps lack AM/PM.
-2. T=5 windows are not guaranteed to represent individual conversations.
-3. Repeated temporal/network states occur across evaluation partitions. Split indices do not overlap, but results must not be described as performance exclusively on previously unseen states.
-4. E2 preserves chronology within each class, not one global timeline.
-5. T=5 predictive value remains unmeasured because no model has been trained.
-6. Performance claims in the original project report are not verified results.
-7. No PyG/HeteroData object, temporal encoder, GATv2/HTGNN model, training, learned attention, or pruning has yet been implemented.
-
-## Next Stage
-
-The exact next step is **model/framework design** against the frozen Stage D graph-input contract. Stage C algorithms and Stage D D1-D8 contracts, counts, and evidence remain frozen during that review.
+[Stage C verification](docs/STAGE_C_VERIFICATION.md), [Stage D verification](docs/STAGE_D_VERIFICATION.md), and the later stage documents preserve the methodology and evidence. Original project/literature write-ups are background, not measured-results authority. Stop at final release-audit/documentation readiness; preserve the completed experiments and their failure/recovery history.

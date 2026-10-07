@@ -29,3 +29,184 @@ PROJECT_HANDOFF.md -text
 results/stage_e9/htgnn_batch_size_pilot_observations.json -text
 results/stage_e9/stage_e9_contract.json -text
 results/stage_e9/stage_e9_contract.sha256 -text
+
+
+# Release physical-hash closure: disable newline conversion and text filters.
+# Exact paths below are recorded source/document/test dependencies; no global source rule.
+.agents/skills/nids-release-audit/SKILL.md -text -filter -ident -working-tree-encoding
+.agents/skills/nids-stage-implementation/SKILL.md -text -filter -ident -working-tree-encoding
+AGENTS.md -text -filter -ident -working-tree-encoding
+PROJECT_HANDOFF.md -text -filter -ident -working-tree-encoding
+checkpoints/.gitkeep -text -filter -ident -working-tree-encoding
+docs/STAGE_C_VERIFICATION.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D1_TAXONOMY.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D2_GRAPH_SCHEMA.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D3_STRUCTURAL_VALIDATION.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D4_LAZY_ADAPTER.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D5_EXPERIMENT_BOUNDARIES.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D6_TEMPLATE_BATCHING.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D7_CONSTRUCTION_SANITY.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D8_FULL_SPLIT_INTEGRATION.md -text -filter -ident -working-tree-encoding
+docs/STAGE_D_VERIFICATION.md -text -filter -ident -working-tree-encoding
+docs/final_experimental_results.md -text -filter -ident -working-tree-encoding
+docs/stage_e10_full_training.md -text -filter -ident -working-tree-encoding
+docs/stage_e11_failure_recovery.md -text -filter -ident -working-tree-encoding
+docs/stage_e11_test_evaluation.md -text -filter -ident -working-tree-encoding
+docs/stage_e12_attention_pruning.md -text -filter -ident -working-tree-encoding
+docs/stage_e12b_final_comparison.md -text -filter -ident -working-tree-encoding
+docs/stage_e2_heterodata_adapter.md -text -filter -ident -working-tree-encoding
+docs/stage_e2_provenance_cache.md -text -filter -ident -working-tree-encoding
+docs/stage_e3_feature_encoder.md -text -filter -ident -working-tree-encoding
+docs/stage_e4_hierarchical_encoder.md -text -filter -ident -working-tree-encoding
+docs/stage_e5_htgnn_classifier.md -text -filter -ident -working-tree-encoding
+docs/stage_e6_resource_pilot.md -text -filter -ident -working-tree-encoding
+docs/stage_e7_training_harness.md -text -filter -ident -working-tree-encoding
+docs/stage_e8_optimization_pilot.md -text -filter -ident -working-tree-encoding
+docs/stage_e9_baselines_batch_size_pilot.md -text -filter -ident -working-tree-encoding
+logs/.gitkeep -text -filter -ident -working-tree-encoding
+release/handoff_closure_binding.json -text -filter -ident -working-tree-encoding
+release/provenance_manifest.json -text -filter -ident -working-tree-encoding
+release/provenance_manifest.sha256 -text -filter -ident -working-tree-encoding
+requirements-gnn-lock.txt -text -filter -ident -working-tree-encoding
+scripts/analyze_continuity_robustness.py -text -filter -ident -working-tree-encoding
+scripts/analyze_window_continuity.py -text -filter -ident -working-tree-encoding
+scripts/continuity_label_breakdown.py -text -filter -ident -working-tree-encoding
+scripts/inspect_dataset.py -text -filter -ident -working-tree-encoding
+scripts/load_day_csv.py -text -filter -ident -working-tree-encoding
+scripts/profile_dataset.py -text -filter -ident -working-tree-encoding
+scripts/recover_stage_e11_test_evaluation.py -text -filter -ident -working-tree-encoding
+scripts/run_preprocessing.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e10_full_training.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e11_test_evaluation.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e12_pruning.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e12b.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e6_resource_pilot.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e8_optimization_pilot.py -text -filter -ident -working-tree-encoding
+scripts/run_stage_e9_batch_size_pilot.py -text -filter -ident -working-tree-encoding
+scripts/train_htgnn.py -text -filter -ident -working-tree-encoding
+scripts/validate_e2_provenance_cache.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_c.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e2.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e3.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e4.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e5.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e7.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e8.py -text -filter -ident -working-tree-encoding
+scripts/validate_stage_e9.py -text -filter -ident -working-tree-encoding
+scripts/verify_stage_e1_environment.py -text -filter -ident -working-tree-encoding
+src/__init__.py -text -filter -ident -working-tree-encoding
+src/analysis/__init__.py -text -filter -ident -working-tree-encoding
+src/analysis/continuity_artifacts.py -text -filter -ident -working-tree-encoding
+src/analysis/continuity_robustness.py -text -filter -ident -working-tree-encoding
+src/analysis/robustness_artifacts.py -text -filter -ident -working-tree-encoding
+src/analysis/window_continuity.py -text -filter -ident -working-tree-encoding
+src/config.py -text -filter -ident -working-tree-encoding
+src/evaluation/__init__.py -text -filter -ident -working-tree-encoding
+src/evaluation/e11_failure_recovery.py -text -filter -ident -working-tree-encoding
+src/evaluation/official_test.py -text -filter -ident -working-tree-encoding
+src/features/__init__.py -text -filter -ident -working-tree-encoding
+src/graph/__init__.py -text -filter -ident -working-tree-encoding
+src/graph/adapter.py -text -filter -ident -working-tree-encoding
+src/graph/batching.py -text -filter -ident -working-tree-encoding
+src/graph/construction_sanity.py -text -filter -ident -working-tree-encoding
+src/graph/experiment_validation.py -text -filter -ident -working-tree-encoding
+src/graph/feature_encoder.py -text -filter -ident -working-tree-encoding
+src/graph/full_split_integration.py -text -filter -ident -working-tree-encoding
+src/graph/hierarchical_encoder.py -text -filter -ident -working-tree-encoding
+src/graph/htgnn_classifier.py -text -filter -ident -working-tree-encoding
+src/graph/pyg_adapter.py -text -filter -ident -working-tree-encoding
+src/graph/resource_pilot.py -text -filter -ident -working-tree-encoding
+src/graph/schema.py -text -filter -ident -working-tree-encoding
+src/graph/taxonomy.py -text -filter -ident -working-tree-encoding
+src/graph/validation.py -text -filter -ident -working-tree-encoding
+src/models/__init__.py -text -filter -ident -working-tree-encoding
+src/preprocessing/__init__.py -text -filter -ident -working-tree-encoding
+src/preprocessing/artifacts.py -text -filter -ident -working-tree-encoding
+src/preprocessing/cleaning.py -text -filter -ident -working-tree-encoding
+src/preprocessing/inspection.py -text -filter -ident -working-tree-encoding
+src/preprocessing/labels.py -text -filter -ident -working-tree-encoding
+src/preprocessing/loader.py -text -filter -ident -working-tree-encoding
+src/preprocessing/pipeline.py -text -filter -ident -working-tree-encoding
+src/preprocessing/profile_artifacts.py -text -filter -ident -working-tree-encoding
+src/preprocessing/profiling.py -text -filter -ident -working-tree-encoding
+src/preprocessing/schema.py -text -filter -ident -working-tree-encoding
+src/preprocessing/splitting.py -text -filter -ident -working-tree-encoding
+src/preprocessing/transforms.py -text -filter -ident -working-tree-encoding
+src/preprocessing/windowing.py -text -filter -ident -working-tree-encoding
+src/pruning/__init__.py -text -filter -ident -working-tree-encoding
+src/pruning/stage_e12.py -text -filter -ident -working-tree-encoding
+src/pruning/stage_e12b.py -text -filter -ident -working-tree-encoding
+src/training/__init__.py -text -filter -ident -working-tree-encoding
+src/training/baseline_integration.py -text -filter -ident -working-tree-encoding
+src/training/baselines.py -text -filter -ident -working-tree-encoding
+src/training/batch_size_pilot.py -text -filter -ident -working-tree-encoding
+src/training/e10_provenance_policy.py -text -filter -ident -working-tree-encoding
+src/training/full_training.py -text -filter -ident -working-tree-encoding
+src/training/harness.py -text -filter -ident -working-tree-encoding
+src/training/optimization_pilot.py -text -filter -ident -working-tree-encoding
+src/training/validation.py -text -filter -ident -working-tree-encoding
+src/utils/__init__.py -text -filter -ident -working-tree-encoding
+src/utils/logging_utils.py -text -filter -ident -working-tree-encoding
+src/utils/reproducibility.py -text -filter -ident -working-tree-encoding
+tests/conftest.py -text -filter -ident -working-tree-encoding
+tests/fixtures/reconciled_execution_handoff.md -text -filter -ident -working-tree-encoding
+tests/test_construction_sanity.py -text -filter -ident -working-tree-encoding
+tests/test_continuity_robustness.py -text -filter -ident -working-tree-encoding
+tests/test_e2_provenance_cache.py -text -filter -ident -working-tree-encoding
+tests/test_experiment_validation.py -text -filter -ident -working-tree-encoding
+tests/test_feature_encoder.py -text -filter -ident -working-tree-encoding
+tests/test_full_split_integration.py -text -filter -ident -working-tree-encoding
+tests/test_graph_adapter.py -text -filter -ident -working-tree-encoding
+tests/test_graph_batching.py -text -filter -ident -working-tree-encoding
+tests/test_graph_schema.py -text -filter -ident -working-tree-encoding
+tests/test_graph_taxonomy.py -text -filter -ident -working-tree-encoding
+tests/test_graph_validation.py -text -filter -ident -working-tree-encoding
+tests/test_hierarchical_encoder.py -text -filter -ident -working-tree-encoding
+tests/test_htgnn_classifier.py -text -filter -ident -working-tree-encoding
+tests/test_loader.py -text -filter -ident -working-tree-encoding
+tests/test_optimization_pilot.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_artifacts.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_cleaning.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_labels.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_pipeline.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_splitting.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_transforms.py -text -filter -ident -working-tree-encoding
+tests/test_preprocessing_windowing.py -text -filter -ident -working-tree-encoding
+tests/test_profiling.py -text -filter -ident -working-tree-encoding
+tests/test_pyg_adapter.py -text -filter -ident -working-tree-encoding
+tests/test_resource_pilot.py -text -filter -ident -working-tree-encoding
+tests/test_setup.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e10_full_training.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e11_failure_recovery.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e11_test_evaluation.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e12_pruning.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e12b.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e9_baselines.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e9_batch_size_pilot.py -text -filter -ident -working-tree-encoding
+tests/test_stage_e9_training_integration.py -text -filter -ident -working-tree-encoding
+tests/test_training_harness.py -text -filter -ident -working-tree-encoding
+tests/test_window_continuity.py -text -filter -ident -working-tree-encoding
+
+# Compact evidence and audited official external provenance scopes.
+# frozen full-corpus preprocessing evidence
+results/stage_c_full_validation.json -text -filter -ident -working-tree-encoding
+# compact dataset-profile evidence
+results/data_profile/** -text -filter -ident -working-tree-encoding
+# compact source-inspection evidence
+results/inspection/INSPECTION_REPORT.md -text -filter -ident -working-tree-encoding
+# temporal experiment evidence
+results/temporal_analysis/** -text -filter -ident -working-tree-encoding
+# frozen D1-D8 graph contracts and sidecars
+results/stage_d*/** -text -filter -ident -working-tree-encoding
+# frozen E.1-E.12B reports, observations and sidecars
+results/stage_e*/** -text -filter -ident -working-tree-encoding
+# authority attestations and their physical dependencies
+results/provenance/** -text -filter -ident -working-tree-encoding
+# 270 official external E.10 provenance files
+logs/stage_e10/e10-official-20261001-v1/** -text -filter -ident -working-tree-encoding
+# 5 official external failure/recovery provenance files
+logs/stage_e11/e10-official-20261001-v1/** -text -filter -ident -working-tree-encoding
+# 2 official external E.12A provenance files
+logs/stage_e12/e10-official-20261001-v1/** -text -filter -ident -working-tree-encoding
+# 3 official external E.12B provenance files
+logs/stage_e12b/e10-official-20261001-v1/** -text -filter -ident -working-tree-encoding

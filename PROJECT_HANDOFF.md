@@ -1,38 +1,60 @@
-# Project Handoff — Stage E.9 Frozen; E.10 Awaiting Authorization
+# Project Handoff — E.9 Git Checkpoint; Experimental Scope through E.12B Complete
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, the independently audited Stage E.8 bounded optimization pilot, and the independently audited Stage E.9 model-binding and bounded resource-pilot checkpoint. Stage E.9 freezes HTGNN training batch size 256 under its hardware-specific resource rule; it does not establish full-training throughput, predictive performance, a final learning rate, locked-test results, or pruning. E.10 remains unauthorized.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, the independently audited Stage E.8 bounded optimization pilot, and the independently audited Stage E.9 model-binding and bounded resource-pilot checkpoint. Stage E.9 freezes HTGNN training batch size 256 under its hardware-specific resource rule; that checkpoint alone did not establish full-training throughput, predictive performance, a final learning rate, locked-test results, or pruning. The authoritative working tree subsequently completed owner-authorized E.10 training/validation, E.11 interrupted-and-recovered first-test evaluation, and E.12A validation-only pruning selection and policy freeze. E.12B is COMPLETE and independently audited PASS, as confirmed by the owner on 2026-10-06. The approved experimental scope is complete; final report/release/documentation is now the active boundary. No further ML experiment is currently authorized or required. Final measured results and exact frozen-evidence identifiers are in `docs/final_experimental_results.md`.
 
-## Authority and Source Hierarchy
+## Authority and Evidence by Purpose
 
-Use sources in this order when continuing the work:
+Use each source for its purpose, consistently with `AGENTS.md` and the
+`nids-release-audit` skill, rather than treating Git history or stage documents
+as one linear authority chain:
 
-1. The current task's explicit requirements and stage boundary.
-2. `results/stage_e9/stage_e9_contract.json`,
-   `results/stage_e9/htgnn_batch_size_pilot_observations.json`, and
-   `docs/stage_e9_baselines_batch_size_pilot.md` for the frozen Stage E.9
-   checkpoint evidence and its explicit limitations.
-3. `results/stage_e8/htgnn_optimization_pilot_contract.json`,
-   `results/stage_e8/htgnn_optimization_pilot_observations.json`, and
-   `docs/stage_e8_optimization_pilot.md` for the frozen Stage E.8 bounded
-   optimization-pilot contract and its observational output.
-4. `results/stage_e7/htgnn_training_harness_validation.json` and `docs/stage_e7_training_harness.md` for the corrected and frozen Stage E.7 training-harness contract.
-5. `results/stage_e5/htgnn_classifier_validation.json` and `docs/stage_e5_htgnn_classifier.md` for the frozen Stage E.5 untrained classifier contract.
-6. `results/stage_e4/hierarchical_encoder_validation.json` and `docs/stage_e4_hierarchical_encoder.md` for the frozen Stage E.4 hierarchical graph encoder.
-7. `results/stage_e3/feature_encoder_validation.json` and `docs/stage_e3_feature_encoder.md` for the frozen Stage E.3 causal feature-node encoder.
-8. `results/stage_e1/`, `results/stage_e2/`,
-   `docs/stage_e2_heterodata_adapter.md`, and
-   `docs/stage_e2_provenance_cache.md` for the verified PyG environment,
-   D6-to-`HeteroData` adapter, and independently audited and frozen
-   provenance-cache correction.
-9. `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through `results/stage_d8/` for the independently verified Stage D graph-input milestone.
-10. `docs/STAGE_C_VERIFICATION.md` and `results/stage_c_full_validation.json` for the independently verified Stage C milestone.
-11. Frozen implementation and tests in `src/preprocessing/`, `src/graph/`, `src/training/`, `scripts/`, and `tests/`.
-12. Compact Stage B and temporal-analysis evidence in `results/data_profile/` and `results/temporal_analysis/`.
-13. The original report and extracted text as background only; their experimental performance claims are not verified authority.
+- The current user's explicit scope and approvals define authorized work.
+- This handoff records verified dynamic state and the next safe boundary.
+- Applicable stage documentation defines its approved/intended contract;
+  historical preparation statements are scoped to the stage/time they describe.
+- Actual source and tests are implementation truth. Compact evidence supplies
+  reproducible measurements and provenance; stored PASS fields alone are not
+  an independent release audit.
+- The original report is background only; its performance claims are not
+  verified authority.
 
-If a later document conflicts with verified Stage C facts, stop and resolve the conflict before changing code or claims.
+Current working-tree evidence and its identifiers are reconciled in
+**Authoritative Working-Tree Experimental State** below. Relevant contracts are
+`docs/stage_e10_full_training.md`, `docs/stage_e11_test_evaluation.md`,
+`docs/stage_e11_failure_recovery.md`, `docs/stage_e12_attention_pruning.md`,
+and `docs/stage_e12b_final_comparison.md`. Their earlier statements that runs,
+recovery, policy freeze, or E.12B implementation had not yet occurred remain
+historical preparation records; the current state below supersedes those
+statements without rewriting provenance-bound files.
+
+Historical frozen evidence remains authoritative for its own contract:
+
+- E.9: `results/stage_e9/stage_e9_contract.json`,
+  `results/stage_e9/htgnn_batch_size_pilot_observations.json`, and
+  `docs/stage_e9_baselines_batch_size_pilot.md`.
+- E.8: `results/stage_e8/htgnn_optimization_pilot_contract.json`,
+  `results/stage_e8/htgnn_optimization_pilot_observations.json`, and
+  `docs/stage_e8_optimization_pilot.md`.
+- E.7: `results/stage_e7/htgnn_training_harness_validation.json` and
+  `docs/stage_e7_training_harness.md`.
+- E.3-E.5: their feature-encoder, hierarchical-encoder, and classifier reports
+  under `results/stage_e3/` through `results/stage_e5/`, and corresponding
+  stage documents.
+- E.1-E.2: `results/stage_e1/`, `results/stage_e2/`,
+  `docs/stage_e2_heterodata_adapter.md`, and
+  `docs/stage_e2_provenance_cache.md`.
+- D1-D8: `docs/STAGE_D_VERIFICATION.md` and `results/stage_d1/` through
+  `results/stage_d8/`; C: `docs/STAGE_C_VERIFICATION.md` and
+  `results/stage_c_full_validation.json`.
+- Stage B/temporal background: `results/data_profile/` and
+  `results/temporal_analysis/`; implementation/tests: `src/`, `scripts/`,
+  and `tests/`.
+
+Stop on a new material inconsistency and resolve it before execution or changing
+claims. This owner-authorized reconciliation resolves the known stale-handoff
+exception only; it does not authorize execution, Git release, or a source repair.
 
 ## Frozen Status
 
@@ -362,7 +384,7 @@ bounded. If execution becomes clearly expensive, Codex must provide exact
 commands for the user to run manually; methodological correctness must not be
 reduced merely to avoid manual execution.
 
-E.10 remains unauthorized.
+The E.9 checkpoint itself did not authorize E.10; later owner-authorized completion is recorded below.
 
 ## Frozen Stage E.9 Implementation, Four Blocked Audits, and Corrections
 
@@ -518,7 +540,214 @@ and observation-file SHA-256
 Stage E.9 is frozen at annotated checkpoint tag
 `v0.12-stage-e9-model-binding-resource-pilot`. The `3e-4` learning rate remains
 a resource-pilot-only engineering value; neither E.8 nor E.9 finalized a
-learning rate. E.10 remains unauthorized.
+learning rate. The E.9 checkpoint itself did not authorize E.10; later owner-authorized completion is recorded below.
+
+The post-documentation E.9 validator's committed canonical contract SHA-256 is
+`5c26c8b55069af09009f8bf716bf64ec3e0b82e19a6f7ec4f773374d6b688b0b`;
+its physical SHA-256 is
+`e569712855d068b97e5d5b1717faf7602e1a083b1016654b8b47ed003f0d2254`.
+The preceding audit-time hashes are historical, not the final committed report's
+hashes. The observation-file hash and frozen methodology remain unchanged.
+
+## Authoritative Working-Tree Experimental State
+
+### Git boundary and provenance preservation
+
+Reconciled on 2026-10-06 in the authoritative checkout
+`C:\Project\ComputerNetworks`. HEAD intentionally remains at the frozen E.9
+commit `2fa823943ba318fe32b2867bc8e2b1f799d78ac1`, with annotated tag
+`v0.12-stage-e9-model-binding-resource-pilot`. Local `origin/main`, live remote
+`main`, and the remote peeled tag resolve to that same commit.
+
+E.10/E.11/E.12A/E.12B evidence exists in the authoritative working tree and is not
+represented by later Git commits. Later implementation, tests, documentation,
+logs, checkpoints, and evidence were deliberately preserved outside committed
+history to avoid disturbing provenance-sensitive execution. This is intentional
+provenance preservation, not an indication that those stages are unauthorized
+or absent. Preserve all pre-existing untracked/ignored files. E.9 remains the
+latest Git release checkpoint; E.10/E.11 report PASS denotes completed execution,
+not a newly asserted independent release freeze. E.12A's artifact freeze is
+represented by its separate attestation, not a Git tag or rewritten originals.
+
+### E.10 COMPLETE — official train/validation study
+
+Study: `e10-official-20261001-v1`; final report:
+`results/stage_e10/e10-official-20261001-v1/stage_e10_report.json`.
+
+Phase A completed 27/27 LR-selection runs; Phase B completed validation-only LR
+selection for all nine family/task pairs; Phase C completed 18/18 additional
+seed runs. There are 45 unique official training runs and 27 final
+validation-selected checkpoints. The selected seed-2025 Phase A winners are
+reused with seeds 2026/2027. Final aggregation is PASS: its pre/postflight record
+`training_executed=false`; E.10 records `predictive_test_array_access=false`
+and each run's configuration records `test_predictive_array_access=false`.
+No test metric, threshold selection, or pruning occurred in E.10.
+
+| Selected learning rate | E1 | E2 | E3 |
+|---|---:|---:|---:|
+| HTGNN | 0.001 | 0.001 | 0.001 |
+| final_flow_mlp | 0.001 | 0.001 | 0.001 |
+| flattened_five_flow_mlp | 0.0001 | 0.0003 | 0.0001 |
+
+### E.11 COMPLETE through reviewed recovery — first-test evaluation
+
+Original run: `e11-official-20261006-v1`; reviewed continuation:
+`e11-recovery-20261006-v1`. Combined final report:
+`results/stage_e11/e10-official-20261001-v1/recovery/e11-recovery-20261006-v1/stage_e11_report.json`.
+
+The combined report is PASS for 27/27 frozen checkpoints: six original HTGNN
+E1/E2 results were reused in place and 21 checkpoints were evaluated during
+reviewed continuation. Original FAILED status, six results, manifest, and
+test-consumption evidence remain preserved. The original
+`logs/stage_e11/e10-official-20261001-v1/test_consumption.json` remains
+`CONSUMED_OR_RESERVED`, physical SHA-256
+`f1b528868e61c9650acb75692ae933bab1552aedb8b7fbffb6c53a25b58b0a0a`.
+Do not repeat E.11 or portray the test partition as unused.
+
+The original evaluator incorrectly required long targets for E3; the frozen
+adapter legitimately emits float32 `[B]` targets. The correction repaired this
+target-dtype check without changing model, split, metric, or decision methodology.
+The interrupted checkpoint restarted within the reviewed continuation; the
+original failure was not erased. No training, pruning, LR selection, or threshold
+tuning occurred. Corrected evaluator physical SHA-256:
+`ce41f85f285a0557ed9898c5c45deb6ba534e42804dab39e3cea521cf4c61da3`.
+
+Primary E2 eligible-class test macro-F1 across seeds 2025/2026/2027:
+
+| Family | Mean | Sample standard deviation (ddof=1) |
+|---|---:|---:|
+| HTGNN | 0.8759879709008183 | 0.02264023047925946 |
+| final_flow_mlp | 0.7241750943498745 | 0.0029248034408850486 |
+
+These are descriptive seed summaries, not confidence intervals. E1 remains a
+strict chronological multiclass diagnostic with limited support. E3 strict
+chronological binary test generalization was poor across all three families:
+mean average-precision PR-AUC was approximately 0.08903136 (HTGNN), 0.09291219
+(final-flow MLP), and 0.09658414 (flattened-five-flow MLP). Preserve this limitation.
+
+### E.12A COMPLETE and artifact-frozen — validation-only pruning selection
+
+Run: `e12a-20261006-v1`; evidence:
+`results/stage_e12/e10-official-20261001-v1/e12a-20261006-v1/`.
+Training attention ranked features on the same bounded 8,192 E2-train examples
+for each of three seeds; complete E2 validation evaluated five declared
+candidates: 0%, 10%, 25%, 50%, 75%. The largest candidate satisfying EVERY E2
+seed's pruned eligible-class validation macro-F1 >= 0.95 times its own unpruned
+value was requested per-category ratio **0.25**. Passing candidates: 0%, 10%,
+25%; failing candidates: 50%, 75%. No test predictive arrays were opened,
+test support was not consulted, and model states remained unchanged.
+
+The frozen actual inference graph retains 61/78 feature nodes and removes 17,
+retains all eight category nodes and the sample node, and reduces total nodes
+87 -> 70 and directed structural edges 86 -> 69. Requested ratio 0.25 is distinct
+from actual feature removal 17/78. The input adapter still constructs the full
+graph; compaction removes inference computation, not learned parameters.
+
+The original proposed policy and COMPLETE_PENDING_REVIEW evidence remain
+immutable. The separate
+`results/stage_e12/e10-official-20261001-v1/e12a-20261006-v1-freeze/freeze_attestation.json`
+records review PASS, owner-approved freeze and 5% relative macro-F1 tolerance,
+the exact mask, three E2 checkpoint identities, and original artifact/source
+hashes. It explicitly records `e12b_execution_authorized=false`.
+
+### E.12B COMPLETE — final frozen-mask comparison; independent audit PASS
+
+Run: `e12b-20261006-v1`; final report:
+`results/stage_e12b/e10-official-20261001-v1/e12b-20261006-v1/stage_e12b_report.json`.
+All nine pruned HTGNN evaluations completed: E2 primary, E1 diagnostic and E3
+binary, each at seeds 2025/2026/2027, with the same frozen E2-derived mask.
+Existing E.11 unpruned results were reused. No retraining, model-parameter change,
+policy change, threshold tuning or repeated unpruned test evaluation occurred.
+
+The execution report and terminal status retain `COMPLETE_PENDING_REVIEW`.
+The subsequent independent final audit is PASS, as confirmed in the owner's
+2026-10-06 closure instruction; original execution artifacts remain untouched.
+This closure checks persisted evidence and records that verdict, without claiming
+a new independent execution audit or rewriting the execution-time status.
+
+Primary E2 eligible-class test macro-F1 mean/sample SD changes from
+0.8759879709 / 0.0226402305 to 0.8896826984 / 0.0090459554. Mean absolute
+change is +0.0136947275; mean per-seed relative improvement is +1.617299%.
+Seed 2025 improves by +5.393129%; seeds 2026/2027 change by -0.130371% and
+-0.410860%. Every seed remains within the frozen 5% relative-loss rule.
+
+The final graph retains 61/78 features: 87 -> 70 nodes and 86 -> 69 directed
+edges. All eight category nodes and category-to-sample edges remain. Temporal
+encoding and first GAT work decrease; full input-adapter construction/transfer,
+second GAT topology and parameter counts remain unchanged. Validation
+resident-forward paired median speed ratios are approximately 1.035x-1.117x
+on the RTX 4050 Laptop GPU, not universal deployment speedups. Transient
+allocated peak decreases approximately 2.931 MiB / 5.91%; peak reserved remains
+56 MiB. E1's Benign-only restricted mean is 0.9307991287 -> 0.9307918724.
+E3 mean PR-AUC is 0.0890313615 -> 0.0890480581, still below attack prevalence
+0.1293481937: chronological generalization remains poor.
+
+The completed execution binds the corrected four-file bundle SHA-256
+`75931dbcba5ec9d3bcd7d4e173ae9c25c96ac917dff00a6f8574b4f8ef0a4c80`.
+Its consumption ledger remains `CONSUMED_OR_RESERVED`. Do not rerun E.11,
+E.12A or E.12B. The exact next safe boundary is independent final release audit
+and final report/release/documentation, with no further ML experiment authorized
+or required. Detailed measurements, scientific limitations and exact evidence
+bindings are in `docs/final_experimental_results.md`.
+
+### Exact artifact provenance and reconciliation checks
+
+| Artifact | Canonical SHA-256 | Physical SHA-256 |
+|---|---|---|
+| E.10 final report | `a898e76698c6e8f1cbda38fe25792d73322880fcdf3ae94499709dfb8f0c49d7` | `8ff3f89c4aac3b2948936ea794e710059a7fe441c161b8c20cae0b8e51f6639c` |
+| Recovered E.11 final report | `4ee7e6a9d7e28231e6ba6765decfdbdc29db624ab5d188d6f8950df8d9bdeba4` | `ace0d585fbb89b0f3df4376b2f69e35bd3172ab663cc66b369b769e84a964aac` |
+| E.12A report | `ccc9be16dee2dea3567bad48f0b9e563cc760914311d0bad4d1611a755d6241d` | `97cc371d78d11d54587a64aadecea26829eb2ec2cd2201428876e9bfcb291b0d` |
+| E.12A policy | `f7a8f6aa41cdfb6ad2ec8644ef4570677b7ef172374592f84c8239d7ac0e00aa` | `28727d3d7bfe94f0d624639859d5a3c965dbda1ccbbab760a2ec7bc091f91317` |
+| E.12A freeze attestation | `6b58ab9133b95a8096ab731288f340ac498243c33c52c7c659d60fd770c29a35` | `7f92187689993ea049cf4a364746301f1175d18ae25402e5a0518f2094032e51` |
+| E.12B final report | `5c07ba4183a619f648118af6415abe61a97ebaed14a2ed93e9b68d265ae1b3c5` | `1b76a810bdcb887e22bb077a99754aa04f79ab950626ababb38a1893d8c031da` |
+| E.12B validation benchmarks | No embedded content digest | `e20065f502cb6cd0f6bd009d506c58b4356c3c1f64d81bb6fa5511b9bfa3652f` |
+
+The earlier read-only reconciliation checked canonical report content/physical sidecars,
+45 COMPLETE E.10 lifecycles and 225 bound artifacts including checkpoint bytes,
+nine original E.11 bindings, 23 recovery-source bindings, all 27 result/checkpoint
+memberships and confusion-matrix totals, and rederived nine seed summaries.
+It verified the E.12A freeze's seven original artifacts and four source files,
+recomputed all 15 validation macro-F1 values and every-seed acceptance, and
+confirmed ranking coverage and the four-file E.12B digest. No predictive array
+was opened and no training, pruning sweep, E.11 rerun, or E.12B command was run.
+The 1,113-test E.9 full-suite count remains a historical baseline, not a new
+later-stage full-suite result.
+
+### Historical handoff-hash blocker and completed-execution authority binding
+
+The frozen E.9 contract's `e9_source_sha256["PROJECT_HANDOFF.md"]` pins the
+pre-reconciliation physical bytes:
+`0eb4f09d989a8c641736be9637f7677cdccf3e675d73425bbd0e7cf22a5df9f6`.
+Those historical bytes remain recoverable from the E.9 Git commit. This
+authorized factual handoff update necessarily changes the live handoff hash.
+
+At the earlier reconciliation, `stage_e12b.prepare` called
+`stage_e12.prepare`, whose frozen-source loop compared that historical pin with
+the live handoff and rejected the updated file. E.10/E.11 preflight loops also contain that inherited live-handoff check.
+This is a historical-versus-current documentation binding conflict, not changed
+experimental artifacts or permission to weaken their integrity checks.
+During that documentation reconciliation, frozen evidence, source, checkpoints
+and the historical four-file bundle were unchanged; no pin was rewritten and
+no rejection was bypassed.
+
+That earlier blocker was resolved for E.12B by the separately authorized
+historical/live authority reconciliation described in
+`results/provenance/authority/handoff-reconciliation-20261006-v1/correction_report.md`
+and its separate attestation, without changing frozen E.9/E.10/E.11/E.12A
+artifacts. The completed E.12B execution binds that attestation, the corrected
+bundle and the reconciled live handoff physical hash
+`58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5`.
+E.12A's earlier freeze attestation records `e12b_execution_authorized=false`;
+the later E.12B owner authorization/consumption ledger records the separately
+authorized one-time execution. Both historical records remain untouched.
+
+This owner-authorized final closure documentation changes the live handoff
+again, after experimental completion. The historical execution pin and original
+authority attestation remain unchanged. The completed-run preflight's exact
+live-handoff check will reject these new closure bytes; no executable-preflight
+readiness or rerun is claimed or required. Preserve historical bindings during
+final release audit; no source-level repair, ML execution or Git release action
+is authorized by this documentation task.
 
 ## Verified Dataset Facts
 
@@ -738,17 +967,33 @@ does not authorize E.6.
 2. T=5 windows are not guaranteed individual conversations.
 3. Repeated temporal/network states occur across partitions. Indices do not overlap, but evaluation is not exclusively on previously unseen states.
 4. E2 preserves within-class chronology rather than one global timeline.
-5. The predictive value of T=5 has not been measured.
+5. The chosen T=5 window length has not been established as optimal; completed model-family comparisons do not isolate a causal effect of window length.
 6. Original report performance claims are not verified results.
-7. The task-specific training harness and learned GATv2 attention exist, but no full trained-model checkpoint, calibrated prediction, performance result, pruning policy, or physical node removal has been established.
+7. Trained checkpoints, first-test results, and an artifact-frozen inference pruning policy now exist as recorded above. No prediction calibration or E3 threshold tuning was performed. E.12B pruned-test results and validation resident-forward efficiency observations exist; they do not establish universal or end-to-end deployment gains.
 8. The bounded E.8 E3 validation prefix contains 4,095 attacks and one benign example; its observed PR-AUC is highly composition-dependent.
 9. The Stage E.9 batch-size selection is a bounded hardware- and environment-specific engineering result, not a predictive-performance result or portability guarantee.
+10. E1 strict chronological multiclass diagnostic reporting has limited class support; E3 strict chronological binary test generalization was poor for every model family.
+11. Attention is a pruning-ranking heuristic, not a causal feature explanation. The bounded E.12A ranking sample did not contain DDOS attack-LOIC-UDP (class code 5).
+12. The E.12A 5% relative eligible-class validation macro-F1 rule is owner-approved, not a statistical noninferiority guarantee or a guarantee of test performance.
+13. Exact inference graph reduction does not automatically imply end-to-end speedup or input-adapter memory savings; model parameter count is unchanged by inference-time pruning.
+14. Historical E.11 CUDA arithmetic is not certified bitwise equivalent to the strict E.12 deterministic context; do not repeat unpruned test evaluation to resolve that limitation.
 
 ## Current Boundary and Exact Next Step
 
-Stop at the frozen Stage E.9 checkpoint. Do not launch full model training, a
-three-seed study, weighted-loss ablations, locked-test evaluation, pruning, or
-E.10 and later work.
+The committed historical boundary remains frozen E.9. The authoritative
+working-tree experimental boundary is E.10 COMPLETE, E.11 COMPLETE through
+reviewed recovery, E.12A COMPLETE and artifact-frozen, and E.12B COMPLETE and
+independently audited PASS as confirmed by the owner. The approved experimental
+scope through E.12B is complete.
 
-The exact next safe implementation boundary is a separately authorized Stage
-E.10. No E.10 implementation or execution is authorized by this checkpoint.
+The exact next safe boundary is **independent final release audit of the completed
+experimental scope and final report/documentation**. Final report/release/
+documentation is now the active boundary. No further ML experiment is currently
+authorized or required. Review the final measured results and frozen-evidence
+bindings in `docs/final_experimental_results.md`; preserve historical Git,
+execution status, failure/recovery and authority-hash provenance.
+
+This documentation closure authorizes no experiment, predictive-array access,
+E.11/E.12A/E.12B repetition, source/artifact repair, checkpoint change or Git
+commit/push/tag/reset/clean/stash. Release actions require separate authorization
+after final review. Stop at final release-audit/documentation readiness.

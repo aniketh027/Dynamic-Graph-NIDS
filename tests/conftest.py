@@ -47,3 +47,27 @@ def generic_csv(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
     return path
+
+
+@pytest.fixture(autouse=True)
+def execution_authority_epoch(request, monkeypatch):
+    """Replay E.12B authority tests at their pinned execution epoch.
+
+    The original test module is physically bound by the completed E.12B bundle.
+    Preserve it and all validator pins; substitute only its handoff fixture after
+    validating today's closure binding. No production validator is patched.
+    """
+    if request.module.__name__ != "test_stage_e12b":
+        return
+    from authority_fixture_support import reconciled_execution_handoff
+
+    original = request.module._authority_fixture
+    source = Path(__file__).resolve().parents[1]
+
+    def at_execution_epoch(root, patcher):
+        snapshot = reconciled_execution_handoff(source)
+        result = original(root, patcher)
+        (root / "PROJECT_HANDOFF.md").write_bytes(snapshot)
+        return result
+
+    monkeypatch.setattr(request.module, "_authority_fixture", at_execution_epoch)

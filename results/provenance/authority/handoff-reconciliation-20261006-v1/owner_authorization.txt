@@ -1,0 +1,158 @@
+We have one remaining authority/provenance blocker before the independent E.12B review can resume.
+
+AUTHORITATIVE CHECKOUT:
+C:\Project\ComputerNetworks
+
+CURRENT STATE:
+
+PROJECT_HANDOFF.md has now been reconciled and accurately reflects:
+- E.9 = historical Git checkpoint
+- E.10 completed
+- E.11 completed via reviewed recovery
+- E.12A frozen
+- E.12B implemented/tested but NOT executed
+
+Current PROJECT_HANDOFF.md physical SHA256:
+58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5
+
+Only PROJECT_HANDOFF.md was changed during reconciliation.
+
+PROBLEM:
+
+Frozen E.9 evidence contains/pins the OLD PROJECT_HANDOFF.md bytes/hash.
+
+E.12B preparation currently compares that historical E.9 handoff pin against the current live PROJECT_HANDOFF.md.
+
+That means the factually corrected current handoff is rejected even though:
+- E.9 evidence itself was not modified
+- E.9 remains historically valid
+- the handoff update was separately authorized
+- the update only reconciled project authority/status documentation
+
+We must resolve this WITHOUT weakening provenance safeguards.
+
+IMPORTANT:
+
+DO NOT:
+- modify any frozen E.9 evidence
+- modify E.10/E.11/E.12A artifacts
+- modify checkpoints
+- execute E.12B
+- open real test predictive arrays
+- run training
+- run pruning
+- alter policy
+- revert PROJECT_HANDOFF.md
+- commit/push/tag/reset/clean/stash
+- bypass or disable provenance checks globally
+
+TASK:
+
+1. Inspect exactly where E.12B preparation checks PROJECT_HANDOFF.md against the frozen E.9 handoff hash.
+
+2. Explain whether that check currently conflates:
+   A. historical E.9 evidence integrity
+   with
+   B. current dynamic project-authority documentation.
+
+3. Determine the OLD handoff hash from frozen E.9 evidence.
+Do not guess it.
+
+4. Design a narrow authority-reconciliation mechanism.
+
+Preferred design:
+
+Create a separate immutable reconciliation attestation that binds:
+
+- historical E.9 handoff SHA256
+- current reconciled handoff SHA256:
+  58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5
+- E.9 frozen commit:
+  2fa823943ba318fe32b2867bc8e2b1f799d78ac1
+- reason:
+  handoff status/documentation reconciliation after completed E.10/E.11/E.12A evidence
+- statement that no frozen E.9 experimental artifact changed
+- statement that the current handoff supersedes the historical handoff ONLY as the live authority/status record
+- owner authorization
+- reconciliation timestamp/run identifier
+- hashes of any review evidence needed
+- scope limited specifically to PROJECT_HANDOFF.md authority reconciliation
+
+Do NOT mutate the original E.9 pin.
+
+5. Update E.12B preparation/provenance validation minimally so that:
+
+- E.9 historical evidence still verifies against its historical recorded hash semantics
+- the current live PROJECT_HANDOFF.md is verified against the new reconciliation attestation
+- the old and new handoff hashes must BOTH be explicitly bound
+- a missing/corrupt/mismatched reconciliation attestation fails closed
+- an arbitrary future handoff edit fails closed
+- this mechanism cannot authorize unrelated source/artifact changes
+- AGENTS.md and release-audit requirements remain enforced
+
+6. Do NOT simply:
+- remove the handoff check
+- ignore the mismatch
+- accept any newer file
+- replace the E.9 historical hash
+- weaken all provenance verification
+
+7. If an attestation is needed, place it in a new provenance/authority namespace that does not modify frozen E.9/E.10/E.11/E.12A artifacts.
+
+Recommend the safest location after inspecting project conventions.
+
+8. Add synthetic/unit regression tests proving:
+
+- original frozen E.9 hash remains required as historical evidence
+- current reconciled handoff hash is required
+- exact old→new attestation passes
+- wrong old hash fails
+- wrong current hash fails
+- modified live handoff fails
+- missing attestation fails
+- corrupted attestation fails
+- unrelated file changes are not authorized
+- E.12B test access remains blocked
+- no real test arrays are opened
+- no training/pruning occurs
+
+9. Recompute any E.12B implementation bundle hash if source files included in that bundle change.
+
+If the bundle changes:
+- report OLD implementation SHA
+- report NEW implementation SHA
+- do not silently reuse the old command hash
+
+10. Run only:
+- unit tests
+- synthetic tests
+- provenance/integrity tests
+- allowed read-only checks
+
+NO real predictive test access.
+
+11. Verify:
+- PROJECT_HANDOFF.md remains byte-identical to SHA:
+  58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5
+- frozen E.9 evidence remains byte-identical
+- E.10/E.11/E.12A remain byte-identical
+- no Git mutation occurs
+
+12. At the end report:
+
+A. exact old E.9 handoff SHA
+B. root cause of the authority conflict
+C. reconciliation design
+D. attestation path and hashes
+E. files changed/added
+F. exact provenance logic changed
+G. tests run/results
+H. proof frozen evidence remained unchanged
+I. whether E.12B implementation bundle SHA changed
+J. old/new bundle SHA if changed
+K. whether the authority gate is now technically resolvable
+L. exact instructions for restarting the independent E.12B review
+
+DO NOT execute E.12B.
+DO NOT produce an owner execution approval.
+That remains the independent reviewer’s job.
