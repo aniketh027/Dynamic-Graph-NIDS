@@ -1,8 +1,8 @@
-# Project Handoff — E.9 Git Checkpoint; Experimental Scope through E.12B Complete
+# Project Handoff — Final Scientific Release v1.0-experimental-complete; app-demo Development
 
 ## Project Goal
 
-The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The frozen checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, the independently audited Stage E.8 bounded optimization pilot, and the independently audited Stage E.9 model-binding and bounded resource-pilot checkpoint. Stage E.9 freezes HTGNN training batch size 256 under its hardware-specific resource rule; that checkpoint alone did not establish full-training throughput, predictive performance, a final learning rate, locked-test results, or pruning. The authoritative working tree subsequently completed owner-authorized E.10 training/validation, E.11 interrupted-and-recovered first-test evaluation, and E.12A validation-only pruning selection and policy freeze. E.12B is COMPLETE and independently audited PASS, as confirmed by the owner on 2026-10-06. The approved experimental scope is complete; final report/release/documentation is now the active boundary. No further ML experiment is currently authorized or required. Final measured results and exact frozen-evidence identifiers are in `docs/final_experimental_results.md`.
+The project studies automated feature extraction and dynamic heterogeneous temporal graph optimization for efficient network intrusion detection using CSE-CIC-IDS2018. The historical E.9 checkpoint includes the Stage E.6 bounded forward/resource pilot, the independently audited E.2 provenance-cache correction, the corrected Stage E.7 training harness, the independently audited Stage E.8 bounded optimization pilot, and the independently audited Stage E.9 model-binding and bounded resource-pilot checkpoint. Stage E.9 freezes HTGNN training batch size 256 under its hardware-specific resource rule; that checkpoint alone did not establish full-training throughput, predictive performance, a final learning rate, locked-test results, or pruning. The final scientific release includes the subsequently completed owner-authorized E.10 training/validation, E.11 interrupted-and-recovered first-test evaluation, and E.12A validation-only pruning selection and policy freeze. E.12B is COMPLETE and independently audited PASS, as confirmed by the owner on 2026-10-06. The approved experimental scope and final release provenance are complete, committed and tagged at `v1.0-experimental-complete`; application development is occurring separately on `app-demo`. No further ML experiment is currently authorized or required. Final measured results and exact frozen-evidence identifiers are in `docs/final_experimental_results.md`.
 
 ## Authority and Evidence by Purpose
 
@@ -20,8 +20,8 @@ as one linear authority chain:
 - The original report is background only; its performance claims are not
   verified authority.
 
-Current working-tree evidence and its identifiers are reconciled in
-**Authoritative Working-Tree Experimental State** below. Relevant contracts are
+Current released scientific evidence and its identifiers are reconciled in
+**Released Scientific Experimental State** below. Relevant contracts are
 `docs/stage_e10_full_training.md`, `docs/stage_e11_test_evaluation.md`,
 `docs/stage_e11_failure_recovery.md`, `docs/stage_e12_attention_pruning.md`,
 and `docs/stage_e12b_final_comparison.md`. Their earlier statements that runs,
@@ -549,9 +549,32 @@ its physical SHA-256 is
 The preceding audit-time hashes are historical, not the final committed report's
 hashes. The observation-file hash and frozen methodology remain unchanged.
 
-## Authoritative Working-Tree Experimental State
+## Released Scientific Experimental State
 
 ### Git boundary and provenance preservation
+
+Current state verified on 2026-10-07 in `C:\Project\ComputerNetworks`:
+the active branch is `app-demo`, and its HEAD is the final scientific release
+commit `2854d153d65c93689875884f3ad45f0b3b468ec2`. The annotated release tag
+`v1.0-experimental-complete` resolves to that same commit. Historical E.9
+commit `2fa823943ba318fe32b2867bc8e2b1f799d78ac1` and tag
+`v0.12-stage-e9-model-binding-resource-pilot` remain historical checkpoints;
+E.9 is no longer the current HEAD or latest scientific release.
+
+The final release commit includes the E.10-E.12B implementation, tests,
+compact evidence, final documentation and release provenance. E.10, E.11,
+E.12A and E.12B are completed released scientific work, not pending or
+uncommitted stages. E.12A's separate artifact-freeze attestation and all
+original execution/recovery records remain unchanged. External datasets,
+checkpoints, logs and protected local E.10 artifacts retain their existing
+Git exclusions. Preserve all pre-existing untracked/ignored files, including
+the separate application development worktree contents.
+
+#### Historical Git boundary at the 2026-10-06 reconciliation
+
+The following paragraphs describe that earlier reconciliation only. Their
+Git state and release boundary are historical and are superseded by the
+2026-10-07 final scientific release recorded above.
 
 Reconciled on 2026-10-06 in the authoritative checkout
 `C:\Project\ComputerNetworks`. HEAD intentionally remains at the frozen E.9
@@ -685,10 +708,23 @@ E3 mean PR-AUC is 0.0890313615 -> 0.0890480581, still below attack prevalence
 The completed execution binds the corrected four-file bundle SHA-256
 `75931dbcba5ec9d3bcd7d4e173ae9c25c96ac917dff00a6f8574b4f8ef0a4c80`.
 Its consumption ledger remains `CONSUMED_OR_RESERVED`. Do not rerun E.11,
-E.12A or E.12B. The exact next safe boundary is independent final release audit
-and final report/release/documentation, with no further ML experiment authorized
-or required. Detailed measurements, scientific limitations and exact evidence
-bindings are in `docs/final_experimental_results.md`.
+E.12A or E.12B. The final scientific release audit, documentation and provenance
+have since been completed and committed at `v1.0-experimental-complete`, with
+no further ML experiment authorized or required. Detailed measurements,
+scientific limitations and exact evidence bindings are in
+`docs/final_experimental_results.md`; its preparation-era release-boundary
+wording is historical and is superseded by this current handoff.
+
+### Final scientific release provenance — COMPLETE
+
+The final release commit and annotated tag record completion of E.10-E.12B
+and the final release audit/provenance boundary. `docs/release_provenance.md`,
+`release/provenance_manifest.json` and its unchanged SHA-256 sidecar document
+the external official provenance archive: 280 files across E.10, E.11, E.12A
+and E.12B. Release-time authorization fields and preparation statements in
+those preserved records describe their historical scope; this handoff records
+the subsequent committed/tagged release. This reconciliation performs no
+new scientific execution, metric recomputation or release audit.
 
 ### Exact artifact provenance and reconciliation checks
 
@@ -741,6 +777,11 @@ E.12A's earlier freeze attestation records `e12b_execution_authorized=false`;
 the later E.12B owner authorization/consumption ledger records the separately
 authorized one-time execution. Both historical records remain untouched.
 
+#### Historical final-closure documentation (2026-10-06)
+
+The following paragraph records the earlier documentation task and its
+then-pending release-audit boundary; it does not describe the current release.
+
 This owner-authorized final closure documentation changes the live handoff
 again, after experimental completion. The historical execution pin and original
 authority attestation remain unchanged. The completed-run preflight's exact
@@ -748,6 +789,17 @@ live-handoff check will reject these new closure bytes; no executable-preflight
 readiness or rerun is claimed or required. Preserve historical bindings during
 final release audit; no source-level repair, ML execution or Git release action
 is authorized by this documentation task.
+
+#### Current handoff reconciliation (2026-10-07)
+
+`release/handoff_closure_binding.json` preserves the historical E.9 and
+reconciled execution hashes above and the released closure-document hash
+`cdbdf14742b9f7a7a7b982305d97e2b39d53aa652672c8a6f03ba657d44df230`.
+This later current-state reconciliation changes only the live handoff bytes.
+Those historical hashes, execution pins, closure bindings and attestations
+remain unchanged; they must not be updated to match this document. The new
+current document SHA-256 is reported separately for this reconciliation only.
+No execution-preflight readiness or rerun is claimed or required.
 
 ## Verified Dataset Facts
 
@@ -978,22 +1030,36 @@ does not authorize E.6.
 13. Exact inference graph reduction does not automatically imply end-to-end speedup or input-adapter memory savings; model parameter count is unchanged by inference-time pruning.
 14. Historical E.11 CUDA arithmetic is not certified bitwise equivalent to the strict E.12 deterministic context; do not repeat unpruned test evaluation to resolve that limitation.
 
+## Current Application Development State
+
+Application development is separate from the frozen scientific release on
+`app-demo`: frontend development is ongoing, and the C1/C1.5 backend foundation
+exists in the development worktree. The owner-approved app V1 deployment
+checkpoint is E2 HTGNN seed **2026**, selected using frozen E.12A
+pruned-validation evidence only. This application deployment choice does not
+modify scientific methodology. C2 real CSV replay/inference is **not complete**;
+C2A is **blocked pending an application-specific external-window/provenance
+adapter contract**. These application facts record the owner's settled state;
+this reconciliation does not re-check seed selection or rerun C1 verification.
+
 ## Current Boundary and Exact Next Step
 
-The committed historical boundary remains frozen E.9. The authoritative
-working-tree experimental boundary is E.10 COMPLETE, E.11 COMPLETE through
-reviewed recovery, E.12A COMPLETE and artifact-frozen, and E.12B COMPLETE and
-independently audited PASS as confirmed by the owner. The approved experimental
-scope through E.12B is complete.
+The current final scientific release is commit
+`2854d153d65c93689875884f3ad45f0b3b468ec2`, tagged
+`v1.0-experimental-complete`. E.10 is COMPLETE, E.11 is COMPLETE through
+reviewed recovery, E.12A is COMPLETE and artifact-frozen, and E.12B is COMPLETE
+and independently audited PASS as confirmed by the owner. Final scientific
+release provenance is complete. E.9 remains historical, and E.10-E.12B are
+committed released work. No further ML experiment is authorized or required.
 
-The exact next safe boundary is **independent final release audit of the completed
-experimental scope and final report/documentation**. Final report/release/
-documentation is now the active boundary. No further ML experiment is currently
-authorized or required. Review the final measured results and frozen-evidence
-bindings in `docs/final_experimental_results.md`; preserve historical Git,
-execution status, failure/recovery and authority-hash provenance.
+The exact next safe boundary is **owner review and approval of an
+application-specific external-window/provenance adapter contract before C2A
+can proceed**. C2 real CSV replay/inference is not complete, and C2A remains
+blocked pending that contract. The settled seed-2026 deployment choice does
+not authorize adapter implementation or change the scientific methodology.
 
-This documentation closure authorizes no experiment, predictive-array access,
+This documentation reconciliation stops here. It authorizes no C2A execution,
+external adapter work, experiment, dataset/predictive-array access,
 E.11/E.12A/E.12B repetition, source/artifact repair, checkpoint change or Git
-commit/push/tag/reset/clean/stash. Release actions require separate authorization
-after final review. Stop at final release-audit/documentation readiness.
+commit/push/tag/reset/clean/stash. Preserve historical Git, execution status,
+failure/recovery, hashes and attestations.

@@ -1,0 +1,115 @@
+{
+  "analysis": {
+    "analysis_id": "v1-165a22c2-e243-46f6-9213-6dbfa202e5a8",
+    "source_filename": "graphnids-c2b-synthetic.csv",
+    "source_sha256": "bfbf124bc2187daa22f10c7e12d2663caf98fa1cbe70aefc3e6b408a369321fe",
+    "source_size_bytes": 2955,
+    "input_flow_count": 12,
+    "complete_window_count": 2,
+    "trailing_flow_count": 2,
+    "columns_reordered": false,
+    "replay_order_semantics": "csv-row-order",
+    "flow_index_base": 0,
+    "benign_prediction_count": 2,
+    "intrusion_prediction_count": 0,
+    "prediction_class_counts": {
+      "Benign": 2,
+      "Bot": 0,
+      "Brute Force -Web": 0,
+      "Brute Force -XSS": 0,
+      "DDOS attack-HOIC": 0,
+      "DDOS attack-LOIC-UDP": 0,
+      "DDoS attacks-LOIC-HTTP": 0,
+      "DoS attacks-GoldenEye": 0,
+      "DoS attacks-Hulk": 0,
+      "DoS attacks-SlowHTTPTest": 0,
+      "DoS attacks-Slowloris": 0,
+      "FTP-BruteForce": 0,
+      "Infilteration": 0,
+      "SQL Injection": 0,
+      "SSH-Bruteforce": 0
+    },
+    "predictions": [
+      {
+        "window_index": 0,
+        "target_flow_index": 4,
+        "prediction_class_id": 0,
+        "prediction_label": "Benign",
+        "model_score": 0.9698585271835327,
+        "is_attack": false
+      },
+      {
+        "window_index": 1,
+        "target_flow_index": 9,
+        "prediction_class_id": 0,
+        "prediction_label": "Benign",
+        "model_score": 0.9698585271835327,
+        "is_attack": false
+      }
+    ],
+    "model": {
+      "task": "E2",
+      "family": "HTGNN",
+      "deployment_seed": 2026,
+      "checkpoint_id": "e10-htgnn-e2-lr1e-3-s2026-b256-0a1122c0ee42",
+      "checkpoint_sha256": "ef7976f4beb58813a596453d65b448cb1a09f3998ac5865b667d51795dcf135f",
+      "inference_mode": "attention-pruned",
+      "model_score_semantics": "uncalibrated normalized model score"
+    },
+    "preprocessing": {
+      "feature_count": 78,
+      "transform_state_id": "exp2/scaler_state.json",
+      "transform_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "temporal_window": 5
+    },
+    "graph": {
+      "input_feature_nodes": 78,
+      "retained_feature_nodes": 61,
+      "category_nodes": 8,
+      "total_nodes_per_graph": 70,
+      "edges_per_graph": 69,
+      "parameter_count": 7183
+    },
+    "provenance": {
+      "source_kind": "external_application",
+      "analysis_id": "v1-165a22c2-e243-46f6-9213-6dbfa202e5a8",
+      "uploaded_file_sha256": "bfbf124bc2187daa22f10c7e12d2663caf98fa1cbe70aefc3e6b408a369321fe",
+      "application_adapter_version": "external-application-graph-adapter-v1",
+      "feature_schema_sha256": "6bfb82357a3683aa33f8e855ed1abdbbffcdc8dcf0117c2120e68894711d3456",
+      "feature_order_sha256": "7ae8c123332c05b1136e1093c53d710b69b5c397ad15309e207667b104f5fe4c",
+      "transform_state_id": "exp2/scaler_state.json",
+      "transform_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+      "temporal_window": 5,
+      "replay_order_semantics": "csv-row-order",
+      "graph_schema_version": "stage-d2-graph-schema-v1",
+      "graph_schema_sha256": "0950126394099acea7573e14357f8bd01b22eb91c2a9d0b4f9298ea208ecebea",
+      "graph_taxonomy_version": "stage-d1-taxonomy-v1",
+      "graph_taxonomy_sha256": "fe1332dc22727cf952dc1d2117fec46439294821e2a4654537d910df901fab7e",
+      "pruning_policy_sha256": "f7a8f6aa41cdfb6ad2ec8644ef4570677b7ef172374592f84c8239d7ac0e00aa",
+      "pruning_policy_record_sha256": "9bd61627d2b977df7d0b31cdf6cbb6b84e334750467d9e65a683ea0ada4efe53",
+      "checkpoint_id": "e10-htgnn-e2-lr1e-3-s2026-b256-0a1122c0ee42",
+      "checkpoint_sha256": "ef7976f4beb58813a596453d65b448cb1a09f3998ac5865b667d51795dcf135f",
+      "deployment_seed": 2026,
+      "model_task": "E2",
+      "class_mapping_sha256": "f59b4bb080f47d3e225d75362ac66918b58d58fbcdc40bacfd7ce40bea62c165",
+      "api_version": "v1"
+    },
+    "provenance_sha256": "b3e445d041f0bd64b0d0472d2f674804890c5be1bf1d12d0833c314bb75eccf1"
+  },
+  "validation": {
+    "validation_id": "v1-1a0772ef-9724-4824-9f28-8cff041c065b",
+    "filename": "graphnids-c2b-synthetic.csv",
+    "size_bytes": 2955,
+    "sha256": "bfbf124bc2187daa22f10c7e12d2663caf98fa1cbe70aefc3e6b408a369321fe",
+    "flow_row_count": 12,
+    "canonical_feature_count": 78,
+    "columns_reordered": false,
+    "schema_valid": true,
+    "complete_window_count": 2,
+    "trailing_flow_count": 2,
+    "temporal_window": 5,
+    "replay_order": "csv-row-order",
+    "transform_state_sha256": "9d9fc971b6a2f2d4bda3b31805a08742a26037a436f2c8130483769b800f7fe2",
+    "model_inference_performed": false
+  }
+}

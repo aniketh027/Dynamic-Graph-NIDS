@@ -1,0 +1,91 @@
+{
+  "status": [
+    " M PROJECT_HANDOFF.md",
+    "?? backend/",
+    "?? e10-interrupted-attempt-20261003-140737/",
+    "?? e10-overnight-20261002-042253/",
+    "?? e10-overnight-20261002-042528/",
+    "?? e10-phase-a-final-resume-20261003-183405/",
+    "?? e10-phase-a-final-resume-verification-20261003-183405.zip",
+    "?? e10-phase-a-final-two-20261003-190112/",
+    "?? e10-phase-a-final-two-verification-20261003-190112.zip",
+    "?? e10-phase-a-overnight-20261002-043636/",
+    "?? e10-phase-a-resume-20261003-140507/",
+    "?? e10-phase-a-resume-20261003-140810/",
+    "?? e10-phase-a-resume-verification-20261003-140507.zip",
+    "?? e10-phase-a-resume-verification-20261003-140810.zip",
+    "?? e10-verification-20261002-042253.zip",
+    "?? e10-verification-20261002-042253/",
+    "?? e10-verification-20261002-042528.zip",
+    "?? e10-verification-20261002-042528/",
+    "?? frontend/",
+    "?? run_e10_phase_a_final_two.ps1",
+    "?? run_e10_phase_a_overnight.ps1",
+    "?? run_e10_phase_a_resume.ps1",
+    "?? run_e10_phase_a_resume_after_job1.ps1"
+  ],
+  "changed_files": [
+    {
+      "path": "frontend/src/components/app-shell.tsx",
+      "after": "3cd563129e22868546067e290cf878d418c894b72ea1d75a6df2fea39760a06c",
+      "before": "60a52717593149cf70b67549023e5678d24cbf21e865f3b0d4c75c1b8540a659"
+    },
+    {
+      "path": "frontend/package.json",
+      "after": "552d9608912934789e1e1d9032973b0e1e0c476521e2a09ba744e871fc4b8e13",
+      "before": "16f8ff9002f5ae291f34d295b5b50abf74b66ce7c6d41f6750bfc81b15e413a5"
+    },
+    {
+      "path": "frontend/src/components/demo-controls.tsx",
+      "after": "17d864cd94642846a646d2c4f512e280a72cab9ed64738e51a8b159ccc21f06a",
+      "before": "d23eb23ec28ea388bff2424aceb85a1c7e29edd108881b2fe9c669f1c93384a5"
+    },
+    {
+      "path": "frontend/src/components/traffic-file-input.tsx",
+      "after": "9ecd3076bcd184321f4e9c365d5f6320a0c52884177f45f488444178dbd0cf4e",
+      "before": "e3886a77ae5fbb9b52f49a919cc1f79dada6ce6f74b1679b5ae42ae64943f3e3"
+    },
+    {
+      "path": "frontend/src/pages/dashboard.tsx",
+      "after": "94aa8c77303b89ce29c362ab8082b7fa568cfe44beb53b3c6c43c9288ce45833",
+      "before": "3cdfd54698b95b0a0e55c5ef31c0c7c7610620339df11dea6ee87186fbac81af"
+    },
+    {
+      "path": "frontend/src/pages/workspace-pages.tsx",
+      "after": "441b3b620eaba162b80217833970e1cdc81b0b3500e0e6390251e04fe1ae1fc3",
+      "before": "c2eb045e02c584750a89e6971500bf8d7dc28be444a8d3956b220195601334ea"
+    },
+    {
+      "path": "frontend/src/components/intrusion-drawer.tsx",
+      "after": "2cb9a13febd6515fc8045558a58ad678209c2ca2990bf76baf7e53a41ccb2c82",
+      "before": "1dad0c886acda793c84beea33b88559bb1467eb612ac14c0ea78e16304290d32"
+    },
+    {
+      "path": "frontend/src/lib/api/client.ts",
+      "after": "c8e553a04210f86a603f392f82bcb2ac3e2921ca5d78d2c67dfc71ebb0e66c5c",
+      "before": "933d6d38c7f89ae949065f695bf6f90b6fa5f9f61e7c743b38c322691f39ce41"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "after": "caccae78b32664b4f095875069ec5d33aa9fdf7f46af38b7050da302086556f3",
+      "before": "1804dd1b792b19571d4ed4944789bc088c1c09fadb6522146a6d32ed1832fb3e"
+    },
+    {
+      "path": "frontend/README.md",
+      "after": "f8b3d42b14d60e7f273454ea9855abbc62f7d2e4ca31914b1d00e47f3611bc80",
+      "before": "38c462490e1f650d836a8f53eafd1feca521b75753234cb3e0c1bd3ad11ff603"
+    }
+  ],
+  "protected_metadata_mismatches": 0,
+  "protected_payload_hashes_recomputed": false,
+  "branch": "app-demo",
+  "baseline_file_count": 416,
+  "protected_metadata_records": 58,
+  "scientific_or_backend_changes": [],
+  "protected_roots": 20,
+  "head": "2854d153d65c93689875884f3ad45f0b3b468ec2",
+  "unchanged_baseline_files": 406,
+  "handoff_sha256": "b4d30d66785121ce4b27db5023bf124125225e53b559cee3207ba3a77ea557e1",
+  "staged_paths": [],
+  "owner_clarification_applied": true
+}

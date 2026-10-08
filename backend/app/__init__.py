@@ -1,0 +1,1 @@
+"""GraphNIDS FastAPI foundation."""

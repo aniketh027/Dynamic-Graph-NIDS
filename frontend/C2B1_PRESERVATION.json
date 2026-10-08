@@ -1,0 +1,107 @@
+{
+  "stage": "C2B.1",
+  "branch": "app-demo",
+  "head": "2854d153d65c93689875884f3ad45f0b3b468ec2",
+  "baseline_file_count": 472,
+  "unchanged_baseline_files": 463,
+  "changed_files": [
+    {
+      "path": "frontend/src/components/app-shell.tsx",
+      "before": "3cd563129e22868546067e290cf878d418c894b72ea1d75a6df2fea39760a06c",
+      "after": "3c1493ceb4d2d6a5e24b1cae3229e635d914937d5c258e5ae92a3b24786c9142"
+    },
+    {
+      "path": "frontend/src/components/real-intrusion-drawer.tsx",
+      "before": "347ba025c60d9c9fb06a8e0a89e027f123b22130b0fdaff735c0e3ec58e0b9ec",
+      "after": "bbd402f403d9ab1f308afec44091e18f2e2798b74933a3487f2a03bf842b0cb7"
+    },
+    {
+      "path": "frontend/src/components/replay-results.tsx",
+      "before": "cc00594f81a02bcfc78aa31f7a489e4b27c7a85003c411dce1e1e9dcc5a1852d",
+      "after": "3d6d630ec5634e20edd5bc7ed90247ead3c873b57595d40089d7ff0aeebc6512"
+    },
+    {
+      "path": "frontend/src/components/traffic-file-input.tsx",
+      "before": "9ecd3076bcd184321f4e9c365d5f6320a0c52884177f45f488444178dbd0cf4e",
+      "after": "27d7f3ef4804728860e4e5b633d49f0f35781396901b0060dc5a54c762b467dd"
+    },
+    {
+      "path": "frontend/src/lib/replay-context.ts",
+      "before": "5df3e5e44e86cce98395547063973bbe60e08a73ec950ad6e8cb1be56dfbd1f9",
+      "after": "03884c095c0439d6756345d1f42a89178c6da1d5ccdaa9c215c83f93976a2796"
+    },
+    {
+      "path": "frontend/src/pages/workspace-pages.tsx",
+      "before": "441b3b620eaba162b80217833970e1cdc81b0b3500e0e6390251e04fe1ae1fc3",
+      "after": "74aded14b482995e36a5ae0e4bab0c83f765d656e2359e2a2f2f57ba1e878370"
+    },
+    {
+      "path": "frontend/src/styles/replay.css",
+      "before": "56bde46cb0e9e68b5f690b44f88257bee76d9164c2cde9ec108d49604f164e0a",
+      "after": "1d6365b46b3caa6e1bef4bceffe55f1e6fdd6e61e131d792fb4bed3470b0eb4d"
+    },
+    {
+      "path": "frontend/tests/replay-components.test.mjs",
+      "before": "dd767e042e095e5e275e49ee9f00373ca4a48cb931cecfcbf612fea5ada77074",
+      "after": "eb70033430ad366f2b9489b7ce4cd5b17534948e298de53b9689be288e80f49a"
+    },
+    {
+      "path": "frontend/tests/ui-fixture.tsx",
+      "before": "7873876369fd2f26c68dc1c5a68484dc3391827135ad54a87567113aff61ba96",
+      "after": "2d94de152213c4a023443303f6f5c396c72dff6a95198aee9392fa6fd759df3d"
+    }
+  ],
+  "new_files": [
+    "frontend/screenshots-c2b1/real-zero-intrusions.jpg",
+    "frontend/screenshots-c2b1/mock-mobile-cards.jpg",
+    "frontend/screenshots-c2b1/mock-drawer-mobile.jpg",
+    "frontend/screenshots-c2b1/mock-drawer-desktop.jpg",
+    "frontend/screenshots-c2b1/mock-desktop.jpg",
+    "frontend/screenshots-c2b1/file-validated.jpg",
+    "frontend/screenshots-c2b1/file-unvalidated.jpg",
+    "frontend/screenshots-c2b1/file-invalid.jpg",
+    "frontend/screenshots-c2b1/demo-drawer.jpg",
+    "frontend/C2B1_REPORT.md",
+    "frontend/C2B1_PRESERVATION.json"
+  ],
+  "handoff_sha256": "b4d30d66785121ce4b27db5023bf124125225e53b559cee3207ba3a77ea557e1",
+  "owner_clarification_applied": true,
+  "protected_roots": 20,
+  "protected_metadata_records": 58,
+  "protected_metadata_changes": 0,
+  "protected_inventory_changes": 0,
+  "refs_unchanged": true,
+  "root_status_unchanged": true,
+  "git_status": [
+    " M PROJECT_HANDOFF.md",
+    "?? backend/",
+    "?? e10-interrupted-attempt-20261003-140737/",
+    "?? e10-overnight-20261002-042253/",
+    "?? e10-overnight-20261002-042528/",
+    "?? e10-phase-a-final-resume-20261003-183405/",
+    "?? e10-phase-a-final-resume-verification-20261003-183405.zip",
+    "?? e10-phase-a-final-two-20261003-190112/",
+    "?? e10-phase-a-final-two-verification-20261003-190112.zip",
+    "?? e10-phase-a-overnight-20261002-043636/",
+    "?? e10-phase-a-resume-20261003-140507/",
+    "?? e10-phase-a-resume-20261003-140810/",
+    "?? e10-phase-a-resume-verification-20261003-140507.zip",
+    "?? e10-phase-a-resume-verification-20261003-140810.zip",
+    "?? e10-verification-20261002-042253.zip",
+    "?? e10-verification-20261002-042253/",
+    "?? e10-verification-20261002-042528.zip",
+    "?? e10-verification-20261002-042528/",
+    "?? frontend/",
+    "?? run_e10_phase_a_final_two.ps1",
+    "?? run_e10_phase_a_overnight.ps1",
+    "?? run_e10_phase_a_resume.ps1",
+    "?? run_e10_phase_a_resume_after_job1.ps1"
+  ],
+  "staged_paths": [],
+  "focused_tests": 11,
+  "full_frontend_tests": 35,
+  "build": "PASS",
+  "lint": "PASS; 44 pre-existing vendor warnings",
+  "typecheck": "PASS",
+  "diff_check": "PASS"
+}
