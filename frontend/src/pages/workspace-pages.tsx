@@ -1,4 +1,4 @@
-import { Activity, ArrowLeft, ArrowUpRight, ChartNoAxesCombined, Inbox, ShieldAlert } from 'lucide-react'
+import { Activity, ArrowLeft, ArrowUpRight, ShieldAlert } from 'lucide-react'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { PageHeading } from '@/components/app-shell'
@@ -64,12 +64,7 @@ export function GraphOptimization() {
     <div className="graph-page-grid"><GraphSummary expanded /><Panel title="What the policy changes" subtitle="Graph structure at inference"><div className="contract-explanation"><h3>One frozen attention-derived mask</h3><p>The inference graph retains {facts.retainedFeatures} of {facts.inputFeatures} feature nodes, all {facts.categoryNodes} category nodes, and the sample node.</p><h3>Model parameters stay unchanged</h3><p>The policy reduces graph computation during inference. It does not change learned model weights.</p><h3>The input schema remains intact</h3><p>Supply the validated {facts.inputFeatures}-feature input schema. A file containing only {facts.retainedFeatures} arbitrary features is not a supported input.</p><StatusBadge>Frozen policy · Used by application inference</StatusBadge></div></Panel></div></div>
 }
 
-export function ModelPerformance() {
-  return <div className="page-content"><PageHeading eyebrow="MODEL OBSERVABILITY" title="Model Performance" description="A workspace for evidence-backed model and inference measurements." action={<StatusBadge>Evidence integration pending</StatusBadge>} />
-    <div className="stat-grid"><StatCard title="Macro F1" value="—" description="No evidence connected" /><StatCard title="Precision" value="—" description="No evidence connected" /><StatCard title="Recall" value="—" description="No evidence connected" /><StatCard title="Inference latency" value="—" suffix="ms" description="No analysis measurements" /></div>
-    <Panel title="Performance overview" subtitle={`${facts.model} · GATv2-based heterogeneous graph model`}><EmptyState icon={ChartNoAxesCombined} title="Measurements need their context" description="Frozen research results will be integrated with their experiment, split, and provenance in a later phase." /></Panel>
-    <div className="placeholder-note"><Inbox size={14} aria-hidden="true" />No performance measurements or deployment gains are asserted by this frontend.</div></div>
-}
+export { ModelPerformance } from '@/components/model-performance'
 
 export function NotFound() {
   return <div className="page-content"><PageHeading eyebrow="404 / UNKNOWN ROUTE" title="Page not found" description="This route is not part of the analysis console." /><Button variant="outline" asChild><Link to="/"><ArrowLeft size={14} />Return to dashboard</Link></Button></div>

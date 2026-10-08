@@ -6,6 +6,7 @@
 @import "./styles/console.css";
 @import "./styles/phase-b.css";
 @import "./styles/phase-b5.css";
+@import "./styles/model-performance.css";
 
 @custom-variant dark (&:is(.dark *));
 

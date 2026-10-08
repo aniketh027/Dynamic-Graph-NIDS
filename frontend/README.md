@@ -74,8 +74,30 @@ intact. Offline file selection and explicit demo activation continue to work.
 Selecting a real file resets demo state. Switching to demo explicitly clears the
 real result. Demo values remain labeled DEMO / SIMULATED / DEMO EVENT, with the
 existing pause/resume/stop/reset controls. Real results take precedence in the
-result views. Network Monitor always says live capture is not connected;
-Model Performance remains an evidence-integration placeholder.
+result views. Network Monitor always says live capture is not connected.
+Model Performance displays the frozen scientific evidence described below.
+
+## Frozen Model Performance evidence
+
+Model Performance presents the released E.11/E.12B E2 eligible-class test
+macro-F1 comparison, three-seed sample SD and individual seed results, graph
+counts, validation-only RTX 4050 forward/allocator observations, visible E1/E3
+limitations and exact repository-relative sources. It remains available offline.
+Uploaded CSV predictions, demo activity, mock fixtures and backend status cannot
+update these historical measurements. The full 78-feature CSV remains required.
+
+`src/lib/model-performance-evidence.ts` holds only a compact immutable display
+snapshot. `project-facts.ts` remains the graph presentation authority. There is
+no new API, scientific evaluator, dependency or model behavior. Focused tests
+compare values and scopes with the compact reports and verify every displayed
+source against its Git blob at the frozen scientific release:
+
+```powershell
+node --test tests/model-performance.test.mjs
+```
+
+See [MODEL_PERFORMANCE_REPORT.md](MODEL_PERFORMANCE_REPORT.md) for metrics,
+validation, browser QA, preservation and the owner visual-review boundary.
 
 ## Verification and visual fixtures
 
