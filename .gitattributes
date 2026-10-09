@@ -150,6 +150,7 @@ src/utils/logging_utils.py -text -filter -ident -working-tree-encoding
 src/utils/reproducibility.py -text -filter -ident -working-tree-encoding
 tests/conftest.py -text -filter -ident -working-tree-encoding
 tests/fixtures/reconciled_execution_handoff.md -text -filter -ident -working-tree-encoding
+tests/fixtures/scientific_closure_handoff.md -text -filter -ident -working-tree-encoding
 tests/test_construction_sanity.py -text -filter -ident -working-tree-encoding
 tests/test_continuity_robustness.py -text -filter -ident -working-tree-encoding
 tests/test_e2_provenance_cache.py -text -filter -ident -working-tree-encoding

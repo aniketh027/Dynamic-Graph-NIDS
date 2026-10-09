@@ -26,7 +26,7 @@ def reconciled_execution_handoff(root: Path) -> bytes:
     if any(binding.get(key) != value for key, value in expected.items()):
         raise ValueError("authority epoch binding differs")
     for relative, expected_hash, label in (
-        ("PROJECT_HANDOFF.md", binding["closure_handoff_sha256"], "closure handoff"),
+        ("tests/fixtures/scientific_closure_handoff.md", binding["closure_handoff_sha256"], "closure handoff"),
         (b.AUTHORITY_PATH, b.AUTHORITY_SHA256, "reconciliation attestation"),
         (binding["execution_handoff_fixture"], b.CURRENT_HANDOFF_SHA256, "execution handoff"),
     ):
