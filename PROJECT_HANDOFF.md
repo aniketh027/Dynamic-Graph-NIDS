@@ -1063,3 +1063,71 @@ external adapter work, experiment, dataset/predictive-array access,
 E.11/E.12A/E.12B repetition, source/artifact repair, checkpoint change or Git
 commit/push/tag/reset/clean/stash. Preserve historical Git, execution status,
 failure/recovery, hashes and attestations.
+
+## Application Current-State Addendum — 2026-10-09
+
+This addendum supersedes earlier application-state and next-boundary wording as
+CURRENT status, including the C2A adapter-approval boundary above. Earlier
+application paragraphs and dated Git snapshots remain historical records;
+scientific contracts, results and provenance retain their original authority.
+
+The verified local development branch is `app-demo`. Local HEAD, `origin/main`
+and live remote `main` resolve to `94423244ba140de983ae19c622c049b08f1eb949`.
+The completed application checkpoints are:
+
+| Checkpoint | Commit |
+| --- | --- |
+| First application checkpoint: C1 FastAPI foundation, C1.5 frontend/backend integration, external application-window/provenance adapter, C2A canonical CSV replay with frozen HTGNN inference, C2B frontend integration and C2B.1 interface polish | `876526e327c336b3155e4356e630dc8e2a6c8dd9` |
+| Model Performance integration: offline presentation of frozen scientific evidence | `16ca4b683c95907af4fb918515aaa615b2daeaaa` |
+| Closure-fixture maintenance: authenticate historical closure independently of the live handoff | `94423244ba140de983ae19c622c049b08f1eb949` |
+
+Committed source and tests support these milestones; implementation-era reports
+remain in `backend/C1_REPORT.md`, `backend/EXTERNAL_WINDOW_ADAPTER_REPORT.md`,
+`backend/C2A_REPORT.md`, `frontend/C15_REPORT.md`, `frontend/C2B_REPORT.md`,
+`frontend/C2B1_REPORT.md` and `frontend/MODEL_PERFORMANCE_REPORT.md`. Their earlier
+unstaged/pending-next-step statements describe their own completion dates.
+
+The frozen scientific release remains commit
+`2854d153d65c93689875884f3ad45f0b3b468ec2`, tagged
+`v1.0-experimental-complete`. These application checkpoints create no new
+scientific release identity or experimental result.
+
+Current analysis is bounded, local, single-worker CPU CSV replay. Input must
+contain all 78 canonical model-feature columns exactly once; shuffled columns
+are reordered by name, while Label, Timestamp and extra metadata are rejected.
+Replay preserves uploaded CSV row order, without inferring capture chronology
+or recreating research corpus cleaning. Non-overlapping windows contain five
+consecutive flow records, never packets. Each complete window predicts its
+fifth/final record (zero-based target indices `4,9,14,...`); incomplete trailing
+windows receive no predictions or padding. Uploads are limited to 10 MiB and
+25,000 rows, with at most 5,000 predictions and 256 windows per inference batch.
+
+Inference reuses frozen E2 train-fitted transforms, the external application
+provenance adapter, the attention-pruned E2 HTGNN seed-2026 checkpoint and the
+frozen E.12A policy. All 78 input features remain required although inference
+retains 61 feature nodes, 70 total nodes and 69 edges; learned parameters remain
+unchanged. Model scores are uncalibrated normalized scores, not calibrated
+probabilities. No live packet capture, raw PCAP input, database persistence or
+production monitoring is implemented; frontend analysis results are session-only
+and a page refresh clears them. No deployment is claimed.
+
+Model Performance displays immutable historical research results separately
+from uploaded CSV predictions, demo/mock activity, session counts and backend
+status. Frozen GPU figures retain their validation resident-forward scope;
+they do not establish current CPU replay performance or universal GPU gains.
+
+Historical closure and execution authority remain immutable:
+`tests/fixtures/scientific_closure_handoff.md` retains SHA-256
+`cdbdf14742b9f7a7a7b982305d97e2b39d53aa652672c8a6f03ba657d44df230`;
+`tests/fixtures/reconciled_execution_handoff.md` retains SHA-256
+`58a22c8d6feba77a6f50cdef9b56ee653a5f21fa87c803253a16b4f89c5733c5`.
+The release-only helper authenticates those snapshots and the unchanged closure
+binding/attestation independently of this live document. Original release hashes,
+execution pins, attestations and production scientific validators are unchanged;
+the frozen production gate still rejects later live-handoff versions. This
+addendum grants no experimental execution or rerun readiness.
+
+No new application feature or scientific experiment is currently authorized.
+The next safe boundary is independent review of this application handoff
+addendum and owner authorization; the next application milestone requires a
+separate owner decision. No staging, commit, push or tag is authorized here.
