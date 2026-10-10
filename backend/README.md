@@ -281,6 +281,97 @@ analysis and session-only results, with C2B.1 UI polish complete. There is no
 persistence or server-side progress percentage; demo mode remains synthetic
 frontend behavior.
 
+## C3A offline exact-layout CSV preparation
+
+The offline utility recognizes only the exact ordered 80-column
+`src.preprocessing.schema.CSV_COLUMNS` and extended 84-column
+`CSV_COLUMNS_EXTENDED` layouts. Spelling, case, whitespace and sequence must
+match. It removes `Timestamp` and `Label`; the extended layout also removes
+`Flow ID`, `Src IP`, `Src Port` and `Dst IP`. It selects the existing 78 model
+features in `MODEL_FEATURE_COLUMNS` order. No feature-name arrays are copied.
+
+Run from the repository root with the existing `.venv`; no package installation
+is needed. Input and output must be outside this repository and its protected
+data, artifact, provenance and screenshot roots. Use an owner-controlled local
+NTFS directory whose parents already exist. Windows only is supported; network
+drives, device paths, alternate data streams, reparse points/junctions, symlinks,
+hard-linked inputs and ambiguous Windows names are rejected. Close conflicting
+file users. The source must be an independent bounded derivative, not an
+official repository dataset file or a whole oversized scientific day file.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m backend.prepare_flow_csv preview --source 'C:\ApplicationInputs\flows80.csv'
+.\.venv\Scripts\python.exe -B -m backend.prepare_flow_csv prepare --source 'C:\ApplicationInputs\flows80.csv' --output 'C:\ApplicationInputs\Prepared\features.csv'
+# Optional declarations remain explicitly unverified:
+.\.venv\Scripts\python.exe -B -m backend.prepare_flow_csv prepare --source 'C:\ApplicationInputs\flows84.csv' --output 'C:\ApplicationInputs\Prepared\other-features.csv' --exporter 'Declared exporter' --exporter-version 'Declared version'
+.\.venv\Scripts\python.exe -B -m backend.prepare_flow_csv verify --output 'C:\ApplicationInputs\Prepared\features.csv'
+```
+
+Preview writes nothing. It reports the recognized profile, input/output column
+counts and proposed metadata removal. It inspects the header of a bounded UTF-8
+snapshot; it does not certify record values or authenticate the exporter.
+Unknown headers fail with an actionable error. Preparation requires records,
+strict UTF-8 (optional input BOM), valid CSV syntax and the unchanged C2A numeric
+contract. Source and output are each limited to **10 MiB**, with **25,000 flow
+records** maximum. There is no splitting or truncation. Canonical serialization
+quotes all cells and uses LF, so an input below the size cap can still produce
+an oversized output and be rejected.
+
+Preparation preserves every retained decoded cell, including surrounding value
+whitespace, signed zero, exponent text, NaN/infinity and negative sentinels.
+It preserves record order/count, duplicate-looking records and incomplete tails.
+It does not sort by Timestamp, remove records, compute missing features, change
+units, impute, normalize, fit or apply transforms. The provisional CSV must pass
+`backend.app.services.csv_replay.parse_csv`; that parser owns numeric/float32
+validation. No scaler state, model, checkpoint or inference is used by this tool.
+
+The explicit output path produces a fresh canonical CSV and
+`<output>.provenance.json`. Existing destinations are never overwritten. Locked
+source/provisional files and pinned non-reparse parent directories protect
+processing; exclusive hard-link publication writes the validated sidecar first
+and the CSV last. Ordinary failures roll back only invocation-owned links and
+temporary files. The pair is not a filesystem crash transaction: sudden process
+termination/power loss may leave temporary files or an orphan sidecar. Use a
+private directory; these checks are not a sandbox against hostile same-user
+native code or arbitrary same-process mutation.
+
+The deterministic, compact sidecar records the contract/profile, original header,
+source/output sizes and SHA-256, canonical feature-order identity, ordered
+zero-based column mapping, metadata names removed, record counts/order semantics,
+zero rows removed, unchanged units, no imputation/transforms, and optional
+unverified declarations. It contains no removed cell values, raw rows, absolute
+input path or research partition identity. `manifest_sha256` detects ordinary
+sidecar edits. `verify` checks canonical sidecar semantics, its checksum, CSV
+bytes/hash/count and the C2A parser contract. These self-reported hashes are not
+trusted signatures: coordinated replacement/recomputed checksums can pass, and
+source/exporter authenticity is not established without an independent trusted
+digest or signature.
+
+Upload the prepared CSV through the existing **Analyze Traffic** workflow.
+The replay API does not consume the sidecar. Its upload hash will equal the
+sidecar's output SHA-256 for the same bytes. Replay continues using five
+consecutive flow records, targeting indices `4,9,14,...`; trailing records stay
+in the prepared file and receive no prediction. Analysis still requires at least
+five records, while preparation and validation accept 1–4 valid records.
+
+Generic CICFlowMeter variants/aliases, Zeek, NetFlow/IPFIX, Suricata and PCAP
+inputs are unsupported. A matching documented header is a schema match, not
+proof of exporter/version, unit/measurement equivalence, physical plausibility,
+model accuracy, confidence calibration or production readiness. Metadata removal
+reduces exposure; retained model features can still carry sensitive information.
+See `CSV_COMPATIBILITY_REPORT.md` for validation evidence and limits.
+
+C3A checks are synthetic only; these commands do not start a server or model:
+
+```powershell
+.\.venv\Scripts\python.exe -B -m backend.tests.run_csv_compatibility_safe
+.\.venv\Scripts\python.exe -B -m backend.tests.run_csv_compatibility_safe --parser-regressions
+```
+
+The second command runs a fixed existing C2A schema/malformed/numeric rejection
+subset. Positive C2A parser equivalence is covered by the new focused tests.
+No full scientific suite, real inference smoke or benchmark is authorized by C3A.
+
 ## Application-safe verification
 
 ```powershell
