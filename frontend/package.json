@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
     "test:api": "node --test tests/api-client.test.mjs",
+    "test:csv": "node --test tests/csv-compatibility.test.mjs",
+    "schema:check": "\"..\\.venv\\Scripts\\python.exe\" -B scripts/generate-csv-schema.py --check",
     "test": "node --test tests/*.test.mjs",
     "lint": "oxlint",
     "preview": "vite preview"

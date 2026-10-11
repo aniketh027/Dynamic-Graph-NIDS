@@ -14,6 +14,7 @@ from backend.app.services.artifacts import Deployment, SELECTION_RULE, discover
 from src.graph import schema as graph_schema
 from src.preprocessing.labels import LABEL_VOCABULARY
 from src.preprocessing.schema import MODEL_FEATURE_COLUMNS
+from backend.app.services.csv_schema import csv_descriptor
 
 logger = logging.getLogger("graphnids.adapter")
 
@@ -25,6 +26,7 @@ def schema_metadata() -> SchemaResponse:
         temporal_window=window, shape=(window, len(MODEL_FEATURE_COLUMNS)),
         window_semantics="Application replay preserves uploaded CSV row order; five non-overlapping flow records; not packets",
         prediction_target="fifth/final flow", research_basis="CICFlowMeter / CSE-CIC-IDS2018",
+        csv_compatibility=csv_descriptor(),
     )
 
 

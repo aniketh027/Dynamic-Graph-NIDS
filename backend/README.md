@@ -62,7 +62,7 @@ ten seconds. Backend shutdown produces a graceful disconnected state.
 | `/api/v1/health` | Application liveness only: `ok`, `graphnids-backend` |
 | `/api/v1/status` | Connection, adapter state, loaded flag and honest capabilities |
 | `/api/v1/model` | Authenticated E2 HTGNN checkpoint, selection and graph metadata |
-| `/api/v1/schema` | Canonical ordered 78-feature names; five-flow input contract |
+| `/api/v1/schema` | Canonical ordered 78-feature names; five-flow input contract; additive C3B `csv_compatibility` descriptor |
 | `/api/v1/capabilities` | Strict application CSV replay available; live capture, PCAP and arbitrary CICFlowMeter CSV unsupported |
 
 Adapter states: `uninitialized`, `loading`, `ready`, `error`.
@@ -371,6 +371,74 @@ C3A checks are synthetic only; these commands do not start a server or model:
 The second command runs a fixed existing C2A schema/malformed/numeric rejection
 subset. Positive C2A parser equivalence is covered by the new focused tests.
 No full scientific suite, real inference smoke or benchmark is authorized by C3A.
+
+## C3B browser exact-layout CSV preparation
+
+Analyze Traffic can inspect canonical 78-feature CSVs (including shuffled
+columns) and explicitly prepare only the exact ordered Python `CSV_COLUMNS`
+80-column or `CSV_COLUMNS_EXTENDED` 84-column layouts in a dedicated browser
+worker. The user must select **Prepare locally**, then **Validate prepared file**,
+then **Analyze traffic** after backend validation. Preparation can work offline;
+backend validation and analysis require a connection. No preparation endpoint,
+parallel inference path or C2A replay parser/route change was added.
+
+Standard preparation removes only `Timestamp` and `Label`; extended preparation
+also removes `Flow ID`, `Src IP`, `Src Port` and `Dst IP`. Original metadata and
+source bytes stay in the browser. Only canonical 78-feature bytes named
+`graphnids-prepared.csv` reach the existing replay endpoints. Retained features
+can still be sensitive. The backend continues to reject original metadata-bearing
+CSV uploads and does not consume C3A sidecars or authenticate original-source
+provenance/exporter identity.
+
+The read-only `csv_compatibility` descriptor is constructed from the frozen
+Python column constants, projection indices, C2A numeric pattern/float32 bound,
+Python strip code points and limits. Its identity uses the repository canonical
+JSON SHA-256 convention. It requires no discovery, transforms or model loading;
+ordinary server startup retains its separately configured initialization behavior.
+The generator writes `frontend/src/lib/csv-schema.generated.ts` deterministically.
+The client checks complete descriptor content and identity before each prepared
+validation and analysis; missing, malformed, changed or unknown versions block
+upload. Canonical uploads keep their existing flow without the new check.
+
+The descriptor reads, but never changes, `csv.field_size_limit()`. The approved
+Python 3.13 process currently uses **131,072 decoded characters** per retained
+feature field. A changed process limit or Python whitespace table changes the
+descriptor and blocks incompatible prepared uploads. Discarded metadata may
+exceed that field limit within the bounded source; retained output must obey it.
+Source and output are independently capped at **10 MiB**, with **25,000 records**,
+**5,000 windows** and the unchanged **256-window** inference batch. Browser
+decoding and serialization require additional memory beyond those file limits.
+
+Preparation preserves decoded values/order/tails and performs no learned
+transforms, imputation or model operations. Five-flow nonoverlapping targets
+remain `4,9,14,...`. Session-only provenance records local source/output hashes,
+sizes, profile/schema identity, removed names and counts. Existing backend
+responses authenticate the prepared upload identity/count. Replacement, removal,
+navigation and provider disposal cancel pending client work and suppress late
+callbacks; completed session state survives navigation. Client cancellation
+does not guarantee server work has stopped. No browser persistent storage or
+downloadable sidecar was introduced.
+
+Exact headers do not certify measurement equivalence or authenticity. Arbitrary
+CICFlowMeter variants, aliases, Zeek, NetFlow/IPFIX, Suricata, raw PCAP, 61-column
+inputs and live capture remain unsupported. Prediction scores remain uncalibrated;
+uploads generate no accuracy or scientific performance measurements. Frozen
+scientific results retain their original experiment and validation-only scopes.
+
+C3B verification is synthetic and guarded; it does not start a model/server:
+
+```powershell
+.\.venv\Scripts\python.exe -B -m backend.tests.run_csv_ui_safe
+.\.venv\Scripts\python.exe -B -m backend.tests.run_csv_compatibility_safe
+.\.venv\Scripts\python.exe -B -m backend.tests.run_csv_compatibility_safe --parser-regressions
+.\.venv\Scripts\python.exe -B frontend/scripts/generate-csv-schema.py --check
+```
+
+The new runner installs the corrected C3A filesystem/traversal guard before
+application imports, blocks model/transform execution and permits only fixed
+synthetic schema tests or bounded differential cases in a disposable external
+NTFS arena. It does not authorize the broader commands below for C3B. See
+`frontend/C3B_REPORT.md` for actual results and the independent-audit boundary.
 
 ## Application-safe verification
 

@@ -6,6 +6,10 @@
 .replay-error { color: #fda4af; border-color: #743a44; }
 .replay-validation { padding: 20px; border: 1px solid #295b48; border-radius: 8px; }
 .replay-validation h3 { color: #87d6ae; margin-bottom: 16px; }
+.replay-preparation { min-width: 0; padding: 20px; border: 1px solid #665129; border-radius: 8px; }
+.replay-preparation h3 { color: #e3c27f; margin-bottom: 16px; }
+.replay-preparation p { font-size: 13px; line-height: 1.8; margin: 14px 0; }
+.replay-preparation dd { overflow-wrap: anywhere; }
 .replay-validation p, .replay-validation > strong { display: block; font-size: 12px; margin-top: 14px; }
 .replay-model-facts { color: #adb6c5; font-size: 13px; line-height: 1.9; }
 .replay-distribution { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 15px 24px; padding: 20px; }

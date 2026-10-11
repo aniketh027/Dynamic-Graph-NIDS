@@ -1,4 +1,5 @@
 import { decodeAnalysis, decodeValidation, ReplayError } from './replay.ts'
+import { matchesCsvDescriptor } from '../csv-compatibility.ts'
 /** Central application API client; status polling remains independent of uploads. */
 export type AdapterState = 'uninitialized' | 'loading' | 'ready' | 'error'
 export type OfflineReason = 'network' | 'timeout' | 'http' | 'malformed' | 'cancelled' | 'configuration'
@@ -133,3 +134,30 @@ async function upload<T>(baseUrl: string, file: File, operation: 'validate' | 'a
 }
 export const validateReplay = (base: string, file: File, options: ReplayOptions = {}) => upload(base, file, 'validate', decodeValidation, options)
 export const analyzeReplay = (base: string, file: File, options: ReplayOptions = {}) => upload(base, file, 'analyze', decodeAnalysis, options)
+
+/** Read-only schema check; no filename, content or provenance is transmitted. */
+export async function checkCsvDescriptor(baseUrl: string, options: ReplayOptions = {}): Promise<void> {
+  const request = new AbortController()
+  const relay = () => request.abort(options.signal?.reason)
+  options.signal?.addEventListener('abort', relay, { once: true })
+  if (options.signal?.aborted) relay()
+  const timer = setTimeout(() => request.abort(new DOMException('Schema deadline exceeded', 'TimeoutError')),
+    options.timeoutMs ?? VALIDATION_TIMEOUT_MS)
+  try {
+    if (request.signal.aborted) throw request.signal.reason
+    let base: string
+    try { base = apiBaseUrl(baseUrl) } catch { throw new ReplayError('CONFIGURATION') }
+    const response = await (options.fetcher ?? fetch)(`${base}/api/v1/schema`, {
+      signal: request.signal, cache: 'no-store', headers: { Accept: 'application/json' },
+    })
+    const value = await response.json()
+    if (request.signal.aborted) throw request.signal.reason
+    if (!response.ok || !matchesCsvDescriptor(value?.csv_compatibility)) throw new ReplayError('CSV_DESCRIPTOR_MISMATCH')
+  } catch (cause) {
+    if (request.signal.aborted) throw new ReplayError(request.signal.reason?.name === 'TimeoutError' ? 'TIMEOUT' : 'CANCELLED')
+    if (cause instanceof ReplayError) throw cause
+    throw new ReplayError(cause instanceof SyntaxError ? 'CSV_DESCRIPTOR_MISMATCH' : 'NETWORK')
+  } finally {
+    clearTimeout(timer); options.signal?.removeEventListener('abort', relay); request.abort()
+  }
+}

@@ -110,6 +110,15 @@ export function decodeAnalysis(value: unknown): AnalysisResponse {
 }
 
 export const replayMessages: Record<string, string> = {
+  UNSUPPORTED_CSV_FORMAT: 'Unsupported CSV format. Use canonical 78 features or an exact ordered documented 80/84-column layout.',
+  LOCAL_CSV_ERROR: 'Local preparation failed. Check strict UTF-8, CSV quoting and record widths. No source was uploaded.',
+  WORKER_UNAVAILABLE: 'Local CSV processing is unavailable in this browser. No source was uploaded.',
+  FEATURE_FIELD_TOO_LARGE: 'A retained feature exceeds the backend CSV field-size limit.',
+  PREPARED_FILE_TOO_LARGE: 'The prepared CSV exceeds 10 MiB. No partial file was accepted.',
+  EMBEDDED_HEADER: 'The source contains an embedded header. No rows were removed or uploaded.',
+  PREPARATION_NOT_REQUIRED: 'Canonical 78-feature files use the existing validation workflow.',
+  LOCAL_CANCELLED: 'Local CSV processing cancelled. No source was uploaded.',
+  CSV_DESCRIPTOR_MISMATCH: 'The backend CSV schema is missing or incompatible. The prepared file was not uploaded.',
   INVALID_FILE_TYPE: 'Choose an uncompressed .csv file with the 78-feature application schema.',
   FILE_TOO_LARGE: 'The maximum file size is 10 MiB.', EMPTY_FILE: 'The CSV contains no flow rows.',
   CSV_PARSE_ERROR: 'The CSV could not be read. Check its UTF-8 encoding and formatting.',

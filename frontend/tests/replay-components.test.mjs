@@ -19,6 +19,7 @@ const result=structuredClone(wire.analysis)
 result.predictions[0]={...result.predictions[0],prediction_label:'Bot',prediction_class_id:1,is_attack:true}
 result.benign_prediction_count=1;result.intrusion_prediction_count=1;result.prediction_class_counts.Benign=1;result.prediction_class_counts.Bot=1
 const noop=()=>{}
+const { CSV_SCHEMA } = await import('../src/lib/csv-schema.generated.ts')
 function render(component,state={phase:'complete',result,selected:null},demo=false,mock=false){
   return renderToStaticMarkup(React.createElement(MemoryRouter,null,React.createElement(LazyMotion,{features:domAnimation},
     React.createElement(BackendContext.Provider,{value:{state:'offline',status:null,reason:'network'}},
@@ -102,4 +103,36 @@ test('explicit mock presentation replaces real authenticity on all replay result
   }
   const html=render(React.createElement(ReplayResults,{result}),{phase:'complete',result},false,true)
   assert.match(html,/MOCKED UI VALIDATION/);assert.match(html,/NO MODEL OUTPUT/)
+})
+
+test('exact source profiles require explicit local preparation and never expose metadata values',()=>{
+  for (const sourceProfile of ['standard_80','extended_84']) {
+    const html=render(React.createElement(TrafficFileInput),{phase:'preparation_required',file:new File(['PRIVATE-METADATA'],'source.csv'),sourceProfile,preparedFile:null,preparation:null,validation:null,error:null})
+    assert.match(html,/Source format recognized/);assert.match(html,/Prepare locally/)
+    assert.match(html,/Only the resulting 78-feature CSV will be uploaded/)
+    for(const field of CSV_SCHEMA.profiles[sourceProfile].removed_metadata_fields)assert.ok(html.includes(field))
+    assert.doesNotMatch(html,/PRIVATE-METADATA|Backend validated/)
+    assert.match(html,/disabled=""[^>]*>Validate file/)
+    assert.doesNotMatch(html,/disabled=""[^>]*>Prepare locally/)
+  }
+})
+
+test('prepared status is amber and distinct from backend validation, including offline',()=>{
+  const preparedFile=new File(['canonical'],'graphnids-prepared.csv')
+  const preparation={record_count:12,window_count:2,trailing_record_count:2,removed_metadata_fields:['Timestamp','Label'],source_sha256:'a'.repeat(64),prepared_sha256:'b'.repeat(64)}
+  const html=render(React.createElement(TrafficFileInput),{phase:'prepared',file:new File(['source'],'source.csv'),sourceProfile:'standard_80',preparedFile,preparation,validation:null,error:null})
+  assert.match(html,/Prepared locally — backend validation required/)
+  assert.match(html,/Validate prepared file/);assert.match(html,/disabled=""[^>]*>Validate prepared file/)
+  assert.match(html,/Source SHA-256 · local only/);assert.match(html,/backend authenticates only the prepared upload/)
+  assert.doesNotMatch(html,/file-validated|Backend validated|Analyze traffic/)
+  const validated=render(React.createElement(TrafficFileInput),{phase:'validated',file:new File(['source'],'source.csv'),sourceProfile:'standard_80',preparedFile,preparation,validation:wire.validation,error:null})
+  assert.match(validated,/Backend validated/);assert.match(validated,/Model inference has not run yet/)
+})
+
+test('local inspection and preparation show indeterminate local status and cancellation',()=>{
+  for(const phase of ['inspecting','preparing']) {
+    const html=render(React.createElement(TrafficFileInput),{phase,file:new File(['source'],'source.csv'),sourceProfile:'extended_84',preparedFile:null,preparation:null,validation:null,error:null})
+    assert.match(html,/Cancel local processing/);assert.match(html,/Browser worker only/)
+    assert.doesNotMatch(html,/RUNNING FROZEN HTGNN|Backend validated|\d+%/)
+  }
 })

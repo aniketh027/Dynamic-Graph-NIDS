@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { adapterLabel, apiBaseUrl, checkBackend, connectionLabel, retryDelay } from '../src/lib/api/client.ts'
+import { checkCsvDescriptor } from '../src/lib/api/client.ts'
+import { CSV_SCHEMA } from '../src/lib/csv-schema.generated.ts'
 
 const healthy = { status: 'ok', service: 'graphnids-backend' }
 const status = { backend_connected: true, model_adapter_state: 'ready', model_loaded: true,
@@ -147,4 +149,36 @@ test('bounded offline backoff resets immediately after successful recovery', () 
   const offline = { state: 'offline', status: null, reason: 'network' }
   assert.deepEqual([1, 2, 3, 4, 50].map(count => retryDelay(offline, count)), [10000, 20000, 40000, 60000, 60000])
   assert.equal(retryDelay({ state: 'connected', status }, 50), 10000)
+})
+
+test('prepared schema check is a read-only GET with structural and identity checks', async () => {
+  let signal
+  await checkCsvDescriptor('http://localhost:8000/', { fetcher: async (url, options) => {
+    assert.equal(url, 'http://localhost:8000/api/v1/schema')
+    assert.equal(options.body, undefined); assert.equal(options.method, undefined)
+    assert.deepEqual(options.headers, { Accept: 'application/json' }); assert.equal(options.cache, 'no-store')
+    signal = options.signal
+    return reply({ csv_compatibility: CSV_SCHEMA })
+  } })
+  assert.equal(signal.aborted, true)
+  for (const data of [{}, { csv_compatibility: null }, { csv_compatibility: [] },
+    { csv_compatibility: { ...CSV_SCHEMA, contract_version: 'other' } },
+    { csv_compatibility: { ...CSV_SCHEMA, limits: { ...CSV_SCHEMA.limits, window: 6 } } }]) {
+    await assert.rejects(checkCsvDescriptor('http://localhost', { fetcher: async () => reply(data) }), { code: 'CSV_DESCRIPTOR_MISMATCH' })
+  }
+  await assert.rejects(checkCsvDescriptor('http://localhost', { fetcher: async () => new Response('{broken') }), { code: 'CSV_DESCRIPTOR_MISMATCH' })
+  await assert.rejects(checkCsvDescriptor('http://localhost', { fetcher: async () => reply({}, 503) }), { code: 'CSV_DESCRIPTOR_MISMATCH' })
+  await assert.rejects(checkCsvDescriptor('http://localhost', { fetcher: async () => { throw Error('private') } }), { code: 'NETWORK' })
+})
+
+test('schema deadline, early abort and abort-ignoring body cannot permit upload', async () => {
+  await assert.rejects(checkCsvDescriptor('http://localhost', { timeoutMs: 10, fetcher: async (_, options) => new Promise((_, reject) => {
+    options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true })
+  }) }), { code: 'TIMEOUT' })
+  const controller = new AbortController(); controller.abort()
+  await assert.rejects(checkCsvDescriptor('http://localhost', { signal: controller.signal, fetcher: async () => assert.fail('No GET after abort') }), { code: 'CANCELLED' })
+  const active = new AbortController()
+  await assert.rejects(checkCsvDescriptor('http://localhost', { signal: active.signal, fetcher: async () => ({ ok: true, json: async () => {
+    active.abort(); return { csv_compatibility: CSV_SCHEMA }
+  } }) }), { code: 'CANCELLED' })
 })

@@ -1,4 +1,5 @@
 import { Activity, ArrowLeft, ArrowUpRight, ShieldAlert } from 'lucide-react'
+import { useEffect } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { PageHeading } from '@/components/app-shell'
@@ -27,7 +28,8 @@ const analyzeLink = <Button variant="outline" asChild><Link to="/analyze-traffic
 
 export function AnalyzeTraffic() {
   const demo = useDemo()
-  const { state } = useReplay()
+  const { state, session } = useReplay()
+  useEffect(() => () => session.cancel(), [session])
   const backend = useBackend()
   const stage = demoPipelineStage(demo.step)
   const preparing = stage >= 1 && stage <= 3

@@ -81,6 +81,7 @@ class SchemaResponse(Contract):
     preprocessing_required: Literal[True] = True
     arbitrary_61_column_input_supported: Literal[False] = False
     application_input_available: Literal[True] = True
+    csv_compatibility: dict[str, object]
 
 
 class CapabilitiesResponse(Contract):
