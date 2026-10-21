@@ -2,7 +2,7 @@
 
 This research repository implements a CSE-CIC-IDS2018 intrusion-detection pipeline: train-fitted preprocessing, five-flow temporal inputs, a heterogeneous temporal graph neural network (HTGNN), and attention-guided graph pruning at inference time.
 
-The approved experimental scope through E.12B is complete. E.10 training/validation, reviewed E.11 recovery, frozen E.12A policy selection, and E.12B comparison are recorded in the working-tree evidence. The historical Git checkpoint remains E.9. The next safe boundary is a fresh independent final release audit; further experiments and test-set reuse require separate authorization. [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) records the current authority and [final experimental results](docs/final_experimental_results.md) contains measured results, limitations, and exact evidence identities.
+The approved experimental scope through E.12B is complete and frozen at [`v1.0-experimental-complete`](https://github.com/aniketh027/Dynamic-Graph-NIDS/tree/v1.0-experimental-complete). The release includes E.10 training/validation, reviewed E.11 recovery, frozen E.12A policy selection, and E.12B comparison. E.9 remains an earlier historical checkpoint. Further experiments and test-set reuse require separate authorization. [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) records the current authority; [final experimental results](docs/final_experimental_results.md) contains measured results and limitations, and [release provenance](docs/release_provenance.md) documents the external evidence and integrity contract.
 
 ## Implemented pipeline
 
