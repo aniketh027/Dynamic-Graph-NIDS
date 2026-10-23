@@ -4,6 +4,17 @@ This research repository implements a CSE-CIC-IDS2018 intrusion-detection pipeli
 
 The approved experimental scope through E.12B is complete and frozen at [`v1.0-experimental-complete`](https://github.com/aniketh027/Dynamic-Graph-NIDS/tree/v1.0-experimental-complete). The release includes E.10 training/validation, reviewed E.11 recovery, frozen E.12A policy selection, and E.12B comparison. E.9 remains an earlier historical checkpoint. Further experiments and test-set reuse require separate authorization. [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) records the current authority; [final experimental results](docs/final_experimental_results.md) contains measured results and limitations, and [release provenance](docs/release_provenance.md) documents the external evidence and integrity contract.
 
+## Documentation map
+
+| Start here | Purpose |
+| --- | --- |
+| [Project handoff](PROJECT_HANDOFF.md) | Current authority, frozen state, and authorized boundaries |
+| [Final experimental results](docs/final_experimental_results.md) | Measured results, experiment roles, and limitations |
+| [Release provenance](docs/release_provenance.md) | External evidence scope and byte-integrity requirements |
+| [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
+
+Reading these records does not require running training or test evaluation.
+
 ## Implemented pipeline
 
 1. **Preprocessing and temporal input.** Canonical cleaning produces windows of five consecutive clean flow records (`T=5`) in deterministic capture order. Each input has 78 features, excluding Timestamp and Label; the fifth/final flow supplies the target. A window need not represent one conversation. Preprocessing is fitted only on the applicable training partition, with experiment-specific membership and provenance retained.
