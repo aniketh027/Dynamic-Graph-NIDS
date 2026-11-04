@@ -13,6 +13,8 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Release provenance](docs/release_provenance.md) | External evidence scope and byte-integrity requirements |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
+For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
+
 Reading these records does not require running training or test evaluation.
 
 ## Implemented pipeline
