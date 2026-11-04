@@ -37,6 +37,8 @@ Implementation is in [preprocessing](src/preprocessing/), [graph adapters and en
 
 E2 validation selection uses training and validation support only. Final test reporting additionally uses the declared test-support eligibility rule. E1/E3 share preprocessing state because their feature membership and boundaries match; E2 has its own train fit. Their reporting roles remain separate.
 
+For the split and experiment boundary definitions behind this table, see [Stage D.5 experiment boundaries](docs/STAGE_D5_EXPERIMENT_BOUNDARIES.md).
+
 Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
 
 For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
