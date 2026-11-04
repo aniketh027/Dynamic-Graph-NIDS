@@ -39,6 +39,8 @@ E2 validation selection uses training and validation support only. Final test re
 
 Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
 
+For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
+
 ## Data and environment
 
 Raw CSE-CIC-IDS2018 data, generated predictive arrays, checkpoints, and runtime logs are external to Git. See [raw-data setup](data/raw/README.md) for the ten expected CSVs and [release provenance](docs/release_provenance.md) for the exact external evidence archive and per-file integrity contract. No dataset or checkpoint download is supplied here.
