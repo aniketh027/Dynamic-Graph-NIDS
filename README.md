@@ -13,6 +13,8 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Release provenance](docs/release_provenance.md) | External evidence scope and byte-integrity requirements |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
+For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
+
 Reading these records does not require running training or test evaluation.
 
 ## Implemented pipeline
@@ -25,6 +27,10 @@ Reading these records does not require running training or test evaluation.
 
 Implementation is in [preprocessing](src/preprocessing/), [graph adapters and encoders](src/graph/), [training](src/training/), [evaluation](src/evaluation/), and [pruning](src/pruning/). Historical stage documents remain evidence of their original preparation/execution boundary; the current handoff supersedes their stale status statements without rewriting provenance-bound bytes.
 
+- For PyG conversion and provenance checks, see the [E.2 adapter](docs/stage_e2_heterodata_adapter.md) and [provenance cache](docs/stage_e2_provenance_cache.md).
+- For model components, see the [E.3 temporal encoder](docs/stage_e3_feature_encoder.md), [E.4 graph encoder](docs/stage_e4_hierarchical_encoder.md), and [E.5 classifier](docs/stage_e5_htgnn_classifier.md).
+- For training and resource pilots, see the [E.7 training harness](docs/stage_e7_training_harness.md), [E.8 optimization pilot](docs/stage_e8_optimization_pilot.md), and [E.9 baselines and batch-size pilot](docs/stage_e9_baselines_batch_size_pilot.md).
+
 ## Experiment roles
 
 | Experiment | Membership and task | Reporting role |
@@ -35,11 +41,17 @@ Implementation is in [preprocessing](src/preprocessing/), [graph adapters and en
 
 E2 validation selection uses training and validation support only. Final test reporting additionally uses the declared test-support eligibility rule. E1/E3 share preprocessing state because their feature membership and boundaries match; E2 has its own train fit. Their reporting roles remain separate.
 
+For the split and experiment boundary definitions behind this table, see [Stage D.5 experiment boundaries](docs/STAGE_D5_EXPERIMENT_BOUNDARIES.md).
+
 Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
+
+For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
 
 ## Data and environment
 
 Raw CSE-CIC-IDS2018 data, generated predictive arrays, checkpoints, and runtime logs are external to Git. See [raw-data setup](data/raw/README.md) for the ten expected CSVs and [release provenance](docs/release_provenance.md) for the exact external evidence archive and per-file integrity contract. No dataset or checkpoint download is supplied here.
+
+Use the raw-data setup when locating source CSVs. Use release provenance when verifying an evidence archive, including its inventory and per-file hashes.
 
 The verified modelling environment is the isolated `.venv`, with CPython 3.13 on Windows. Use [requirements-gnn-lock.txt](requirements-gnn-lock.txt) and the recorded setup commands/build provenance in [the Stage E.1 environment report](results/stage_e1/environment-report.json). The earlier base-only `requirements.txt` is insufficient for the completed graph model. Environment recreation must follow the recorded lock and platform requirements.
 
