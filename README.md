@@ -15,6 +15,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [E.10 training record](docs/stage_e10_full_training.md) | Training and validation execution contract |
 | [E.11 evaluation record](docs/stage_e11_test_evaluation.md) | Test-evaluation contract and execution history |
 | [E.11 recovery record](docs/stage_e11_failure_recovery.md) | Interrupted evaluation and reviewed recovery |
+| [E.12 policy record](docs/stage_e12_attention_pruning.md) | Attention ranking and validation-based selection |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
 For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
