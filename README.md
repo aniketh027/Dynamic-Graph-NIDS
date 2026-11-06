@@ -18,6 +18,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [E.12 policy record](docs/stage_e12_attention_pruning.md) | Attention ranking and validation-based selection |
 | [Stage D.1 taxonomy](docs/STAGE_D1_TAXONOMY.md) | Approved feature-to-category mapping |
 | [Stage D.2 graph schema](docs/STAGE_D2_GRAPH_SCHEMA.md) | Logical nodes, structural edges, and temporal semantics |
+| [Stage D.4 lazy adapter](docs/STAGE_D4_LAZY_ADAPTER.md) | Read-only sample access and feature tensor orientation |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
 For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
