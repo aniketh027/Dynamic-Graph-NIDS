@@ -77,6 +77,11 @@ Use the raw-data setup when locating source CSVs. Use release provenance when ve
 
 The verified modelling environment is the isolated `.venv`, with CPython 3.13 on Windows. Use [requirements-gnn-lock.txt](requirements-gnn-lock.txt) and the recorded setup commands/build provenance in [the Stage E.1 environment report](results/stage_e1/environment-report.json). The earlier base-only `requirements.txt` is insufficient for the completed graph model. Environment recreation must follow the recorded lock and platform requirements.
 
+For training decisions, consult the E.10 training record. For pruning-mask
+selection, consult the E.12 policy record and its E2 validation boundary. The
+final-results document brings the completed comparison together with its
+reporting limitations.
+
 ## Safe verification
 
 The complete test suite includes real-data integration and training paths. For the reviewed release subset, use the isolated environment and exclude the exact real CUDA resource/training test:
