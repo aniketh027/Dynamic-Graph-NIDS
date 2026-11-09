@@ -44,6 +44,11 @@ Implementation is in [preprocessing](src/preprocessing/), [graph adapters and en
 - For model components, see the [E.3 temporal encoder](docs/stage_e3_feature_encoder.md), [E.4 graph encoder](docs/stage_e4_hierarchical_encoder.md), and [E.5 classifier](docs/stage_e5_htgnn_classifier.md).
 - For training and resource pilots, see the [E.7 training harness](docs/stage_e7_training_harness.md), [E.8 optimization pilot](docs/stage_e8_optimization_pilot.md), and [E.9 baselines and batch-size pilot](docs/stage_e9_baselines_batch_size_pilot.md).
 
+For graph-input details, read D.1 taxonomy and D.2 topology first, then D.3
+structural validation. D.4 introduces sample access, D.6 batches samples, and
+D.7/D.8 document construction checks and sequential split coverage. The links
+in the documentation map follow those responsibilities.
+
 ## Experiment roles
 
 | Experiment | Membership and task | Reporting role |
