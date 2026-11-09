@@ -23,6 +23,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Stage D.3 structural validation](docs/STAGE_D3_STRUCTURAL_VALIDATION.md) | Endpoint, connectivity, and acyclic hierarchy checks |
 | [Stage D.7 construction sanity](docs/STAGE_D7_CONSTRUCTION_SANITY.md) | Deterministic sample and batch checks across experiment splits |
 | [Stage D.8 lazy integration](docs/STAGE_D8_FULL_SPLIT_INTEGRATION.md) | Sequential batch planning and complete index coverage |
+| [E.6 resource pilot](docs/stage_e6_resource_pilot.md) | Bounded forward-path resource measurements |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
 For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
