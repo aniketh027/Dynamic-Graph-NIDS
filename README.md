@@ -95,6 +95,11 @@ The complete test suite includes real-data integration and training paths. For t
 
 This subset uses synthetic/temp fixtures and compact provenance. Release verification also runs under a guard that rejects real-checkout writes, real predictive-array opens, backward calls, training, and optimizer steps. A generic `not slow` filter does not establish safety. The separate release fixture authenticates the historical execution handoff and current closure handoff; it leaves frozen execution preflight pins unchanged.
 
+When comparing multiclass results, record the experiment ID alongside the metric.
+E1 uses the global capture-order split, while E2 recombines per-class chronological
+splits. Consult the experiment-role table and D.5 record when describing either
+result in a report.
+
 ## Interpretation and release boundary
 
 Capture order is a deterministic proxy rather than guaranteed physical chronology because source timestamps lack AM/PM. Repeated temporal/network states can occur across partitions even though split indices do not overlap. E2 preserves chronology within each class, and its results must not be presented as strict global chronological evaluation. The experiment does not establish an optimal window length or universal deployment efficiency.
