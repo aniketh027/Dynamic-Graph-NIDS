@@ -65,6 +65,10 @@ Detailed predictive and hardware-specific efficiency measurements belong in [doc
 
 For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
 
+The D.4 adapter exposes a sample as `(78, 5)`, with feature rows and ordered flow
+columns. D.6 stacks samples as `(B, 78, 5)`. Use the adapter and batching records
+when checking tensor orientation at a model-input boundary.
+
 ## Data and environment
 
 Raw CSE-CIC-IDS2018 data, generated predictive arrays, checkpoints, and runtime logs are external to Git. See [raw-data setup](data/raw/README.md) for the ten expected CSVs and [release provenance](docs/release_provenance.md) for the exact external evidence archive and per-file integrity contract. No dataset or checkpoint download is supplied here.
