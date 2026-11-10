@@ -17,7 +17,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [E.11 recovery record](docs/stage_e11_failure_recovery.md) | Interrupted evaluation and reviewed recovery |
 | [E.12 policy record](docs/stage_e12_attention_pruning.md) | Attention ranking and validation-based selection |
 | [Stage D.1 taxonomy](docs/STAGE_D1_TAXONOMY.md) | Approved feature-to-category mapping [Manifest](results/stage_d1/feature_taxonomy.json). |
-| [Stage D.2 graph schema](docs/STAGE_D2_GRAPH_SCHEMA.md) | Logical nodes, structural edges, and temporal semantics |
+| [Stage D.2 graph schema](docs/STAGE_D2_GRAPH_SCHEMA.md) | Logical nodes, structural edges, and temporal semantics [Schema JSON](results/stage_d2/graph_schema.json). |
 | [Stage D.4 lazy adapter](docs/STAGE_D4_LAZY_ADAPTER.md) | Read-only sample access and feature tensor orientation |
 | [Stage D.6 batching](docs/STAGE_D6_TEMPLATE_BATCHING.md) | Bounded batch assembly and index requirements |
 | [Stage D.3 structural validation](docs/STAGE_D3_STRUCTURAL_VALIDATION.md) | Endpoint, connectivity, and acyclic hierarchy checks |
