@@ -20,7 +20,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Stage D.2 graph schema](docs/STAGE_D2_GRAPH_SCHEMA.md) | Logical nodes, structural edges, and temporal semantics [Schema JSON](results/stage_d2/graph_schema.json). |
 | [Stage D.4 lazy adapter](docs/STAGE_D4_LAZY_ADAPTER.md) | Read-only sample access and feature tensor orientation |
 | [Stage D.6 batching](docs/STAGE_D6_TEMPLATE_BATCHING.md) | Bounded batch assembly and index requirements |
-| [Stage D.3 structural validation](docs/STAGE_D3_STRUCTURAL_VALIDATION.md) | Endpoint, connectivity, and acyclic hierarchy checks |
+| [Stage D.3 structural validation](docs/STAGE_D3_STRUCTURAL_VALIDATION.md) | Endpoint, connectivity, and acyclic hierarchy checks [Validation JSON](results/stage_d3/structural_validation.json). |
 | [Stage D.7 construction sanity](docs/STAGE_D7_CONSTRUCTION_SANITY.md) | Deterministic sample and batch checks across experiment splits |
 | [Stage D.8 lazy integration](docs/STAGE_D8_FULL_SPLIT_INTEGRATION.md) | Sequential batch planning and complete index coverage |
 | [E.6 resource pilot](docs/stage_e6_resource_pilot.md) | Bounded forward-path resource measurements |
