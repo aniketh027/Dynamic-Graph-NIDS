@@ -11,11 +11,6 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Project handoff](PROJECT_HANDOFF.md) | Current authority, frozen state, and authorized boundaries |
 | [Final experimental results](docs/final_experimental_results.md) | Measured results, experiment roles, and limitations |
 | [Release provenance](docs/release_provenance.md) | External evidence scope and byte-integrity requirements |
-| [Environment report](results/stage_e1/environment-report.json) | Recorded runtime and build provenance |
-| [E.10 training record](docs/stage_e10_full_training.md) | Training and validation execution contract |
-| [E.11 evaluation record](docs/stage_e11_test_evaluation.md) | Test-evaluation contract and execution history |
-| [E.11 recovery record](docs/stage_e11_failure_recovery.md) | Interrupted evaluation and reviewed recovery |
-| [E.12 policy record](docs/stage_e12_attention_pruning.md) | Attention ranking and validation-based selection |
 | [Stage D.1 taxonomy](docs/STAGE_D1_TAXONOMY.md) | Approved feature-to-category mapping [Manifest](results/stage_d1/feature_taxonomy.json). |
 | [Stage D.2 graph schema](docs/STAGE_D2_GRAPH_SCHEMA.md) | Logical nodes, structural edges, and temporal semantics [Schema JSON](results/stage_d2/graph_schema.json). |
 | [Stage D.3 structural validation](docs/STAGE_D3_STRUCTURAL_VALIDATION.md) | Endpoint, connectivity, and acyclic hierarchy checks [Validation JSON](results/stage_d3/structural_validation.json). |
@@ -24,7 +19,12 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Stage D.6 batching](docs/STAGE_D6_TEMPLATE_BATCHING.md) | Bounded batch assembly and index requirements |
 | [Stage D.7 construction sanity](docs/STAGE_D7_CONSTRUCTION_SANITY.md) | Deterministic sample and batch checks across experiment splits |
 | [Stage D.8 lazy integration](docs/STAGE_D8_FULL_SPLIT_INTEGRATION.md) | Sequential batch planning and complete index coverage |
+| [Environment report](results/stage_e1/environment-report.json) | Recorded runtime and build provenance |
 | [E.6 resource pilot](docs/stage_e6_resource_pilot.md) | Bounded forward-path resource measurements |
+| [E.10 training record](docs/stage_e10_full_training.md) | Training and validation execution contract |
+| [E.11 evaluation record](docs/stage_e11_test_evaluation.md) | Test-evaluation contract and execution history |
+| [E.11 recovery record](docs/stage_e11_failure_recovery.md) | Interrupted evaluation and reviewed recovery |
+| [E.12 policy record](docs/stage_e12_attention_pruning.md) | Attention ranking and validation-based selection |
 | [Raw-data setup](data/raw/README.md) | Expected source CSVs and local data placement |
 
 For pipeline design, start with [Stage C verification](docs/STAGE_C_VERIFICATION.md) for preprocessing and [Stage D verification](docs/STAGE_D_VERIFICATION.md) for graph input construction.
