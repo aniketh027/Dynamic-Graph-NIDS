@@ -79,8 +79,6 @@ For the comparison between the original and pruned graphs, see the [E.12B compar
 
 Raw CSE-CIC-IDS2018 data, generated predictive arrays, checkpoints, and runtime logs are external to Git. See [raw-data setup](data/raw/README.md) for the ten expected CSVs and [release provenance](docs/release_provenance.md) for the exact external evidence archive and per-file integrity contract. No dataset or checkpoint download is supplied here.
 
-Use the raw-data setup when locating source CSVs. Use release provenance when verifying an evidence archive, including its inventory and per-file hashes.
-
 The verified modelling environment is the isolated `.venv`, with CPython 3.13 on Windows. Use [requirements-gnn-lock.txt](requirements-gnn-lock.txt) and the recorded setup commands/build provenance in [the Stage E.1 environment report](results/stage_e1/environment-report.json). The earlier base-only `requirements.txt` is insufficient for the completed graph model. Environment recreation must follow the recorded lock and platform requirements.
 
 For training decisions, consult the E.10 training record. For pruning-mask
