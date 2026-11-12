@@ -66,6 +66,11 @@ E2 validation selection uses training and validation support only. Final test re
 
 For the split and experiment boundary definitions behind this table, see [Stage D.5 experiment boundaries](docs/STAGE_D5_EXPERIMENT_BOUNDARIES.md).
 
+When comparing multiclass results, record the experiment ID alongside the metric.
+E1 uses the global capture-order split, while E2 recombines per-class chronological
+splits. Consult the experiment-role table and D.5 record when describing either
+result in a report.
+
 Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
 
 For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
@@ -100,11 +105,6 @@ The complete test suite includes real-data integration and training paths. For t
 ```
 
 This subset uses synthetic/temp fixtures and compact provenance. Release verification also runs under a guard that rejects real-checkout writes, real predictive-array opens, backward calls, training, and optimizer steps. A generic `not slow` filter does not establish safety. The separate release fixture authenticates the historical execution handoff and current closure handoff; it leaves frozen execution preflight pins unchanged.
-
-When comparing multiclass results, record the experiment ID alongside the metric.
-E1 uses the global capture-order split, while E2 recombines per-class chronological
-splits. Consult the experiment-role table and D.5 record when describing either
-result in a report.
 
 ## Interpretation and release boundary
 
