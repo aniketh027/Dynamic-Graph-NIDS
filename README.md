@@ -39,6 +39,10 @@ Reading these records does not require running training or test evaluation.
 4. **GATv2-based HTGNN.** Bipartite GATv2 blocks aggregate feature nodes into category nodes, then category nodes into the sample node. The sample embedding feeds the task-specific classification head. Final-flow and flattened-five-flow MLPs provide graph-free baselines.
 5. **Inference-time pruning.** E.12A ranks features using evaluation-mode attention from E2 training examples, then selects a per-category mask using E2 validation only. The frozen 61-feature graph retains all eight category nodes and the sample node: 70 nodes and 69 edges. E.12B transfers the same mask to E1/E2/E3 and compares pruned inference with persisted unpruned results. Pruning changes graph computation; it uses no retraining, fine-tuning, parameter pruning, or parameter-count reduction.
 
+The D.4 adapter exposes a sample as `(78, 5)`, with feature rows and ordered flow
+columns. D.6 stacks samples as `(B, 78, 5)`. Use the adapter and batching records
+when checking tensor orientation at a model-input boundary.
+
 Implementation is in [preprocessing](src/preprocessing/), [graph adapters and encoders](src/graph/), [training](src/training/), [evaluation](src/evaluation/), and [pruning](src/pruning/). Historical stage documents remain evidence of their original preparation/execution boundary; the current handoff supersedes their stale status statements without rewriting provenance-bound bytes.
 
 - For PyG conversion and provenance checks, see the [E.2 adapter](docs/stage_e2_heterodata_adapter.md) and [provenance cache](docs/stage_e2_provenance_cache.md).
@@ -65,10 +69,6 @@ For the split and experiment boundary definitions behind this table, see [Stage 
 Detailed predictive and hardware-specific efficiency measurements belong in [docs/final_experimental_results.md](docs/final_experimental_results.md). Attention is a ranking heuristic, not causal feature importance. Observed resident-forward speed and allocated-memory changes do not establish universal deployment performance or statistical significance. E3 chronological generalization remains poor.
 
 For the comparison between the original and pruned graphs, see the [E.12B comparison record](docs/stage_e12b_final_comparison.md). Read the [E.12A policy record](docs/stage_e12_attention_pruning.md) for the preceding mask selection.
-
-The D.4 adapter exposes a sample as `(78, 5)`, with feature rows and ordered flow
-columns. D.6 stacks samples as `(B, 78, 5)`. Use the adapter and batching records
-when checking tensor orientation at a model-input boundary.
 
 ## Data and environment
 
