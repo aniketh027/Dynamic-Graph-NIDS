@@ -20,6 +20,7 @@ The approved experimental scope through E.12B is complete and frozen at [`v1.0-e
 | [Stage D.7 construction sanity](docs/STAGE_D7_CONSTRUCTION_SANITY.md) | Deterministic sample and batch checks across experiment splits |
 | [Stage D.8 lazy integration](docs/STAGE_D8_FULL_SPLIT_INTEGRATION.md) | Sequential batch planning and complete index coverage |
 | [Environment report](results/stage_e1/environment-report.json) | Recorded runtime and build provenance |
+| [E.2 PyG adapter](docs/stage_e2_heterodata_adapter.md) | Bounded logical-batch conversion to HeteroData |
 | [E.6 resource pilot](docs/stage_e6_resource_pilot.md) | Bounded forward-path resource measurements |
 | [E.10 training record](docs/stage_e10_full_training.md) | Training and validation execution contract |
 | [E.11 evaluation record](docs/stage_e11_test_evaluation.md) | Test-evaluation contract and execution history |
