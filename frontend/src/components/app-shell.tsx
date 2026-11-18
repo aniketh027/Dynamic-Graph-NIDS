@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bell, ChevronRight, CircleHelp, Cpu, Menu, Settings2, Shield, Unplug } from 'lucide-react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { Link, NavLink, Outlet, matchPath, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -54,7 +54,7 @@ export function AppShell() {
   const presentation = useReplayPresentation()
   const backend = useBackend()
   const location = useLocation()
-  const page = navigation.find(item => item.path === location.pathname)?.title ?? 'Page not found'
+  const page = navigation.find(item => matchPath(item.path, location.pathname))?.title ?? 'Page not found'
   const [mobileOpen, setMobileOpen] = useState(false)
   const contentRef = useRef<HTMLElement>(null)
   const lastPath = useRef(location.pathname)
