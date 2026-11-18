@@ -12,6 +12,7 @@ const {BackendContext}=await import('../src/lib/api/context.ts')
 const {ReplayResults,PredictionTable}=await import('../src/components/replay-results.tsx')
 const {Dashboard}=await import('../src/pages/dashboard.tsx')
 const {IntrusionAlerts,NetworkMonitor,ModelPerformance}=await import('../src/pages/workspace-pages.tsx')
+const {EventsPanel}=await import('../src/components/events-panel.tsx')
 const {TrafficFileInput}=await import('../src/components/traffic-file-input.tsx')
 const {RealIntrusionDetails}=await import('../src/components/real-intrusion-drawer.tsx')
 const wire=JSON.parse(readFileSync(new URL('./synthetic-wire-response.json',import.meta.url),'utf8').replace(/^\uFEFF/,''))
@@ -20,10 +21,10 @@ result.predictions[0]={...result.predictions[0],prediction_label:'Bot',predictio
 result.benign_prediction_count=1;result.intrusion_prediction_count=1;result.prediction_class_counts.Benign=1;result.prediction_class_counts.Bot=1
 const noop=()=>{}
 const { CSV_SCHEMA } = await import('../src/lib/csv-schema.generated.ts')
-function render(component,state={phase:'complete',result,selected:null},demo=false,mock=false){
+function render(component,state={phase:'complete',result,selected:null},demo=false,mock=false,events=[]){
   return renderToStaticMarkup(React.createElement(MemoryRouter,null,React.createElement(LazyMotion,{features:domAnimation},
     React.createElement(BackendContext.Provider,{value:{state:'offline',status:null,reason:'network'}},
-      React.createElement(DemoContext.Provider,{value:{enabled:demo,events:[],mode:demo?'running':'idle',points:[],step:0,flowCount:0,reset:noop}},
+      React.createElement(DemoContext.Provider,{value:{enabled:demo,events,mode:demo?'running':'idle',points:[],step:0,flowCount:0,reset:noop}},
         React.createElement(ReplayContext.Provider,{value:{state,session:{inspect:noop,select:noop},presentation:mock?'mock':undefined}},component))))))
 }
 test('real result summary uses returned counts, all classes, score label and no demo or performance metric',()=>{
@@ -136,3 +137,12 @@ test('local inspection and preparation show indeterminate local status and cance
     assert.doesNotMatch(html,/RUNNING FROZEN HTGNN|Backend validated|\d+%/)
   }
 })
+
+test('the demo event log distinguishes zero latency from an unreported latency',()=>{
+  const event={severity:'info',timestamp:0,component:'Demo',title:'Sample event',description:'Synthetic test'};
+  const html=render(React.createElement(EventsPanel),undefined,true,false,[
+    {...event,id:'zero',latency:0}, {...event,id:'missing'}
+  ]);
+  assert.match(html,/<td>0\.0 ms<\/td>/);
+  assert.match(html,/<td>—<\/td>/);
+});
