@@ -146,3 +146,8 @@ test('the demo event log distinguishes zero latency from an unreported latency',
   assert.match(html,/<td>0\.0 ms<\/td>/);
   assert.match(html,/<td>—<\/td>/);
 });
+
+test('the prediction table declares each heading as a column header',()=>{
+  const html=render(React.createElement(PredictionTable,{predictions:result.predictions}));
+  assert.equal((html.match(/<th scope="col">/g)||[]).length,6);
+});
