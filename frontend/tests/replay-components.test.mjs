@@ -12,6 +12,7 @@ const {BackendContext}=await import('../src/lib/api/context.ts')
 const {ReplayResults,PredictionTable}=await import('../src/components/replay-results.tsx')
 const {Dashboard}=await import('../src/pages/dashboard.tsx')
 const {IntrusionAlerts,NetworkMonitor,ModelPerformance}=await import('../src/pages/workspace-pages.tsx')
+const {AppShell}=await import('../src/components/app-shell.tsx')
 const {EventsPanel}=await import('../src/components/events-panel.tsx')
 const {TrafficFileInput}=await import('../src/components/traffic-file-input.tsx')
 const {RealIntrusionDetails}=await import('../src/components/real-intrusion-drawer.tsx')
@@ -150,4 +151,10 @@ test('the demo event log distinguishes zero latency from an unreported latency',
 test('the prediction table declares each heading as a column header',()=>{
   const html=render(React.createElement(PredictionTable,{predictions:result.predictions}));
   assert.equal((html.match(/<th scope="col">/g)||[]).length,6);
+});
+
+test('the skip link targets a focusable main element outside the normal tab order',()=>{
+  const html=render(React.createElement(AppShell));
+  assert.match(html,/<a href="#main-content" class="skip-link">Skip to content<\/a>/);
+  assert.match(html,/<main id="main-content" tabindex="-1"/);
 });

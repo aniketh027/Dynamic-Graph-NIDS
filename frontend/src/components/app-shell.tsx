@@ -97,7 +97,7 @@ export function AppShell() {
             </Popover>
           </div>
         </header>
-        <main id="main-content" ref={contentRef} className="main-content"><Outlet /></main>
+        <main id="main-content" tabIndex={-1} ref={contentRef} className="main-content"><Outlet /></main>
         <footer className="app-footer"><span><Unplug size={12} aria-hidden="true" />{connectionLabel(backend)}<span className="footer-separator">/</span>Application preview</span><span><CircleHelp size={12} aria-hidden="true" />Research base: {facts.dataset}</span></footer>
       </div>
       <IntrusionDrawer />
