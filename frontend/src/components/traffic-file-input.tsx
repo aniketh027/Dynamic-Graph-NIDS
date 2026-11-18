@@ -31,10 +31,14 @@ export function TrafficFileInput() {
     session.select(files.length === 1 ? files[0] : null, files.length !== 1 ? 'INVALID_REQUEST' : undefined)
   }
   const onChange = (event: ChangeEvent<HTMLInputElement>) => { choose(event.target.files); event.target.value = '' }
+  const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) return
+    setDragging(false)
+  }
   const onDrop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setDragging(false); choose(event.dataTransfer.files) }
   return <div className="file-input-area">
     <input ref={inputRef} type="file" accept=".csv,text/csv" className="sr-only" tabIndex={-1} aria-label="Choose traffic CSV" onChange={onChange} />
-    <div className={`traffic-dropzone${dragging ? ' dropzone-dragging' : ''}`} onDragOver={e => { e.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
+    <div className={`traffic-dropzone${dragging ? ' dropzone-dragging' : ''}`} onDragOver={e => { e.preventDefault(); setDragging(true) }} onDragLeave={onDragLeave} onDrop={onDrop}>
       <span className="dropzone-icon"><FileUp size={27} strokeWidth={1.3} aria-hidden="true" /></span><h3>{dragging ? 'Release to select your CSV' : 'Drop a traffic CSV here'}</h3>
       <p>Canonical 78 features or exact documented 80/84 columns · Maximum 10 MiB</p>
       <Button variant="outline" onClick={() => inputRef.current?.click()}><FolderOpen size={14} />{file ? 'Replace file' : 'Browse files'}</Button>
