@@ -12,6 +12,7 @@ const {BackendContext}=await import('../src/lib/api/context.ts')
 const {ReplayResults,PredictionTable}=await import('../src/components/replay-results.tsx')
 const {Dashboard}=await import('../src/pages/dashboard.tsx')
 const {IntrusionAlerts,NetworkMonitor,ModelPerformance}=await import('../src/pages/workspace-pages.tsx')
+const {AlertCard}=await import('../src/components/alert-card.tsx')
 const {AppShell}=await import('../src/components/app-shell.tsx')
 const {EventsPanel}=await import('../src/components/events-panel.tsx')
 const {TrafficFileInput}=await import('../src/components/traffic-file-input.tsx')
@@ -157,4 +158,12 @@ test('the skip link targets a focusable main element outside the normal tab orde
   const html=render(React.createElement(AppShell));
   assert.match(html,/<a href="#main-content" class="skip-link">Skip to content<\/a>/);
   assert.match(html,/<main id="main-content" tabindex="-1"/);
+});
+
+test('alert cards render the Unix epoch as a timestamp and omit unreported times',()=>{
+  const props={severity:'info',title:'Demo event',description:'Synthetic fixture'};
+  const epoch=render(React.createElement(AlertCard,{...props,timestamp:0}));
+  assert.match(epoch,/<time dateTime="1970-01-01T00:00:00\.000Z">05:30:00 IST<\/time>/i);
+  const undated=render(React.createElement(AlertCard,props));
+  assert.doesNotMatch(undated,/<time/);
 });
