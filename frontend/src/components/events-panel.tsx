@@ -15,9 +15,10 @@ export function EventsPanel({ full = false }: { full?: boolean }) {
   const [search, setSearch] = useState('')
   const [severity, setSeverity] = useState('all')
   const [kind, setKind] = useState('all')
+  const searchTerm = search.trim().toLowerCase()
   const filtered = useMemo(() => demo.events.filter(event => (severity === 'all' || severity === event.severity)
     && (kind === 'all' || (kind === 'benign' ? event.severity === 'safe' : ['high', 'critical'].includes(event.severity)))
-    && `${event.title} ${event.component} ${event.id} ${event.description}`.toLowerCase().includes(search.toLowerCase())), [demo.events, severity, kind, search])
+    && `${event.title} ${event.component} ${event.id} ${event.description}`.toLowerCase().includes(searchTerm)), [demo.events, severity, kind, searchTerm])
   const rows = full ? filtered : filtered.slice(0, 5)
   return <Panel title={full ? 'Event investigation' : 'Recent events'} subtitle={demo.enabled ? 'DEMO · Deterministic synthetic events' : 'Pipeline events and intrusion activity'}
     action={full ? <StatusBadge tone={demo.enabled ? 'info' : 'neutral'}>{demo.enabled ? 'DEMO DATA' : 'No session'}</StatusBadge> : <Link className="text-link" to="/intrusion-alerts">View all<ArrowUpRight size={13} aria-hidden="true" /></Link>} className="events-panel">
