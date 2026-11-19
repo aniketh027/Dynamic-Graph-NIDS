@@ -10,6 +10,7 @@ const {ReplayContext}=await import('../src/lib/replay-context.ts')
 const {DemoContext}=await import('../src/lib/demo-context.ts')
 const {BackendContext}=await import('../src/lib/api/context.ts')
 const {ReplayResults,PredictionTable}=await import('../src/components/replay-results.tsx')
+const {DetectionActivityPanel}=await import('../src/components/activity-panels.tsx')
 const {Dashboard}=await import('../src/pages/dashboard.tsx')
 const {IntrusionAlerts,NetworkMonitor,ModelPerformance}=await import('../src/pages/workspace-pages.tsx')
 const {AlertCard}=await import('../src/components/alert-card.tsx')
@@ -172,4 +173,12 @@ test('alert cards render the Unix epoch as a timestamp and omit unreported times
 test('demo chart and event clocks preserve IST across midnight',()=>{
   assert.equal(eventTime(18 * 3600 + 29 * 60 + 59),'23:59:59');
   assert.equal(eventTime(18 * 3600 + 30 * 60),'00:00:00');
+});
+
+test('the demo detection chart shows an empty ring when there are no detection events',()=>{
+  const event={id:'preparing',severity:'info',timestamp:0,source:'demo'};
+  const html=render(React.createElement(DetectionActivityPanel),undefined,true,false,[event]);
+  assert.match(html,/0 benign and 0 intrusion demo events/);
+  assert.match(html,/stroke-dasharray="2 17"/);
+  assert.doesNotMatch(html,/NaN|Infinity/);
 });
