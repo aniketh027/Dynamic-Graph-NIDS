@@ -41,8 +41,12 @@ export function makeDemoEvents(epoch: number, step: number): TrafficEvent[] {
   })
 }
 
+const eventClock = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Kolkata',
+})
+
 export function eventTime(seconds: number) {
-  return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Kolkata' }).format(new Date(seconds * 1000))
+  return eventClock.format(seconds * 1000)
 }
 
 export function severityTone(severity: Severity) {

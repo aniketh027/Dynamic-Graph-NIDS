@@ -14,6 +14,7 @@ const {Dashboard}=await import('../src/pages/dashboard.tsx')
 const {IntrusionAlerts,NetworkMonitor,ModelPerformance}=await import('../src/pages/workspace-pages.tsx')
 const {AlertCard}=await import('../src/components/alert-card.tsx')
 const {AppShell}=await import('../src/components/app-shell.tsx')
+const {eventTime}=await import('../src/lib/demo-data.ts')
 const {EventsPanel}=await import('../src/components/events-panel.tsx')
 const {TrafficFileInput}=await import('../src/components/traffic-file-input.tsx')
 const {RealIntrusionDetails}=await import('../src/components/real-intrusion-drawer.tsx')
@@ -166,4 +167,9 @@ test('alert cards render the Unix epoch as a timestamp and omit unreported times
   assert.match(epoch,/<time dateTime="1970-01-01T00:00:00\.000Z">05:30:00 IST<\/time>/i);
   const undated=render(React.createElement(AlertCard,props));
   assert.doesNotMatch(undated,/<time/);
+});
+
+test('demo chart and event clocks preserve IST across midnight',()=>{
+  assert.equal(eventTime(18 * 3600 + 29 * 60 + 59),'23:59:59');
+  assert.equal(eventTime(18 * 3600 + 30 * 60),'00:00:00');
 });
