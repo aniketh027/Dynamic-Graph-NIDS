@@ -46,7 +46,16 @@ const eventClock = new Intl.DateTimeFormat('en-GB', {
 })
 
 export function eventTime(seconds: number) {
-  return eventClock.format(seconds * 1000)
+  const milliseconds = seconds * 1000
+  if (!Number.isFinite(milliseconds) || !Number.isFinite(new Date(milliseconds).getTime())) return 'Time unavailable'
+  return eventClock.format(milliseconds)
+}
+
+export function eventDateTime(seconds: number) {
+  const milliseconds = seconds * 1000
+  return Number.isFinite(milliseconds) && Number.isFinite(new Date(milliseconds).getTime())
+    ? new Date(milliseconds).toISOString()
+    : undefined
 }
 
 export function severityTone(severity: Severity) {

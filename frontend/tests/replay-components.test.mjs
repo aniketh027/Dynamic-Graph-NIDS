@@ -182,3 +182,13 @@ test('the demo detection chart shows an empty ring when there are no detection e
   assert.match(html,/stroke-dasharray="2 17"/);
   assert.doesNotMatch(html,/NaN|Infinity/);
 });
+
+
+test('demo timestamps outside the JavaScript date range render safely',()=>{
+  const props={severity:'info',title:'Demo event',description:'Synthetic fixture'};
+  const html=render(React.createElement(AlertCard,{...props,timestamp:Infinity}));
+  assert.match(html,/Time unavailable IST/);
+  assert.doesNotMatch(html,/dateTime=/);
+  assert.equal(eventTime(NaN),'Time unavailable');
+  assert.equal(eventTime(1e100),'Time unavailable');
+});
