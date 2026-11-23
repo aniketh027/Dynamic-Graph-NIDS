@@ -10,9 +10,12 @@ export function AlertCard({ severity, title, description, demo = false, timestam
   severity: Severity; title: string; description: string; demo?: boolean; timestamp?: number; onDismiss?: () => void; onInspect?: () => void
 }) {
   const Icon = icons[severity]
+  const dateTime = timestamp === undefined ? undefined : eventDateTime(timestamp)
   return <div className={`alert-card alert-${severity}`}>
     <Icon className="alert-symbol" size={18} aria-hidden="true" /><div className="alert-body">
-      <div className="alert-meta"><StatusBadge tone={severityTone(severity)}>{severity.toUpperCase()}</StatusBadge>{demo && <span className="demo-text">DEMO EVENT</span>}{timestamp !== undefined && <time dateTime={eventDateTime(timestamp)}>{eventTime(timestamp)} IST</time>}</div>
+      <div className="alert-meta"><StatusBadge tone={severityTone(severity)}>{severity.toUpperCase()}</StatusBadge>{demo && <span className="demo-text">DEMO EVENT</span>}{timestamp !== undefined && (dateTime
+        ? <time dateTime={dateTime}>{eventTime(timestamp)} IST</time>
+        : <span>Time unavailable</span>)}</div>
       <h3>{title}</h3><p>{description}</p>{onInspect && <Button variant="link" size="sm" onClick={onInspect}>Inspect event</Button>}
     </div>{onDismiss && <Button variant="ghost" size="icon-sm" aria-label="Dismiss notification" onClick={onDismiss}><X /></Button>}
   </div>
