@@ -10,17 +10,18 @@ import { Button } from '@/components/ui/button'
 export function PredictionTable({ predictions }: { predictions: Prediction[] }) {
   const [page, setPage] = useState(0)
   const { session } = useReplay()
-  const pages = Math.max(1, Math.ceil(predictions.length / 50))
+  if (predictions.length === 0) return <p className="replay-notice">No intrusion predictions in this analysis.</p>
+
+  const pages = Math.ceil(predictions.length / 50)
   const current = Math.min(page, pages - 1)
   const visible = predictionPage(predictions, current)
   return <div className="replay-predictions"><p className="replay-helper">Window and target flow indices are zero-based. Model score is an uncalibrated normalized score for the predicted class.</p>
     <div className="replay-table-scroll" tabIndex={0} role="region" aria-label="Prediction table"><table className="replay-table"><thead><tr><th scope="col">Window</th><th scope="col">Target flow</th><th scope="col">Prediction</th><th scope="col">Model score</th><th scope="col">Status</th><th scope="col"><span className="sr-only">Inspect</span></th></tr></thead><tbody>{visible.map(p => <tr key={p.window_index}><td>{p.window_index}</td><td>{p.target_flow_index}</td><td>{p.prediction_label}</td><td>{p.model_score.toFixed(4)}</td><td><StatusBadge tone={p.is_attack ? 'bad' : 'good'}>{p.is_attack ? 'INTRUSION' : 'BENIGN'}</StatusBadge></td><td>{p.is_attack && <Button variant="ghost" size="sm" aria-label={`Inspect window ${p.window_index}`} onClick={() => session.inspect(p)}>Inspect</Button>}</td></tr>)}</tbody></table></div>
-    {!predictions.length && <p className="replay-notice">No intrusion predictions in this analysis.</p>}
     <div className="replay-mobile-cards">{visible.map(p => <article className="replay-prediction-card" key={p.window_index} aria-label={`Prediction window ${p.window_index}`}>
       <dl><div><dt>Prediction</dt><dd>{p.prediction_label}</dd></div><div><dt>Status</dt><dd><StatusBadge tone={p.is_attack ? 'bad' : 'good'}>{p.is_attack ? 'INTRUSION' : 'BENIGN'}</StatusBadge></dd></div><div><dt>Window</dt><dd>{p.window_index}</dd></div><div><dt>Target flow</dt><dd>{p.target_flow_index}</dd></div><div><dt>Model score</dt><dd>{p.model_score.toFixed(4)}</dd></div></dl>
       {p.is_attack && <Button variant="outline" size="sm" aria-label={`Inspect window ${p.window_index}`} onClick={() => session.inspect(p)}>Inspect</Button>}
     </article>)}</div>
-    {predictions.length > 0 && <div className="replay-pagination"><Button variant="outline" size="sm" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button><span role="status">Page {current + 1} of {pages} · {predictions.length} predictions · 50 per page</span><Button variant="outline" size="sm" disabled={current + 1 >= pages} onClick={() => setPage(current + 1)}>Next</Button></div>}
+    <div className="replay-pagination"><Button variant="outline" size="sm" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button><span role="status">Page {current + 1} of {pages} · {predictions.length} predictions · 50 per page</span><Button variant="outline" size="sm" disabled={current + 1 >= pages} onClick={() => setPage(current + 1)}>Next</Button></div>
   </div>
 }
 export function ClassDistribution({ result }: { result: AnalysisResponse }) {

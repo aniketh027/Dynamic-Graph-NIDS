@@ -75,7 +75,7 @@ test('mobile cards expose bounded prediction fields alongside the unchanged desk
 test('zero intrusion predictions have no pagination; a single prediction still has normal controls',()=>{
   const empty=render(React.createElement(IntrusionAlerts),{phase:'complete',result:wire.analysis})
   assert.match(empty,/No intrusion predictions/)
-  assert.doesNotMatch(empty,/replay-pagination|Previous|Next|Page 1 of|Event severity legend/)
+  assert.doesNotMatch(empty,/<table|aria-label="Prediction table"|replay-pagination|Previous|Next|Page 1 of|Event severity legend/)
   const one=render(React.createElement(PredictionTable,{predictions:[result.predictions[0]]}))
   assert.match(one,/Page 1 of 1/);assert.match(one,/Previous/);assert.match(one,/Next/)
 })
