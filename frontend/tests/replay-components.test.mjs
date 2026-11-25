@@ -192,3 +192,10 @@ test('demo timestamps outside the JavaScript date range render safely',()=>{
   assert.equal(eventTime(NaN),'Time unavailable');
   assert.equal(eventTime(1e100),'Time unavailable');
 });
+
+test('the demo event log labels a missing time without time markup or an IST label',()=>{
+  const event={id:'missing-time',severity:'info',timestamp:NaN,component:'Demo',title:'Sample',description:'Synthetic fixture'};
+  const html=render(React.createElement(EventsPanel),undefined,true,false,[event]);
+  assert.match(html,/<span>Time unavailable<\/span><small>DEMO<\/small>/);
+  assert.doesNotMatch(html,/<time|IST · DEMO/);
+});
