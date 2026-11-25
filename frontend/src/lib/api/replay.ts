@@ -135,6 +135,7 @@ export const replayMessages: Record<string, string> = {
   MODEL_NOT_LOADED: 'The frozen model is not loaded.', BACKEND_NOT_READY: 'The backend is not ready.',
   ANALYSIS_BUSY: 'Another analysis is already running. Try again when it finishes.',
   INFERENCE_FAILED: 'Model inference failed. No partial results were accepted.',
+  MULTIPLE_FILES: 'Choose one CSV file at a time.',
   INVALID_REQUEST: 'The backend could not accept this upload.',
   CAPABILITY_NOT_IMPLEMENTED: 'This backend does not support the requested operation.',
   INTERNAL_ERROR: 'The backend could not complete the request.',

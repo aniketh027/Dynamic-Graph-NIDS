@@ -28,7 +28,7 @@ export function TrafficFileInput() {
   const choose = (files: FileList | null) => {
     if (!files?.length) return
     demo.reset()
-    session.select(files.length === 1 ? files[0] : null, files.length !== 1 ? 'INVALID_REQUEST' : undefined)
+    session.select(files.length === 1 ? files[0] : null, files.length !== 1 ? 'MULTIPLE_FILES' : undefined)
   }
   const onChange = (event: ChangeEvent<HTMLInputElement>) => { choose(event.target.files); event.target.value = '' }
   const onDragOver = (event: DragEvent<HTMLDivElement>) => {
