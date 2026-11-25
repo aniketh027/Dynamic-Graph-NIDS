@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { AnalysisResponse, Prediction } from '@/lib/api/replay'
-import { intrusionPredictions, predictionPage } from '@/lib/replay-session'
+import { intrusionPredictions, predictionPage, PREDICTIONS_PER_PAGE } from '@/lib/replay-session'
 import { useReplay, useReplayPresentation } from '@/lib/replay-context'
 import { Panel } from '@/components/panel'
 import { StatCard } from '@/components/stat-card'
@@ -12,7 +12,7 @@ export function PredictionTable({ predictions }: { predictions: Prediction[] }) 
   const { session } = useReplay()
   if (predictions.length === 0) return <p className="replay-notice">No intrusion predictions in this analysis.</p>
 
-  const pages = Math.ceil(predictions.length / 50)
+  const pages = Math.ceil(predictions.length / PREDICTIONS_PER_PAGE)
   const current = Math.min(page, pages - 1)
   const visible = predictionPage(predictions, current)
   return <div className="replay-predictions"><p className="replay-helper">Window and target flow indices are zero-based. Model score is an uncalibrated normalized score for the predicted class.</p>
@@ -21,7 +21,7 @@ export function PredictionTable({ predictions }: { predictions: Prediction[] }) 
       <dl><div><dt>Prediction</dt><dd>{p.prediction_label}</dd></div><div><dt>Status</dt><dd><StatusBadge tone={p.is_attack ? 'bad' : 'good'}>{p.is_attack ? 'INTRUSION' : 'BENIGN'}</StatusBadge></dd></div><div><dt>Window</dt><dd>{p.window_index}</dd></div><div><dt>Target flow</dt><dd>{p.target_flow_index}</dd></div><div><dt>Model score</dt><dd>{p.model_score.toFixed(4)}</dd></div></dl>
       {p.is_attack && <Button variant="outline" size="sm" aria-label={`Inspect window ${p.window_index}`} onClick={() => session.inspect(p)}>Inspect</Button>}
     </article>)}</div>
-    <div className="replay-pagination"><Button variant="outline" size="sm" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button><span role="status">Page {current + 1} of {pages} · {predictions.length} predictions · 50 per page</span><Button variant="outline" size="sm" disabled={current + 1 >= pages} onClick={() => setPage(current + 1)}>Next</Button></div>
+    <div className="replay-pagination"><Button variant="outline" size="sm" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button><span role="status">Page {current + 1} of {pages} · {predictions.length} predictions · {PREDICTIONS_PER_PAGE} per page</span><Button variant="outline" size="sm" disabled={current + 1 >= pages} onClick={() => setPage(current + 1)}>Next</Button></div>
   </div>
 }
 export function ClassDistribution({ result }: { result: AnalysisResponse }) {

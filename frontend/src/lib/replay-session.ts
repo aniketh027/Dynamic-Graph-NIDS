@@ -11,7 +11,9 @@ export interface ReplayState {
 }
 const initial = (): ReplayState => ({ phase: 'idle', file: null, validation: null, result: null, error: null, selected: null, sourceProfile: null, preparedFile: null, preparation: null })
 export const intrusionPredictions = (result: AnalysisResponse) => result.predictions.filter(p => p.is_attack)
-export const predictionPage = (predictions: Prediction[], page: number) => predictions.slice(page * 50, (page + 1) * 50)
+export const PREDICTIONS_PER_PAGE = 50
+export const predictionPage = (predictions: Prediction[], page: number) =>
+  predictions.slice(page * PREDICTIONS_PER_PAGE, (page + 1) * PREDICTIONS_PER_PAGE)
 
 /** One session owns one worker or request. Navigation retains settled state.
  * A generation prevents late responses (including abort-ignoring transports) restoring old results. */
