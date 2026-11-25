@@ -33,7 +33,7 @@ export class ReplaySession {
   dispose = () => { this.cancel() }
   select = async (file: File | null, selectionError?: string) => {
     this.invalidate()
-    const code = selectionError || (file && (!/\.csv$/i.test(file.name) ? 'INVALID_FILE_TYPE' : file.size > 10 * 1024 * 1024 ? 'FILE_TOO_LARGE' : null))
+    const code = selectionError || (file && (!/\.csv$/i.test(file.name) ? 'INVALID_FILE_TYPE' : file.size > CSV_SCHEMA.limits.source_bytes ? 'FILE_TOO_LARGE' : null))
     this.update({ ...initial(), file, phase: code ? 'validation_error' : file ? 'file_selected' : 'idle', error: code ? new ReplayError(code) : null })
     if (!file || code) return
     const request = new AbortController(), generation = ++this.generation
@@ -88,7 +88,8 @@ export class ReplaySession {
     const { file: source, preparedFile, preparation, sourceProfile, validation } = this.state
     const file = sourceProfile === 'canonical_78' ? source : preparedFile
     if (!file || this.request || (preparedFile && !preparation) || (analyze && (!validation || validation.complete_window_count === 0))) return
-    if (!/\.csv$/i.test(file.name) || file.size > 10 * 1024 * 1024) return
+    const byteLimit = preparation ? CSV_SCHEMA.limits.output_bytes : CSV_SCHEMA.limits.source_bytes
+    if (!/\.csv$/i.test(file.name) || file.size > byteLimit) return
     const request = new AbortController()
     this.request = request
     const generation = ++this.generation
