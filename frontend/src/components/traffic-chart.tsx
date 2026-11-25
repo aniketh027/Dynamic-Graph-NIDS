@@ -9,11 +9,13 @@ import { eventTime } from '@/lib/demo-data'
 
 function TrafficTooltip({ point }: { point: Record<string, unknown> }) {
   // The live registry accepts Unix seconds, then exposes tooltip points as Date.
-  const seconds = (point.date instanceof Date ? point.date.getTime() : Number(point.date)) / 1000
-  const value = Number(point.value)
+  const time = point.date instanceof Date && Number.isFinite(point.date.getTime())
+    ? `${eventTime(point.date.getTime() / 1000)} IST`
+    : 'Time unavailable'
+  const value = typeof point.value === 'number' && Number.isFinite(point.value) ? Math.round(point.value) : null
   return <div className="traffic-tooltip"><span>DEMO · SYNTHETIC</span>
-    <strong>{Number.isFinite(value) ? Math.round(value) : '—'} flow records / s</strong>
-    <small>{Number.isFinite(seconds) ? `${eventTime(seconds)} IST` : 'Time unavailable'}</small></div>
+    <strong>{value === null ? 'Flow rate unavailable' : `${value} flow records / s`}</strong>
+    <small>{time}</small></div>
 }
 
 export default function StreamingTrafficChart({ seconds }: { seconds: number }) {
