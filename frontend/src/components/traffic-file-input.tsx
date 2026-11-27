@@ -27,6 +27,8 @@ export function TrafficFileInput() {
   const localBusy = phase === 'inspecting' || phase === 'preparing'
   const busy = uploadBusy || localBusy
   const online = backend.state === 'connected'
+  const backendNotice = backend.state === 'checking' ? 'Checking backend connection.'
+    : backend.state === 'offline' && backend.reason === 'configuration' ? 'Backend address is invalid.' : 'Backend offline.'
   const choose = (files: FileList | null) => {
     if (!files?.length) return
     setMultipleFiles(files.length > 1)
@@ -53,7 +55,7 @@ export function TrafficFileInput() {
       <span className="dropzone-note">80/84-column sources require explicit local preparation · No PCAP or arbitrary CICFlowMeter CSV</span>
     </div>
     {file && <div className={`selected-file-row file-${fileTone}`}><FileSpreadsheet size={20} aria-hidden="true" /><div><strong>{file.name}</strong><span>{(file.size / 1024).toFixed(1)} KiB · {fileStatus}</span></div><Button variant="ghost" size="icon-sm" aria-label="Remove selected file" onClick={() => { setMultipleFiles(false); void session.select(null) }}><X /></Button></div>}
-    {!online && <p role="status" className="replay-notice">{backend.state === 'checking' ? 'Checking backend connection.' : 'Backend offline.'} Backend connection is required to validate and analyze. Local selection, preparation and demo remain available.</p>}
+    {!online && <p role="status" className="replay-notice">{backendNotice} Backend connection is required to validate and analyze. Local selection, preparation and demo remain available.</p>}
     {needsPreparation && !preparedFile && <section className="replay-preparation" aria-label="Local CSV preparation"><h3>Source format recognized · {sourceProfile === 'standard_80' ? 'Standard 80 columns' : 'Extended 84 columns'}</h3>
       <p>Preparation occurs locally. Remove only: <strong>{removed.join(', ')}</strong>.</p><p>Only the resulting 78-feature CSV will be uploaded. Removed metadata stays in your browser. Retained model features remain in the upload; this is not complete anonymization.</p>
       <Button disabled={busy} onClick={() => { demo.reset(); void session.prepare() }}>Prepare locally</Button>

@@ -25,9 +25,9 @@ result.predictions[0]={...result.predictions[0],prediction_label:'Bot',predictio
 result.benign_prediction_count=1;result.intrusion_prediction_count=1;result.prediction_class_counts.Benign=1;result.prediction_class_counts.Bot=1
 const noop=()=>{}
 const { CSV_SCHEMA } = await import('../src/lib/csv-schema.generated.ts')
-function render(component,state={phase:'complete',result,selected:null},demo=false,mock=false,events=[]){
+function render(component,state={phase:'complete',result,selected:null},demo=false,mock=false,events=[],backend={state:'offline',status:null,reason:'network'}){
   return renderToStaticMarkup(React.createElement(MemoryRouter,null,React.createElement(LazyMotion,{features:domAnimation},
-    React.createElement(BackendContext.Provider,{value:{state:'offline',status:null,reason:'network'}},
+    React.createElement(BackendContext.Provider,{value:backend},
       React.createElement(DemoContext.Provider,{value:{enabled:demo,events,mode:demo?'running':'idle',points:[],step:0,flowCount:0,reset:noop}},
         React.createElement(ReplayContext.Provider,{value:{state,session:{inspect:noop,select:noop},presentation:mock?'mock':undefined}},component))))))
 }
@@ -198,4 +198,10 @@ test('the demo event log labels a missing time without time markup or an IST lab
   const html=render(React.createElement(EventsPanel),undefined,true,false,[event]);
   assert.match(html,/<span>Time unavailable<\/span><small>DEMO<\/small>/);
   assert.doesNotMatch(html,/<time|IST · DEMO/);
+});
+
+test('the CSV workspace distinguishes a configuration error from an unreachable backend',()=>{
+  const html=render(React.createElement(TrafficFileInput),{phase:'idle'},false,false,[],{state:'offline',status:null,reason:'configuration'});
+  assert.match(html,/Backend address is invalid/);
+  assert.doesNotMatch(html,/Backend offline/);
 });
