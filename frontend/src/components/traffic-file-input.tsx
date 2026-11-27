@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button'
 import { useDemo } from '@/lib/demo-context'
 import { useReplay } from '@/lib/replay-context'
 import { useBackend } from '@/lib/api/context'
+import { replayMessages } from '@/lib/api/replay'
 import { ProcessingScanner } from '@/components/processing-scanner'
 import { CSV_SCHEMA } from '@/lib/csv-schema.generated'
 
 export function TrafficFileInput() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
+  const [multipleFiles, setMultipleFiles] = useState(false)
   const demo = useDemo()
   const { state, session } = useReplay()
   const backend = useBackend()
@@ -27,8 +29,10 @@ export function TrafficFileInput() {
   const online = backend.state === 'connected'
   const choose = (files: FileList | null) => {
     if (!files?.length) return
+    setMultipleFiles(files.length > 1)
+    if (files.length > 1) return
     demo.reset()
-    session.select(files.length === 1 ? files[0] : null, files.length !== 1 ? 'MULTIPLE_FILES' : undefined)
+    void session.select(files[0])
   }
   const onChange = (event: ChangeEvent<HTMLInputElement>) => { choose(event.target.files); event.target.value = '' }
   const onDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -48,7 +52,7 @@ export function TrafficFileInput() {
       <Button variant="outline" onClick={() => inputRef.current?.click()}><FolderOpen size={14} />{file ? 'Replace file' : 'Browse files'}</Button>
       <span className="dropzone-note">80/84-column sources require explicit local preparation · No PCAP or arbitrary CICFlowMeter CSV</span>
     </div>
-    {file && <div className={`selected-file-row file-${fileTone}`}><FileSpreadsheet size={20} aria-hidden="true" /><div><strong>{file.name}</strong><span>{(file.size / 1024).toFixed(1)} KiB · {fileStatus}</span></div><Button variant="ghost" size="icon-sm" aria-label="Remove selected file" onClick={() => session.select(null)}><X /></Button></div>}
+    {file && <div className={`selected-file-row file-${fileTone}`}><FileSpreadsheet size={20} aria-hidden="true" /><div><strong>{file.name}</strong><span>{(file.size / 1024).toFixed(1)} KiB · {fileStatus}</span></div><Button variant="ghost" size="icon-sm" aria-label="Remove selected file" onClick={() => { setMultipleFiles(false); void session.select(null) }}><X /></Button></div>}
     {!online && <p role="status" className="replay-notice">{backend.state === 'checking' ? 'Checking backend connection.' : 'Backend offline.'} Backend connection is required to validate and analyze. Local selection, preparation and demo remain available.</p>}
     {needsPreparation && !preparedFile && <section className="replay-preparation" aria-label="Local CSV preparation"><h3>Source format recognized · {sourceProfile === 'standard_80' ? 'Standard 80 columns' : 'Extended 84 columns'}</h3>
       <p>Preparation occurs locally. Remove only: <strong>{removed.join(', ')}</strong>.</p><p>Only the resulting 78-feature CSV will be uploaded. Removed metadata stays in your browser. Retained model features remain in the upload; this is not complete anonymization.</p>
@@ -61,6 +65,7 @@ export function TrafficFileInput() {
         <div><dt>Source SHA-256 · local only</dt><dd>{preparation.source_sha256}</dd></div><div><dt>Prepared SHA-256</dt><dd>{preparation.prepared_sha256}</dd></div></dl>
       <p>Record order and decoded feature text preserved. No rows removed, units changed, values imputed or transforms applied. Source linkage is calculated locally; the backend authenticates only the prepared upload.</p>
     </section>}
+    {multipleFiles && <p role="alert" className="replay-error">{replayMessages.MULTIPLE_FILES}</p>}
     {error && <p role="alert" className="replay-error"><strong>{error.code}</strong> · {error.message}</p>}
     {validation && <section className="replay-validation" aria-label="Validation metadata"><h3>File validated</h3><dl className="input-contract-grid">
       <div><dt>Flow rows</dt><dd>{validation.flow_row_count}</dd></div><div><dt>Features</dt><dd>{validation.canonical_feature_count}</dd></div>
