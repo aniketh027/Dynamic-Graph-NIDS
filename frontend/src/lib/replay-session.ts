@@ -35,7 +35,12 @@ export class ReplaySession {
   dispose = () => { this.cancel() }
   select = async (file: File | null, selectionError?: string) => {
     this.invalidate()
-    const code = selectionError || (file && (!/\.csv$/i.test(file.name) ? 'INVALID_FILE_TYPE' : file.size > CSV_SCHEMA.limits.source_bytes ? 'FILE_TOO_LARGE' : null))
+    let code = selectionError
+    if (file && !code) {
+      if (!/\.csv$/i.test(file.name)) code = 'INVALID_FILE_TYPE'
+      else if (file.size === 0) code = 'EMPTY_FILE'
+      else if (file.size > CSV_SCHEMA.limits.source_bytes) code = 'FILE_TOO_LARGE'
+    }
     this.update({ ...initial(), file, phase: code ? 'validation_error' : file ? 'file_selected' : 'idle', error: code ? new ReplayError(code) : null })
     if (!file || code) return
     const request = new AbortController(), generation = ++this.generation

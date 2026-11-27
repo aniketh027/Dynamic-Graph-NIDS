@@ -247,3 +247,13 @@ test('offline schema check never uploads; preparation and retry remain local and
   assert.ok(s.getSnapshot().preparedFile); api.checkCsvDescriptor = async () => {}; await s.validate()
   assert.equal(s.getSnapshot().phase, 'validated')
 })
+
+test('selecting a zero-byte CSV reports EMPTY_FILE before invoking the worker', async () => {
+  const session = new ReplaySession('http://localhost', client(), async () => assert.fail('Empty CSV reached the worker'))
+  const empty = new File([], 'empty.csv')
+  await session.select(empty)
+  const state = session.getSnapshot()
+  assert.equal(state.phase, 'validation_error')
+  assert.equal(state.file, empty)
+  assert.equal(state.error?.code, 'EMPTY_FILE')
+})
